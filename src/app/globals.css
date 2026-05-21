@@ -1,0 +1,15 @@
+/* src/app/globals.css */
+
+/* Google Fonts — loaded here as a fallback.
+   Next.js next/font handles the primary loading in layout.tsx.
+   This ensures fonts are available in any context. */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
