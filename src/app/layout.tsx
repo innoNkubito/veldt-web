@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Sans, Playfair_Display } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import EmotionRegistry from "@/components/providers/EmotionRegistry";
+import TokenSync from "@/components/providers/TokenSync";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -17,7 +18,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Veldt — Tour Planner Platform",
+  title: "Veldt — Safari Itinerary Platform",
   description: "Build beautiful itineraries for your clients",
 };
 
@@ -30,7 +31,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
         <body>
-          <EmotionRegistry>{children}</EmotionRegistry>
+          <EmotionRegistry>
+            <TokenSync />
+            {children}
+          </EmotionRegistry>
         </body>
       </html>
     </ClerkProvider>
