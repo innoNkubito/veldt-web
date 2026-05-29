@@ -1,21 +1,40 @@
-import { create } from "zustand";
-import { gql } from "graphql-request";
-import { useClientStore } from "./clientStore";
+import { create } from 'zustand'
+import { gql } from 'graphql-request'
+import { useClientStore } from './clientStore'
 
-// ─── Types ────────────────────────────────────────────────────
-export interface Itinerary {
-  id: string;
-  proposalTitle: string;
-  preparedFor: string | null;
-  travelDates: string | null;
-  status: string;
-  builderMode: string | null;
-  slug: string;
-  createdAt: string;
-  updatedAt: string;
+export interface ItineraryListItem {
+  id: string
+  proposalTitle: string
+  preparedFor: string | null
+  travelDates: string | null
+  status: string
+  builderMode: string | null
+  slug: string
+  createdAt: string
+  updatedAt: string
+  assignedTo: {
+    id: string
+    firstName: string | null
+    lastName: string | null
+  } | null
+  viewCount: number
 }
 
-// ─── Queries ──────────────────────────────────────────────────
+interface ItineraryState {
+  itineraries: ItineraryListItem[]
+  loading: boolean
+  error: string | null
+
+  fetchItineraries: (status?: string) => Promise<void>
+  createItinerary: (input: {
+    proposalTitle: string
+    preparedFor?: string
+    travelDates?: string
+  }) => Promise<ItineraryListItem | null>
+  deleteItinerary: (id: string) => Promise<boolean>
+  duplicateItinerary: (id: string) => Promise<ItineraryListItem | null>
+}
+
 const GET_ITINERARIES = gql`
   query GetItineraries($status: ItineraryStatus) {
     itineraries(status: $status) {
@@ -28,9 +47,15 @@ const GET_ITINERARIES = gql`
       slug
       createdAt
       updatedAt
+      viewCount
+      assignedTo {
+        id
+        firstName
+        lastName
+      }
     }
   }
-`;
+`
 
 const CREATE_ITINERARY = gql`
   mutation CreateItinerary($input: CreateItineraryInput!) {
@@ -42,68 +67,93 @@ const CREATE_ITINERARY = gql`
       builderMode
     }
   }
-`;
+`
 
-// ─── Store ────────────────────────────────────────────────────
-interface ItineraryState {
-  itineraries: Itinerary[];
-  loading: boolean;
-  error: string | null;
+const DELETE_ITINERARY = gql`
+  mutation DeleteItinerary($id: ID!) {
+    deleteItinerary(id: $id)
+  }
+`
 
-  fetchItineraries: (status?: string) => Promise<void>;
-  createItinerary: (input: {
-    proposalTitle: string;
-    preparedFor?: string;
-    travelDates?: string;
-    assignedToId?: string;
-  }) => Promise<Itinerary | null>;
-}
+const DUPLICATE_ITINERARY = gql`
+  mutation DuplicateItinerary($id: ID!) {
+    duplicateItinerary(id: $id) {
+      id
+      proposalTitle
+      status
+      slug
+    }
+  }
+`
 
-export const useItineraryStore = create<ItineraryState>((set) => ({
+export const useItineraryStore = create<ItineraryState>((set, get) => ({
   itineraries: [],
   loading: false,
   error: null,
 
   fetchItineraries: async (status) => {
-    const client = useClientStore.getState().client;
-    if (!client) return;
-
-    set({ loading: true, error: null });
+    const client = useClientStore.getState().client
+    if (!client) return
+    set({ loading: true, error: null })
     try {
-      const data = await client.request<{ itineraries: Itinerary[] }>(
+      const data = await client.request<{ itineraries: ItineraryListItem[] }>(
         GET_ITINERARIES,
-        { status },
-      );
-      set({ itineraries: data.itineraries, loading: false });
+        { status: status ?? null },
+      )
+      set({ itineraries: data.itineraries, loading: false })
     } catch (err: any) {
       set({
-        error:
-          err?.response?.errors?.[0]?.message ?? "Failed to fetch itineraries",
+        error: err?.response?.errors?.[0]?.message ?? 'Failed to fetch',
         loading: false,
-      });
+      })
     }
   },
 
   createItinerary: async (input) => {
-    const client = useClientStore.getState().client;
-    if (!client) return null;
-
+    const client = useClientStore.getState().client
+    if (!client) return null
     try {
-      const data = await client.request<{ createItinerary: Itinerary }>(
+      const data = await client.request<{ createItinerary: ItineraryListItem }>(
         CREATE_ITINERARY,
         { input },
-      );
-      // Prepend new itinerary to the list
+      )
       set((state) => ({
         itineraries: [data.createItinerary, ...state.itineraries],
-      }));
-      return data.createItinerary;
+      }))
+      return data.createItinerary
     } catch (err: any) {
-      set({
-        error:
-          err?.response?.errors?.[0]?.message ?? "Failed to create itinerary",
-      });
-      return null;
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to create' })
+      return null
     }
   },
-}));
+
+  deleteItinerary: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return false
+    try {
+      await client.request(DELETE_ITINERARY, { id })
+      set((state) => ({
+        itineraries: state.itineraries.filter((i) => i.id !== id),
+      }))
+      return true
+    } catch {
+      return false
+    }
+  },
+
+  duplicateItinerary: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    try {
+      const data = await client.request<{
+        duplicateItinerary: ItineraryListItem
+      }>(DUPLICATE_ITINERARY, { id })
+      set((state) => ({
+        itineraries: [data.duplicateItinerary, ...state.itineraries],
+      }))
+      return data.duplicateItinerary
+    } catch {
+      return null
+    }
+  },
+}))
