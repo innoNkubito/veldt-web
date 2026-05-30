@@ -58,6 +58,7 @@ import {
   ViewCountSpan,
   OpenButton,
 } from './page.styled'
+import { Box } from '@mui/material'
 
 
 function StatusBadge({ status }: { status: string }) {
@@ -368,7 +369,7 @@ export default function ItinerariesPage() {
   )
 
   return (
-    <>
+    <Box sx={{ padding: '2rem' }}>
       {/* ── Page header ─────────────────────────────────────── */}
       <PageHeaderRow>
         <div>
@@ -526,6 +527,6 @@ export default function ItinerariesPage() {
           onCreate={handleCreate}
         />
       )}
-    </>
+    </Box>
   )
 }

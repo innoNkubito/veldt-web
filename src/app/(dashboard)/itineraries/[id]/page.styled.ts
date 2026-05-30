@@ -7,6 +7,7 @@ export const PageRoot = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  padding: 2rem;
 `
 
 export const Header = styled.div`
@@ -38,7 +39,9 @@ export const BackLink = styled.button`
   margin-bottom: 12px;
   transition: color 0.12s;
 
-  &:hover { color: ${T.terra}; }
+  &:hover {
+    color: ${T.terra};
+  }
 `
 
 export const TitleRow = styled.div`
@@ -110,7 +113,10 @@ export const HeaderActions = styled.div`
   flex-shrink: 0;
 `
 
-export const ActionButton = styled.button<{ $variant?: 'primary' | 'outline' | 'ghost'; $disabled?: boolean }>`
+export const ActionButton = styled.button<{
+  $variant?: 'primary' | 'outline' | 'ghost'
+  $disabled?: boolean
+}>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -132,13 +138,13 @@ export const ActionButton = styled.button<{ $variant?: 'primary' | 'outline' | '
         &:hover:not(:disabled) { background: #AE6341; }
       `
       : $variant === 'ghost'
-      ? `
+        ? `
         background: transparent;
         color: ${T.sub};
         border: none;
         &:hover { background: ${T.dim}; }
       `
-      : `
+        : `
         background: transparent;
         color: ${T.sub};
         border: 1px solid ${T.border};
@@ -168,13 +174,16 @@ export const Tab = styled.button<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? T.text : T.muted)};
   background: none;
   border: none;
-  border-bottom: 2px solid ${({ $active }) => ($active ? T.terra : 'transparent')};
+  border-bottom: 2px solid
+    ${({ $active }) => ($active ? T.terra : 'transparent')};
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   margin-bottom: -1px;
   transition: color 0.15s;
 
-  &:hover { color: ${T.text}; }
+  &:hover {
+    color: ${T.text};
+  }
 `
 
 // ── Section card ───────────────────────────────────────────────
@@ -250,7 +259,9 @@ export const FieldInput = styled.input`
   box-sizing: border-box;
   transition: border-color 0.15s;
 
-  &:focus { border-color: ${T.terra}; }
+  &:focus {
+    border-color: ${T.terra};
+  }
 `
 
 export const FieldTextarea = styled.textarea`
@@ -268,7 +279,9 @@ export const FieldTextarea = styled.textarea`
   min-height: 80px;
   transition: border-color 0.15s;
 
-  &:focus { border-color: ${T.terra}; }
+  &:focus {
+    border-color: ${T.terra};
+  }
 `
 
 export const FieldSelect = styled.select`
@@ -309,8 +322,11 @@ export const RowCard = styled.div<{ $dragging?: boolean }>`
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: ${({ $dragging }) => ($dragging ? '0 4px 16px rgba(0,0,0,0.10)' : 'none')};
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  box-shadow: ${({ $dragging }) =>
+    $dragging ? '0 4px 16px rgba(0,0,0,0.10)' : 'none'};
 
   &:hover {
     border-color: ${({ $dragging }) => ($dragging ? T.terra : '#D4C8B4')};
@@ -324,7 +340,9 @@ export const RowDragHandle = styled.div`
   font-size: 16px;
   user-select: none;
 
-  &:active { cursor: grabbing; }
+  &:active {
+    cursor: grabbing;
+  }
 `
 
 export const RowContent = styled.div`
@@ -391,7 +409,9 @@ export const IconButton = styled.button<{ $color?: string }>`
   font-size: 12px;
   transition: background 0.12s;
 
-  &:hover { background: ${T.dim}; }
+  &:hover {
+    background: ${T.dim};
+  }
 `
 
 export const AddRowButton = styled.button`
@@ -408,7 +428,10 @@ export const AddRowButton = styled.button`
   font-family: 'DM Sans', sans-serif;
   width: 100%;
   justify-content: center;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
 
   &:hover {
     border-color: ${T.terra};
@@ -432,7 +455,9 @@ export const RowFormGrid = styled.div`
   gap: 12px;
   margin-bottom: 12px;
 
-  @media (max-width: 700px) { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 `
 
 export const RowFormActions = styled.div`
@@ -463,7 +488,9 @@ export const CostsGrid = styled.div`
   gap: 14px;
   margin-bottom: 20px;
 
-  @media (max-width: 700px) { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
 `
 
 export const CostsFullRow = styled.div`
@@ -481,7 +508,9 @@ export const ConfirmRow = styled.label<{ $checked: boolean }>`
   cursor: pointer;
   font-size: 13px;
   color: ${T.text};
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 `
 
 export const ConfirmCheckbox = styled.input`
@@ -506,9 +535,9 @@ export const CenteredState = styled.div`
 `
 
 export const ErrorBanner = styled.div`
-  background: #FEF2F2;
-  color: #DC2626;
-  border: 1px solid #FECACA;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 13px;
@@ -533,7 +562,7 @@ export const ModalCard = styled.div`
   border-radius: 12px;
   padding: 32px 36px;
   border: 1px solid ${T.border};
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 `
 
 export const ModalTitle = styled.div`
