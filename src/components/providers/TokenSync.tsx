@@ -4,30 +4,17 @@ import { useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useClientStore } from "@/stores/clientStore";
 
-// Syncs the Clerk session token into the Zustand client store.
-// Runs on mount and whenever the Clerk auth state changes
-// (sign in, sign out, token refresh).
-// Must be rendered inside ClerkProvider.
+// Hands Clerk's getToken function to the GQL client store.
+// The GQL client calls it fresh on every request via middleware,
+// so tokens are always current after navigation — no stale string caching.
 export default function TokenSync() {
-  const { getToken, isSignedIn, isLoaded } = useAuth();
-  const setToken = useClientStore((s) => s.setToken);
+  const { getToken } = useAuth();
+  const setGetToken = useClientStore((s) => s.setGetToken);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    // Pass a stable wrapper so Clerk can internally refresh when needed.
+    setGetToken(() => getToken());
+  }, [getToken, setGetToken]);
 
-    async function sync() {
-      if (!isSignedIn) {
-        setToken(null);
-        return;
-      }
-      const token = await getToken();
-      console.log("token", token);
-      setToken(token);
-    }
-
-    sync();
-  }, [isLoaded, isSignedIn, getToken, setToken]);
-
-  // Renders nothing — purely a side-effect component
   return null;
 }
