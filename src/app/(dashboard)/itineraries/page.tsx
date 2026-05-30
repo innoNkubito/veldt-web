@@ -70,7 +70,9 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

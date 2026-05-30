@@ -21,7 +21,7 @@ export const Body = styled.div`
 export const Main = styled.main`
   flex: 1;
   overflow-y: auto;
-  padding: 28px 32px 40px;
+  padding: 36px 48px 60px;
   display: flex;
   flex-direction: column;
   gap: 22px;
