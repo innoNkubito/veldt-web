@@ -39,7 +39,7 @@ export interface RowAccommodation {
   id: string
   position: number
   contentPage: { id: string; name: string }
-  room: { id: string; name: string } | null
+  room: { id: string; roomType: string } | null
   areaPage: { id: string; name: string } | null
 }
 
@@ -92,7 +92,7 @@ const GET_ITINERARY = gql`
         accommodations {
           id position
           contentPage { id name }
-          room { id name }
+          room { id roomType }
           areaPage { id name }
         }
       }
@@ -133,7 +133,7 @@ const ADD_ROW = gql`
       accommodations {
         id position
         contentPage { id name }
-        room { id name }
+        room { id roomType }
         areaPage { id name }
       }
     }
@@ -147,7 +147,7 @@ const UPDATE_ROW = gql`
       accommodations {
         id position
         contentPage { id name }
-        room { id name }
+        room { id roomType }
         areaPage { id name }
       }
     }
@@ -188,15 +188,16 @@ interface BuilderState {
   error: string | null
 
   fetchItinerary: (id: string) => Promise<void>
-  updateItinerary: (id: string, input: Partial<{
-    proposalTitle: string
-    preparedFor: string
-    travelDates: string
-    whiteLabel: boolean
-    internalNotes: string
-    status: string
-    assignedToId: string
-  }>) => Promise<void>
+  updateItinerary: (id: string, input: {
+    proposalTitle?: string
+    preparedFor?: string
+    travelDates?: string
+    whiteLabel?: boolean
+    internalNotes?: string
+    status?: string
+    assignedToId?: string
+    mobileAppChoice?: string
+  }) => Promise<void>
   publishItinerary: (id: string) => Promise<string | null>
 
   addRow: (itineraryId: string, input: {

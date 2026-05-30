@@ -329,7 +329,7 @@ function RowsTab() {
                     {row.accommodations.map((acc) => (
                       <S.AccommodationChip key={acc.id}>
                         🏕 {acc.contentPage.name}
-                        {acc.room && <span style={{ color: T.muted }}> · {acc.room.name}</span>}
+                        {acc.room && <span style={{ color: T.muted }}> · {acc.room.roomType}</span>}
                       </S.AccommodationChip>
                     ))}
                   </div>
