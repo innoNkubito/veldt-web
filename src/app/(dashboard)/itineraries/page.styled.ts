@@ -207,6 +207,25 @@ export const EmptyCreateButton = styled.button`
   font-family: "DM Sans", sans-serif;
 `;
 
+/* ── Back link ────────────────────────────────────────────── */
+
+export const BackLink = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: ${T.muted};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 10px;
+  transition: color 0.12s;
+
+  &:hover { color: ${T.terra}; }
+`;
+
 /* ── Page header ──────────────────────────────────────────── */
 
 export const PageHeaderRow = styled.div`

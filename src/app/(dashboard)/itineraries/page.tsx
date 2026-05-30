@@ -31,6 +31,7 @@ import {
   EmptyTitle,
   EmptyText,
   EmptyCreateButton,
+  BackLink,
   PageHeaderRow,
   PageTitle,
   PageSubtitle,
@@ -373,6 +374,9 @@ export default function ItinerariesPage() {
       {/* ── Page header ─────────────────────────────────────── */}
       <PageHeaderRow>
         <div>
+          <BackLink onClick={() => router.push('/dashboard')}>
+            ← Dashboard
+          </BackLink>
           <PageTitle>Itineraries</PageTitle>
           <PageSubtitle>
             {counts.ALL ?? 0} total · {counts.CONFIRMED ?? 0} confirmed ·{' '}
