@@ -23,9 +23,9 @@ interface PublicItinerary {
     accommodations: {
       id: string
       position: number
-      contentPage: { id: string; title: string }
+      contentPage: { id: string; name: string }
       room: { id: string; name: string } | null
-      areaPage: { id: string; title: string } | null
+      areaPage: { id: string; name: string } | null
     }[]
   }[]
   costs: {
@@ -59,9 +59,9 @@ const GET_BY_SLUG = gql`
         id position dateLabel numNights transfersText
         accommodations {
           id position
-          contentPage { id title }
+          contentPage { id name }
           room { id name }
-          areaPage { id title }
+          areaPage { id name }
         }
       }
       costs {
@@ -293,10 +293,10 @@ export default function SharePage() {
                           <S.AccommodationCard key={acc.id}>
                             <S.AccommodationIcon>🏕</S.AccommodationIcon>
                             <div>
-                              <S.AccommodationName>{acc.contentPage.title}</S.AccommodationName>
+                              <S.AccommodationName>{acc.contentPage.name}</S.AccommodationName>
                               {(acc.room || acc.areaPage) && (
                                 <S.AccommodationSub>
-                                  {[acc.room?.name, acc.areaPage?.title]
+                                  {[acc.room?.name, acc.areaPage?.name]
                                     .filter(Boolean)
                                     .join(' · ')}
                                 </S.AccommodationSub>

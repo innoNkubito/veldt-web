@@ -328,7 +328,7 @@ function RowsTab() {
                   <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap' as const }}>
                     {row.accommodations.map((acc) => (
                       <S.AccommodationChip key={acc.id}>
-                        🏕 {acc.contentPage.title}
+                        🏕 {acc.contentPage.name}
                         {acc.room && <span style={{ color: T.muted }}> · {acc.room.name}</span>}
                       </S.AccommodationChip>
                     ))}

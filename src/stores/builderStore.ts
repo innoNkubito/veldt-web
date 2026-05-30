@@ -38,16 +38,16 @@ export interface ItineraryRow {
 export interface RowAccommodation {
   id: string
   position: number
-  contentPage: { id: string; title: string }
+  contentPage: { id: string; name: string }
   room: { id: string; name: string } | null
-  areaPage: { id: string; title: string } | null
+  areaPage: { id: string; name: string } | null
 }
 
 export interface ItineraryInfoPageSlot {
   id: string
   slot: string
   position: number
-  contentPage: { id: string; title: string }
+  contentPage: { id: string; name: string }
 }
 
 export interface ItineraryCosts {
@@ -91,14 +91,14 @@ const GET_ITINERARY = gql`
         id position dateLabel startDate endDate numNights transfersText
         accommodations {
           id position
-          contentPage { id title }
+          contentPage { id name }
           room { id name }
-          areaPage { id title }
+          areaPage { id name }
         }
       }
       infoPageSlots {
         id slot position
-        contentPage { id title }
+        contentPage { id name }
       }
       costs {
         id pricePerPerson numGuests accommodationType currency
@@ -132,9 +132,9 @@ const ADD_ROW = gql`
       id position dateLabel startDate endDate numNights transfersText
       accommodations {
         id position
-        contentPage { id title }
+        contentPage { id name }
         room { id name }
-        areaPage { id title }
+        areaPage { id name }
       }
     }
   }
@@ -146,9 +146,9 @@ const UPDATE_ROW = gql`
       id position dateLabel startDate endDate numNights transfersText
       accommodations {
         id position
-        contentPage { id title }
+        contentPage { id name }
         room { id name }
-        areaPage { id title }
+        areaPage { id name }
       }
     }
   }
