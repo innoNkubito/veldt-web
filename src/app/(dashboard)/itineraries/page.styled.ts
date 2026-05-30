@@ -211,22 +211,23 @@ export const EmptyCreateButton = styled.button`
 
 export const PageHeaderRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  margin-bottom: 20px;
 `;
 
 export const PageTitle = styled.div`
   font-family: var(--font-playfair);
-  font-size: 34px;
+  font-size: 28px;
   font-weight: 500;
   color: ${T.text};
   line-height: 1.1;
 `;
 
 export const PageSubtitle = styled.div`
-  font-size: 13px;
+  font-size: 12.5px;
   color: ${T.muted};
-  margin-top: 5px;
+  margin-top: 6px;
 `;
 
 export const HeaderControls = styled.div`
@@ -285,7 +286,7 @@ export const TabBar = styled.div`
   display: flex;
   border-bottom: 1px solid ${T.border};
   gap: 0;
-  margin-top: -8px;
+  margin-bottom: 20px;
 `;
 
 export const Tab = styled.div<{ $active: boolean }>`
@@ -327,9 +328,9 @@ export const TableHead = styled.div`
   display: grid;
   grid-template-columns: ${tableCols};
   gap: 12px;
-  padding: 0 20px;
+  padding: 0 24px;
   border-bottom: 1px solid ${T.border};
-  background: ${T.card};
+  background: ${T.cardAlt};
 `;
 
 export const TableHeadCell = styled.div<{ $sortable?: boolean }>`
@@ -338,11 +339,12 @@ export const TableHeadCell = styled.div<{ $sortable?: boolean }>`
   color: ${T.muted};
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  padding: 12px 0 10px;
+  padding: 11px 0 10px;
   cursor: ${({ $sortable }) => ($sortable ? "pointer" : "default")};
   user-select: none;
   display: flex;
   align-items: center;
+  &:hover { color: ${({ $sortable }) => ($sortable ? T.sub : T.muted)}; }
 `;
 
 export const SortIndicator = styled.span<{ $active: boolean }>`
@@ -368,19 +370,19 @@ export const TableRow = styled.div<{ $hovered: boolean; $last: boolean }>`
   display: grid;
   grid-template-columns: ${tableCols};
   gap: 12px;
-  padding: 0 20px;
+  padding: 0 24px;
   border-bottom: ${({ $last }) => ($last ? "none" : `1px solid ${T.border}`)};
   align-items: center;
   background: ${({ $hovered }) => ($hovered ? T.dim : "transparent")};
-  transition: background 0.1s;
+  transition: background 0.12s;
   cursor: pointer;
 `;
 
 export const RowNameCell = styled.div`
-  padding: 14px 0;
+  padding: 16px 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 `;
 
 export const RowTitle = styled.div<{ $hovered: boolean }>`
@@ -417,7 +419,7 @@ export const ViewCountSpan = styled.span`
 `;
 
 export const OpenButton = styled.button`
-  padding: 5px 12px;
+  padding: 5px 13px;
   border-radius: 6px;
   border: 1px solid ${T.border};
   background: transparent;
@@ -427,4 +429,11 @@ export const OpenButton = styled.button`
   font-weight: 500;
   font-family: "DM Sans", sans-serif;
   white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+
+  &:hover {
+    background: ${T.terra};
+    border-color: ${T.terra};
+    color: #fff;
+  }
 `;

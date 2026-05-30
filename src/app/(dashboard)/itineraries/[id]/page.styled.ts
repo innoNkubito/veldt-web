@@ -14,7 +14,9 @@ export const Header = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
+  padding-bottom: 24px;
+  margin-bottom: 0;
+  border-bottom: 1px solid ${T.border};
 `
 
 export const HeaderLeft = styled.div`
@@ -33,9 +35,10 @@ export const BackLink = styled.button`
   cursor: pointer;
   padding: 0;
   font-family: 'DM Sans', sans-serif;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  transition: color 0.12s;
 
-  &:hover { color: ${T.sub}; }
+  &:hover { color: ${T.terra}; }
 `
 
 export const TitleRow = styled.div`
@@ -81,12 +84,13 @@ export const StatusBadge = styled.span<{ $bg: string; $color: string }>`
 `
 
 export const HeaderMeta = styled.div`
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 12px;
   color: ${T.muted};
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 `
 
 export const MetaDot = styled.span`
@@ -153,6 +157,7 @@ export const TabBar = styled.div`
   display: flex;
   gap: 2px;
   border-bottom: 1px solid ${T.border};
+  margin-top: 24px;
   margin-bottom: 28px;
 `
 
@@ -179,14 +184,18 @@ export const Card = styled.div`
   border: 1px solid ${T.border};
   border-radius: 10px;
   padding: 24px 28px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 `
 
 export const CardTitle = styled.div`
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: ${T.text};
-  margin-bottom: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid ${T.border};
 `
 
 export const SectionLabel = styled.div`
@@ -296,12 +305,16 @@ export const RowCard = styled.div<{ $dragging?: boolean }>`
   background: ${T.card};
   border: 1px solid ${({ $dragging }) => ($dragging ? T.terra : T.border)};
   border-radius: 10px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-shadow: ${({ $dragging }) => ($dragging ? '0 4px 16px rgba(0,0,0,0.10)' : 'none')};
+
+  &:hover {
+    border-color: ${({ $dragging }) => ($dragging ? T.terra : '#D4C8B4')};
+  }
 `
 
 export const RowDragHandle = styled.div`
@@ -385,7 +398,7 @@ export const AddRowButton = styled.button`
   display: flex;
   align-items: center;
   gap: 7px;
-  padding: 12px 20px;
+  padding: 14px 20px;
   border-radius: 10px;
   border: 1.5px dashed ${T.border};
   background: transparent;
@@ -395,11 +408,12 @@ export const AddRowButton = styled.button`
   font-family: 'DM Sans', sans-serif;
   width: 100%;
   justify-content: center;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 
   &:hover {
     border-color: ${T.terra};
     color: ${T.terra};
+    background: ${T.terraLt};
   }
 `
 
