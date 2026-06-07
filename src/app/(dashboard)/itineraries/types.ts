@@ -1,7 +1,2 @@
-export type StatusTab =
-  | 'ALL'
-  | 'DRAFT'
-  | 'PUBLISHED'
-  | 'CONFIRMED'
-  | 'COMPLETED'
-  | 'ARCHIVED'
+// Re-exported from shared lib — import from '@/lib/itinerary-constants' in new code
+export type { StatusTab } from '@/lib/itinerary-constants'

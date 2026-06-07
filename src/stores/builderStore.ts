@@ -179,6 +179,41 @@ const UPSERT_COSTS = gql`
   }
 `
 
+const GET_CONTENT_PAGES = gql`
+  query GetContentPages($type: ContentPageType) {
+    contentPages(type: $type) {
+      id
+      name
+      rooms { id roomType }
+    }
+  }
+`
+
+const ADD_ACCOMMODATION = gql`
+  mutation AddAccommodation($rowId: ID!, $input: AccommodationInput!) {
+    addAccommodation(rowId: $rowId, input: $input) {
+      id position
+      contentPage { id name }
+      room { id roomType }
+      areaPage { id name }
+    }
+  }
+`
+
+const REMOVE_ACCOMMODATION = gql`
+  mutation RemoveAccommodation($id: ID!) {
+    removeAccommodation(id: $id)
+  }
+`
+
+// ── Property search types ──────────────────────────────────────
+
+export interface PropertyOption {
+  id: string
+  name: string
+  rooms: { id: string; roomType: string }[]
+}
+
 // ── Store ──────────────────────────────────────────────────────
 
 interface BuilderState {
@@ -186,8 +221,11 @@ interface BuilderState {
   loading: boolean
   saving: boolean
   error: string | null
+  properties: PropertyOption[]
+  propertiesLoading: boolean
 
   fetchItinerary: (id: string) => Promise<void>
+  fetchProperties: () => Promise<void>
   updateItinerary: (id: string, input: {
     proposalTitle?: string
     preparedFor?: string
@@ -218,6 +256,14 @@ interface BuilderState {
   reorderRows: (itineraryId: string, rowIds: string[]) => Promise<void>
 
   upsertCosts: (itineraryId: string, input: Partial<ItineraryCosts>) => Promise<void>
+
+  addAccommodation: (rowId: string, input: {
+    contentPageId: string
+    roomId?: string
+    areaPageId?: string
+    position?: number
+  }) => Promise<void>
+  removeAccommodation: (accommodationId: string, rowId: string) => Promise<void>
 }
 
 export const useBuilderStore = create<BuilderState>((set, get) => ({
@@ -225,6 +271,22 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   loading: false,
   saving: false,
   error: null,
+  properties: [],
+  propertiesLoading: false,
+
+  fetchProperties: async () => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    set({ propertiesLoading: true })
+    try {
+      const data = await client.request<{ contentPages: PropertyOption[] }>(
+        GET_CONTENT_PAGES, { type: 'PROPERTY' }
+      )
+      set({ properties: data.contentPages, propertiesLoading: false })
+    } catch {
+      set({ propertiesLoading: false })
+    }
+  },
 
   fetchItinerary: async (id) => {
     const client = useClientStore.getState().client
@@ -362,6 +424,54 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       }))
     } catch (err: any) {
       set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to save costs', saving: false })
+    }
+  },
+
+  addAccommodation: async (rowId, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ addAccommodation: RowAccommodation }>(
+        ADD_ACCOMMODATION, { rowId, input }
+      )
+      set((s) => {
+        if (!s.itinerary) return {}
+        return {
+          itinerary: {
+            ...s.itinerary,
+            rows: s.itinerary.rows.map((r) =>
+              r.id === rowId
+                ? { ...r, accommodations: [...r.accommodations, data.addAccommodation] }
+                : r
+            ),
+          },
+        }
+      })
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add accommodation' })
+    }
+  },
+
+  removeAccommodation: async (accommodationId, rowId) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      await client.request(REMOVE_ACCOMMODATION, { id: accommodationId })
+      set((s) => {
+        if (!s.itinerary) return {}
+        return {
+          itinerary: {
+            ...s.itinerary,
+            rows: s.itinerary.rows.map((r) =>
+              r.id === rowId
+                ? { ...r, accommodations: r.accommodations.filter((a) => a.id !== accommodationId) }
+                : r
+            ),
+          },
+        }
+      })
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove accommodation' })
     }
   },
 }))
