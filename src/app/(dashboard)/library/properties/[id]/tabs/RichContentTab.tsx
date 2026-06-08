@@ -49,14 +49,15 @@ interface TextImageProps {
 function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const inputId = `img-upload-${section.type}`
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
     setUploading(true)
     try {
-      const url = await uploadFile(file, getToken)
-      onChange({ ...section, images: [...section.images, url] })
+      const urls = await Promise.all(files.map((f) => uploadFile(f, getToken)))
+      onChange({ ...section, images: [...section.images, ...urls] })
     } catch {
       // TODO: toast
     } finally {
@@ -81,25 +82,30 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
       </S.FieldGroup>
 
       <S.FieldGroup>
-        <S.FieldLabel>Images</S.FieldLabel>
-        <S.ImageRow>
-          {section.images.map((url, i) => (
-            <S.ImageThumb key={i} $url={url}>
-              <S.ImageRemove type="button" onClick={() => removeImage(i)}>✕</S.ImageRemove>
-            </S.ImageThumb>
-          ))}
-          <S.AddImageBtn htmlFor={`img-upload-${section.type}`}>
-            {uploading ? '…' : '+'}
-          </S.AddImageBtn>
-          <input
-            id={`img-upload-${section.type}`}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            ref={fileRef}
-            onChange={handleUpload}
-          />
-        </S.ImageRow>
+        <S.FieldLabel>Photos</S.FieldLabel>
+        {section.images.length > 0 && (
+          <S.PhotoGrid>
+            {section.images.map((url, i) => (
+              <S.PhotoThumb key={i} $url={url}>
+                <S.PhotoRemove type="button" onClick={() => removeImage(i)}>✕</S.PhotoRemove>
+              </S.PhotoThumb>
+            ))}
+          </S.PhotoGrid>
+        )}
+        <S.PhotoUploadZone htmlFor={inputId}>
+          <S.PhotoUploadBtn>{uploading ? 'Uploading…' : 'Add Photos'}</S.PhotoUploadBtn>
+          <S.PhotoUploadNote>Click here to upload photos.</S.PhotoUploadNote>
+          <S.PhotoUploadNote>File formats include JPG, PNG, WEBP. Max 5 MB each.</S.PhotoUploadNote>
+        </S.PhotoUploadZone>
+        <input
+          id={inputId}
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+          ref={fileRef}
+          onChange={handleUpload}
+        />
       </S.FieldGroup>
 
       <S.FieldGroup>
