@@ -512,24 +512,78 @@ export const AddSectionBtn = styled.button`
 
 // ── Rooms tab ───────────────────────────────────────────────────
 
+export const InfoBanner = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: ${T.tealLt};
+  border: 1px solid ${T.teal};
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: ${T.text};
+  margin-bottom: 20px;
+`
+
+export const InfoIcon = styled.div`
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid ${T.teal};
+  color: ${T.teal};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+`
+
+export const RoomsIntro = styled.div`
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+`
+
+export const RoomsIntroTitle = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${T.text};
+  margin-bottom: 6px;
+`
+
+export const RoomsIntroDesc = styled.div`
+  font-size: 13px;
+  color: ${T.sub};
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid ${T.border};
+`
+
 export const RoomsList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-bottom: 16px;
 `
 
 export const RoomCard = styled.div`
   background: ${T.card};
   border: 1px solid ${T.border};
   border-radius: 10px;
-  padding: 18px 20px;
-`
-
-export const RoomHeader = styled.div`
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
+  gap: 16px;
+`
+
+export const RoomCardLeft = styled.div`
+  flex: 1;
+  min-width: 0;
 `
 
 export const RoomType = styled.div`
@@ -538,13 +592,22 @@ export const RoomType = styled.div`
   color: ${T.text};
 `
 
+export const RoomMeta = styled.div`
+  font-size: 12px;
+  color: ${T.muted};
+  margin-top: 3px;
+  display: flex;
+  gap: 10px;
+`
+
 export const RoomActions = styled.div`
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 `
 
 export const RoomActionBtn = styled.button`
-  padding: 4px 10px;
+  padding: 5px 12px;
   border: 1px solid ${T.border};
   border-radius: 6px;
   background: none;
@@ -552,6 +615,7 @@ export const RoomActionBtn = styled.button`
   color: ${T.sub};
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
   &:hover { border-color: ${T.terra}; color: ${T.terra}; }
 `
 
@@ -559,33 +623,305 @@ export const RoomDeleteBtn = styled(RoomActionBtn)`
   &:hover { border-color: #fca5a5; color: #dc2626; }
 `
 
-export const RoomDesc = styled.div`
-  font-size: 13px;
-  color: ${T.sub};
+export const AddNewRoomBtn = styled.button`
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: ${T.teal};
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.88; }
 `
 
-export const AddRoomCard = styled.div`
-  border: 2px dashed ${T.border};
-  border-radius: 10px;
-  padding: 18px 20px;
+// ── Room modal ──────────────────────────────────────────────────
+
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 20px;
+`
+
+export const RoomModal = styled.div`
+  background: ${T.card};
+  border-radius: 14px;
+  width: 560px;
+  max-width: 100%;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
 `
 
-export const AddRoomTitle = styled.div`
+export const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid ${T.border};
+`
+
+export const ModalTitle = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  color: ${T.text};
+`
+
+export const ModalCloseBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${T.muted};
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px;
+  &:hover { color: ${T.text}; }
+`
+
+export const ModalBody = styled.div`
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+`
+
+export const ModalFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 24px;
+  border-top: 1px solid ${T.border};
+`
+
+export const ModalCancelBtn = styled.button`
+  padding: 8px 18px;
+  background: none;
+  border: 1px solid ${T.border};
+  border-radius: 7px;
+  color: ${T.sub};
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+`
+
+export const ModalSaveBtn = styled.button`
+  padding: 8px 22px;
+  background: ${T.teal};
+  color: #fff;
+  border: none;
+  border-radius: 7px;
   font-size: 13px;
   font-weight: 600;
-  color: ${T.sub};
-  margin-bottom: 4px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  &:hover { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: default; }
 `
 
-export const RoomGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+export const PhotoUploadZone = styled.label`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px dashed ${T.border};
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.12s;
+  &:hover { border-color: ${T.teal}; }
+`
 
-  @media (max-width: 700px) {
-    grid-template-columns: 1fr;
-  }
+export const PhotoUploadBtn = styled.div`
+  padding: 7px 18px;
+  border: 1px solid ${T.border};
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${T.sub};
+  background: ${T.card};
+`
+
+export const PhotoUploadNote = styled.div`
+  font-size: 11px;
+  color: ${T.muted};
+  text-align: center;
+`
+
+export const PhotoGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+`
+
+export const PhotoThumb = styled.div<{ $url: string }>`
+  width: 72px;
+  height: 56px;
+  background: ${({ $url }) => `url(${$url}) center/cover`};
+  border-radius: 6px;
+  border: 1px solid ${T.border};
+  position: relative;
+  flex-shrink: 0;
+`
+
+export const PhotoRemove = styled.button`
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
+export const VideoRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+`
+
+export const AddVideoBtn = styled.button`
+  background: none;
+  border: none;
+  color: ${T.teal};
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: left;
+  &:hover { text-decoration: underline; }
+`
+
+// ── Page Content view ───────────────────────────────────────────
+
+export const PageContentWrap = styled.div`
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  overflow: hidden;
+`
+
+export const PageContentHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid ${T.border};
+  background: ${T.dim};
+`
+
+export const PageContentTitle = styled.div`
+  font-size: 13px;
+  font-weight: 700;
+  color: ${T.sub};
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+`
+
+export const EditContentBtn = styled.button`
+  padding: 5px 14px;
+  border: 1px solid ${T.border};
+  border-radius: 6px;
+  background: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: ${T.sub};
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  &:hover { border-color: ${T.terra}; color: ${T.terra}; }
+`
+
+export const PageContentBody = styled.div`
+  padding: 28px 32px;
+  max-width: 680px;
+`
+
+export const ContentSection = styled.div`
+  margin-bottom: 32px;
+`
+
+export const ContentSectionTitle = styled.div`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 18px;
+  font-style: italic;
+  color: ${T.text};
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid ${T.border};
+`
+
+export const ContentText = styled.p`
+  font-size: 14px;
+  line-height: 1.7;
+  color: ${T.sub};
+  margin: 0 0 14px;
+  white-space: pre-wrap;
+`
+
+export const ContentImageGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+`
+
+export const ContentImage = styled.div<{ $url: string }>`
+  aspect-ratio: 4/3;
+  background: ${({ $url }) => `url(${$url}) center/cover`};
+  border-radius: 6px;
+  border: 1px solid ${T.border};
+`
+
+export const FastFactsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+`
+
+export const FastFactGroup = styled.div``
+
+export const FastFactGroupLabel = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  color: ${T.text};
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+`
+
+export const FastFactItem = styled.div`
+  font-size: 13px;
+  color: ${T.sub};
+  line-height: 1.6;
+  &::before { content: '·'; margin-right: 6px; color: ${T.muted}; }
+`
+
+export const EmptyContent = styled.div`
+  text-align: center;
+  padding: 40px 20px;
+  color: ${T.muted};
+  font-size: 13px;
 `

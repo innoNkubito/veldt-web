@@ -6,7 +6,7 @@ import { useContentLibraryStore } from '@/stores/contentLibraryStore'
 import { useClientStore } from '@/stores/clientStore'
 import { useAuth } from '@clerk/nextjs'
 import DetailsTab from './tabs/DetailsTab'
-import RichContentTab from './tabs/RichContentTab'
+import PageContentTab from './tabs/PageContentTab'
 import RoomsTab from './tabs/RoomsTab'
 import * as S from './page.styled'
 
@@ -14,7 +14,7 @@ type DetailTab = 'details' | 'content' | 'rooms'
 
 const TABS: { key: DetailTab; label: string }[] = [
   { key: 'details', label: 'Details' },
-  { key: 'content', label: 'Rich Content' },
+  { key: 'content', label: 'Page Content' },
   { key: 'rooms', label: 'Rooms' },
 ]
 
@@ -65,7 +65,10 @@ export default function PropertyDetailPage() {
             <>
               <span style={{ fontSize: 12, color: '#dc2626' }}>Are you sure?</span>
               <S.DeleteButton onClick={handleDelete}>Yes, delete</S.DeleteButton>
-              <S.DeleteButton style={{ borderColor: 'var(--border)', color: 'inherit' }} onClick={() => setConfirmDelete(false)}>
+              <S.DeleteButton
+                style={{ borderColor: 'var(--border)', color: 'inherit' }}
+                onClick={() => setConfirmDelete(false)}
+              >
                 Cancel
               </S.DeleteButton>
             </>
@@ -84,7 +87,7 @@ export default function PropertyDetailPage() {
       </S.TabBar>
 
       {activeTab === 'details' && <DetailsTab property={property!} getToken={getToken} />}
-      {activeTab === 'content' && <RichContentTab property={property!} />}
+      {activeTab === 'content' && <PageContentTab property={property!} />}
       {activeTab === 'rooms' && <RoomsTab property={property!} />}
     </S.PageRoot>
   )

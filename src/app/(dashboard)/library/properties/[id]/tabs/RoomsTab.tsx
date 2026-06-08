@@ -1,7 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { useContentLibraryStore, type PropertyFull, type PropertyRoom, type RoomInput } from '@/stores/contentLibraryStore'
+import { useRef, useState } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import {
+  useContentLibraryStore,
+  type PropertyFull,
+  type PropertyRoom,
+  type RoomInput,
+  type PropertyRoomVideo,
+} from '@/stores/contentLibraryStore'
+import { uploadFile } from '@/lib/upload'
 import * as S from '../page.styled'
 
 interface Props {
@@ -11,47 +19,222 @@ interface Props {
 interface RoomFormState {
   roomType: string
   description: string
+  photos: string[]
+  videos: { name: string; url: string }[]
 }
 
-const EMPTY_FORM: RoomFormState = { roomType: '', description: '' }
+const EMPTY_FORM: RoomFormState = {
+  roomType: '',
+  description: '',
+  photos: [],
+  videos: [{ name: '', url: '' }],
+}
+
+function roomToForm(room: PropertyRoom): RoomFormState {
+  return {
+    roomType: room.roomType,
+    description: room.description ?? '',
+    photos: room.photos,
+    videos: room.videos.length > 0 ? room.videos : [{ name: '', url: '' }],
+  }
+}
+
+// ── Room modal ──────────────────────────────────────────────────
+
+interface RoomModalProps {
+  title: string
+  form: RoomFormState
+  saving: boolean
+  onFormChange: (form: RoomFormState) => void
+  onSave: () => void
+  onClose: () => void
+}
+
+function RoomModal({ title, form, saving, onFormChange, onSave, onClose }: RoomModalProps) {
+  const { getToken } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
+  function setF<K extends keyof RoomFormState>(key: K, value: RoomFormState[K]) {
+    onFormChange({ ...form, [key]: value })
+  }
+
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+    setUploading(true)
+    try {
+      const urls = await Promise.all(files.map((f) => uploadFile(f, getToken)))
+      setF('photos', [...form.photos, ...urls])
+    } catch {
+      // TODO: toast
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  function removePhoto(idx: number) {
+    setF('photos', form.photos.filter((_, i) => i !== idx))
+  }
+
+  function updateVideo(idx: number, patch: Partial<{ name: string; url: string }>) {
+    setF('videos', form.videos.map((v, i) => (i === idx ? { ...v, ...patch } : v)))
+  }
+
+  function addVideo() {
+    setF('videos', [...form.videos, { name: '', url: '' }])
+  }
+
+  function removeVideo(idx: number) {
+    const updated = form.videos.filter((_, i) => i !== idx)
+    setF('videos', updated.length ? updated : [{ name: '', url: '' }])
+  }
+
+  return (
+    <S.ModalOverlay onClick={onClose}>
+      <S.RoomModal onClick={(e) => e.stopPropagation()}>
+        <S.ModalHeader>
+          <S.ModalTitle>{title}</S.ModalTitle>
+          <S.ModalCloseBtn onClick={onClose}>✕</S.ModalCloseBtn>
+        </S.ModalHeader>
+
+        <S.ModalBody>
+          {/* Room type */}
+          <S.FieldGroup>
+            <S.FieldLabel>
+              Room Type <span style={{ color: '#dc2626' }}>*</span>{' '}
+              <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(e.g. Standard Tent)</span>
+            </S.FieldLabel>
+            <S.FieldInput
+              autoFocus
+              value={form.roomType}
+              onChange={(e) => setF('roomType', e.target.value)}
+              placeholder="Room Type"
+            />
+          </S.FieldGroup>
+
+          {/* Description */}
+          <S.FieldTextarea
+            value={form.description}
+            onChange={(e) => setF('description', e.target.value)}
+            placeholder="Room Description…"
+            rows={4}
+          />
+
+          {/* Photos */}
+          <div>
+            <S.FieldLabel>Photos</S.FieldLabel>
+            {form.photos.length > 0 && (
+              <S.PhotoGrid>
+                {form.photos.map((url, i) => (
+                  <S.PhotoThumb key={i} $url={url}>
+                    <S.PhotoRemove type="button" onClick={() => removePhoto(i)}>✕</S.PhotoRemove>
+                  </S.PhotoThumb>
+                ))}
+              </S.PhotoGrid>
+            )}
+            <S.PhotoUploadZone htmlFor="room-photo-upload">
+              <S.PhotoUploadBtn>{uploading ? 'Uploading…' : 'Add Photos'}</S.PhotoUploadBtn>
+              <S.PhotoUploadNote>Click here to upload photos.</S.PhotoUploadNote>
+              <S.PhotoUploadNote>File formats include JPG, PNG, WEBP. Max 5 MB each.</S.PhotoUploadNote>
+            </S.PhotoUploadZone>
+            <input
+              id="room-photo-upload"
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              ref={fileRef}
+              onChange={handlePhotoUpload}
+            />
+          </div>
+
+          {/* Videos */}
+          <div>
+            <S.FieldLabel>
+              Videos{' '}
+              <span style={{ fontWeight: 400, color: 'var(--muted)' }}>
+                (Enter YouTube, Vimeo or Wistia Link)
+              </span>
+            </S.FieldLabel>
+            {form.videos.map((video, i) => (
+              <S.VideoRow key={i} style={{ marginBottom: 8 }}>
+                <S.FieldInput
+                  value={video.name}
+                  onChange={(e) => updateVideo(i, { name: e.target.value })}
+                  placeholder="Video Name"
+                />
+                <S.FieldInput
+                  value={video.url}
+                  onChange={(e) => updateVideo(i, { url: e.target.value })}
+                  placeholder="Enter YouTube, Vimeo or Wistia Link"
+                />
+                <S.DangerIconBtn
+                  type="button"
+                  onClick={() => removeVideo(i)}
+                  title="Remove video"
+                  style={{ fontSize: 18 }}
+                >
+                  ✕
+                </S.DangerIconBtn>
+              </S.VideoRow>
+            ))}
+            <S.AddVideoBtn type="button" onClick={addVideo}>⊕ Add another video</S.AddVideoBtn>
+          </div>
+        </S.ModalBody>
+
+        <S.ModalFooter>
+          <S.ModalCancelBtn onClick={onClose}>Cancel</S.ModalCancelBtn>
+          <S.ModalSaveBtn onClick={onSave} disabled={saving || !form.roomType.trim()}>
+            {saving ? 'Saving…' : 'Save'}
+          </S.ModalSaveBtn>
+        </S.ModalFooter>
+      </S.RoomModal>
+    </S.ModalOverlay>
+  )
+}
+
+// ── Main tab ────────────────────────────────────────────────────
 
 export default function RoomsTab({ property }: Props) {
   const { saving, addRoom, updateRoom, deleteRoom } = useContentLibraryStore()
 
+  const [showAdd, setShowAdd] = useState(false)
   const [addForm, setAddForm] = useState<RoomFormState>(EMPTY_FORM)
+
   const [editId, setEditId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState<RoomFormState>(EMPTY_FORM)
+
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
-  function startEdit(room: PropertyRoom) {
+  function openEdit(room: PropertyRoom) {
     setEditId(room.id)
-    setEditForm({ roomType: room.roomType, description: room.description ?? '' })
+    setEditForm(roomToForm(room))
   }
 
-  function cancelEdit() {
-    setEditId(null)
-    setEditForm(EMPTY_FORM)
+  function formToInput(form: RoomFormState, position?: number): RoomInput {
+    const cleanVideos = form.videos.filter((v) => v.url.trim())
+    return {
+      roomType: form.roomType.trim(),
+      description: form.description.trim() || undefined,
+      photos: form.photos,
+      videos: cleanVideos.length ? cleanVideos : undefined,
+      position,
+    }
   }
 
   async function handleAdd() {
-    if (!addForm.roomType.trim()) return
-    const input: RoomInput = {
-      roomType: addForm.roomType.trim(),
-      description: addForm.description.trim() || undefined,
-      position: property.rooms.length + 1,
-    }
-    await addRoom(property.id, input)
+    await addRoom(property.id, formToInput(addForm, property.rooms.length + 1))
+    setShowAdd(false)
     setAddForm(EMPTY_FORM)
   }
 
-  async function handleUpdate() {
-    if (!editId || !editForm.roomType.trim()) return
-    const input: RoomInput = {
-      roomType: editForm.roomType.trim(),
-      description: editForm.description.trim() || undefined,
-    }
-    await updateRoom(editId, input)
-    cancelEdit()
+  async function handleEdit() {
+    if (!editId) return
+    await updateRoom(editId, formToInput(editForm))
+    setEditId(null)
+    setEditForm(EMPTY_FORM)
   }
 
   async function handleDelete(id: string) {
@@ -62,42 +245,39 @@ export default function RoomsTab({ property }: Props) {
   const sorted = [...property.rooms].sort((a, b) => a.position - b.position)
 
   return (
-    <div>
-      <S.RoomsList>
-        {sorted.map((room) =>
-          editId === room.id ? (
-            <S.RoomCard key={room.id}>
-              <S.AddRoomTitle>Edit room</S.AddRoomTitle>
-              <S.RoomGrid>
-                <S.FieldGroup>
-                  <S.FieldLabel>Room Type</S.FieldLabel>
-                  <S.FieldInput
-                    autoFocus
-                    value={editForm.roomType}
-                    onChange={(e) => setEditForm((f) => ({ ...f, roomType: e.target.value }))}
-                    placeholder="e.g. Luxury Tent, Villa Suite"
-                  />
-                </S.FieldGroup>
-                <S.FieldGroup>
-                  <S.FieldLabel>Description</S.FieldLabel>
-                  <S.FieldInput
-                    value={editForm.description}
-                    onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
-                    placeholder="Short description (optional)"
-                  />
-                </S.FieldGroup>
-              </S.RoomGrid>
-              <S.RoomActions style={{ marginTop: 10 }}>
-                <S.RoomActionBtn onClick={cancelEdit}>Cancel</S.RoomActionBtn>
-                <S.SaveButton onClick={handleUpdate} disabled={saving || !editForm.roomType.trim()}>
-                  {saving ? 'Saving…' : 'Save'}
-                </S.SaveButton>
-              </S.RoomActions>
-            </S.RoomCard>
-          ) : (
-            <S.RoomCard key={room.id}>
-              <S.RoomHeader>
-                <S.RoomType>{room.roomType}</S.RoomType>
+    <>
+      <S.InfoBanner>
+        <S.InfoIcon>i</S.InfoIcon>
+        You can skip this tab altogether or only fill in the room type that is relevant to your booking.
+      </S.InfoBanner>
+
+      <S.RoomsIntro>
+        <S.RoomsIntroTitle>Rooms</S.RoomsIntroTitle>
+        <S.RoomsIntroDesc>
+          Add rooms for this property by rate category. These should be the room types that can
+          be confirmed on booking.
+        </S.RoomsIntroDesc>
+
+        {sorted.length > 0 && (
+          <S.RoomsList>
+            {sorted.map((room) => (
+              <S.RoomCard key={room.id}>
+                <S.RoomCardLeft>
+                  <S.RoomType>{room.roomType}</S.RoomType>
+                  <S.RoomMeta>
+                    {room.photos.length > 0 && (
+                      <span>{room.photos.length} photo{room.photos.length !== 1 ? 's' : ''}</span>
+                    )}
+                    {room.videos.length > 0 && (
+                      <span>{room.videos.length} video{room.videos.length !== 1 ? 's' : ''}</span>
+                    )}
+                    {room.description && (
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
+                        {room.description}
+                      </span>
+                    )}
+                  </S.RoomMeta>
+                </S.RoomCardLeft>
                 <S.RoomActions>
                   {confirmDeleteId === room.id ? (
                     <>
@@ -107,46 +287,42 @@ export default function RoomsTab({ property }: Props) {
                     </>
                   ) : (
                     <>
-                      <S.RoomActionBtn onClick={() => startEdit(room)}>Edit</S.RoomActionBtn>
+                      <S.RoomActionBtn onClick={() => openEdit(room)}>Edit</S.RoomActionBtn>
                       <S.RoomDeleteBtn onClick={() => setConfirmDeleteId(room.id)}>Delete</S.RoomDeleteBtn>
                     </>
                   )}
                 </S.RoomActions>
-              </S.RoomHeader>
-              {room.description && <S.RoomDesc>{room.description}</S.RoomDesc>}
-            </S.RoomCard>
-          ),
+              </S.RoomCard>
+            ))}
+          </S.RoomsList>
         )}
 
-        {/* Add new room form */}
-        <S.AddRoomCard>
-          <S.AddRoomTitle>Add a room type</S.AddRoomTitle>
-          <S.RoomGrid>
-            <S.FieldGroup>
-              <S.FieldLabel>Room Type *</S.FieldLabel>
-              <S.FieldInput
-                value={addForm.roomType}
-                onChange={(e) => setAddForm((f) => ({ ...f, roomType: e.target.value }))}
-                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-                placeholder="e.g. Luxury Tent, Bush Suite"
-              />
-            </S.FieldGroup>
-            <S.FieldGroup>
-              <S.FieldLabel>Description</S.FieldLabel>
-              <S.FieldInput
-                value={addForm.description}
-                onChange={(e) => setAddForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Optional short description"
-              />
-            </S.FieldGroup>
-          </S.RoomGrid>
-          <div style={{ marginTop: 10 }}>
-            <S.SaveButton onClick={handleAdd} disabled={saving || !addForm.roomType.trim()}>
-              {saving ? 'Adding…' : '+ Add Room'}
-            </S.SaveButton>
-          </div>
-        </S.AddRoomCard>
-      </S.RoomsList>
-    </div>
+        <S.AddNewRoomBtn onClick={() => { setAddForm(EMPTY_FORM); setShowAdd(true) }}>
+          Add New Room
+        </S.AddNewRoomBtn>
+      </S.RoomsIntro>
+
+      {showAdd && (
+        <RoomModal
+          title="Add Room"
+          form={addForm}
+          saving={saving}
+          onFormChange={setAddForm}
+          onSave={handleAdd}
+          onClose={() => { setShowAdd(false); setAddForm(EMPTY_FORM) }}
+        />
+      )}
+
+      {editId && (
+        <RoomModal
+          title="Edit Room"
+          form={editForm}
+          saving={saving}
+          onFormChange={setEditForm}
+          onSave={handleEdit}
+          onClose={() => { setEditId(null); setEditForm(EMPTY_FORM) }}
+        />
+      )}
+    </>
   )
 }

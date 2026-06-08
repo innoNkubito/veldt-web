@@ -17,6 +17,7 @@ import * as S from '../page.styled'
 
 interface Props {
   property: PropertyFull
+  onSaved?: () => void
 }
 
 // ── helpers ────────────────────────────────────────────────────
@@ -186,7 +187,7 @@ function FastFactsEditor({ section, onChange }: FastFactsProps) {
 
 // ── Main component ──────────────────────────────────────────────
 
-export default function RichContentTab({ property }: Props) {
+export default function RichContentTab({ property, onSaved }: Props) {
   const { saving, updateProperty } = useContentLibraryStore()
   const { getToken } = useAuth()
 
@@ -231,6 +232,7 @@ export default function RichContentTab({ property }: Props) {
   async function handleSave() {
     await updateProperty(property.id, { pageContent: content })
     setDirty(false)
+    onSaved?.()
   }
 
   return (

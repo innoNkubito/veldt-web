@@ -9,11 +9,17 @@ export interface AreaOption {
   name: string
 }
 
+export interface PropertyRoomVideo {
+  name: string
+  url: string
+}
+
 export interface PropertyRoom {
   id: string
   roomType: string
   description: string | null
   photos: string[]
+  videos: PropertyRoomVideo[]
   position: number
 }
 
@@ -81,6 +87,7 @@ const GET_PROPERTY = gql`
         roomType
         description
         photos
+        videos { name url }
         position
       }
     }
@@ -142,6 +149,7 @@ const ADD_ROOM = gql`
       roomType
       description
       photos
+      videos { name url }
       position
     }
   }
@@ -154,6 +162,7 @@ const UPDATE_ROOM = gql`
       roomType
       description
       photos
+      videos { name url }
       position
     }
   }
@@ -203,6 +212,7 @@ export interface RoomInput {
   roomType: string
   description?: string | null
   photos?: string[]
+  videos?: { name: string; url: string }[]
   position?: number
 }
 
