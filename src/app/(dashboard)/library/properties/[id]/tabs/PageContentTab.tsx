@@ -6,12 +6,22 @@ import {
   type PropertyPageContent,
   type TextImageSection,
   type FastFactsSection,
+  type AccommodationSection,
+  defaultTemplate,
 } from './pageContent.types'
 import RichContentTab from './RichContentTab'
 import * as S from '../page.styled'
 
 interface Props {
   property: PropertyFull
+}
+
+function hasContent(raw: unknown): boolean {
+  if (raw && typeof raw === 'object' && 'sections' in raw) {
+    const pc = raw as PropertyPageContent
+    return Array.isArray(pc.sections) && pc.sections.length > 0
+  }
+  return false
 }
 
 function parseContent(raw: unknown): PropertyPageContent | null {
@@ -26,6 +36,7 @@ function sectionTitle(type: string) {
   switch (type) {
     case 'overview': return 'Property Overview'
     case 'experience': return 'Experience & Activities'
+    case 'accommodation': return 'Accommodation'
     case 'fastFacts': return 'Fast Facts'
     default: return type.charAt(0).toUpperCase() + type.slice(1)
   }
@@ -46,6 +57,45 @@ function TextImageView({ section }: { section: TextImageSection }) {
         </S.ContentImageGrid>
       )}
       {section.text2 && <S.ContentText>{section.text2}</S.ContentText>}
+    </S.ContentSection>
+  )
+}
+
+function AccommodationView({
+  section,
+  property,
+}: {
+  section: AccommodationSection
+  property: PropertyFull
+}) {
+  return (
+    <S.ContentSection>
+      <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
+      {section.intro && <S.ContentText>{section.intro}</S.ContentText>}
+      {property.rooms.length === 0 ? (
+        <S.EmptyContent style={{ textAlign: 'left', padding: '12px 0' }}>
+          No rooms added yet. Add rooms in the Rooms tab.
+        </S.EmptyContent>
+      ) : (
+        <S.AccommodationGrid>
+          {property.rooms.map((room) => (
+            <S.AccommodationCard key={room.id}>
+              {room.photos.length > 0 && (
+                <S.AccommodationPhoto $url={room.photos[0]} />
+              )}
+              <S.AccommodationCardBody>
+                <S.AccommodationRoomName>{room.roomType}</S.AccommodationRoomName>
+                {room.description && (
+                  <S.AccommodationRoomDesc>{room.description}</S.AccommodationRoomDesc>
+                )}
+                {room.photos.length > 1 && (
+                  <S.AccommodationPhotoCount>+{room.photos.length - 1} photo{room.photos.length - 1 !== 1 ? 's' : ''}</S.AccommodationPhotoCount>
+                )}
+              </S.AccommodationCardBody>
+            </S.AccommodationCard>
+          ))}
+        </S.AccommodationGrid>
+      )}
     </S.ContentSection>
   )
 }
@@ -71,14 +121,17 @@ function FastFactsView({ section }: { section: FastFactsSection }) {
 // ── Main component ──────────────────────────────────────────────
 
 export default function PageContentTab({ property }: Props) {
-  const [editing, setEditing] = useState(false)
+  // If no content yet, start in edit mode with default template pre-loaded
+  const [editing, setEditing] = useState(() => !hasContent(property.pageContent))
   const content = parseContent(property.pageContent)
 
   if (editing) {
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          <S.EditContentBtn onClick={() => setEditing(false)}>← Back to view</S.EditContentBtn>
+          {content && (
+            <S.EditContentBtn onClick={() => setEditing(false)}>← Back to view</S.EditContentBtn>
+          )}
         </div>
         <RichContentTab property={property} onSaved={() => setEditing(false)} />
       </div>
@@ -88,7 +141,7 @@ export default function PageContentTab({ property }: Props) {
   return (
     <S.PageContentWrap>
       <S.PageContentHeader>
-        <S.PageContentTitle>Page Content</S.PageContentTitle>
+        <S.PageContentTitle>New Page</S.PageContentTitle>
         <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
       </S.PageContentHeader>
 
@@ -104,13 +157,15 @@ export default function PageContentTab({ property }: Props) {
             </button>
           </S.EmptyContent>
         ) : (
-          content.sections.map((section, i) =>
-            section.type === 'fastFacts' ? (
-              <FastFactsView key={i} section={section as FastFactsSection} />
-            ) : (
-              <TextImageView key={i} section={section as TextImageSection} />
-            ),
-          )
+          content.sections.map((section, i) => {
+            if (section.type === 'fastFacts') {
+              return <FastFactsView key={i} section={section as FastFactsSection} />
+            }
+            if (section.type === 'accommodation') {
+              return <AccommodationView key={i} section={section as AccommodationSection} property={property} />
+            }
+            return <TextImageView key={i} section={section as TextImageSection} />
+          })
         )}
       </S.PageContentBody>
     </S.PageContentWrap>

@@ -10,12 +10,12 @@ import PageContentTab from './tabs/PageContentTab'
 import RoomsTab from './tabs/RoomsTab'
 import * as S from './page.styled'
 
-type DetailTab = 'details' | 'content' | 'rooms'
+type DetailTab = 'details' | 'rooms' | 'content'
 
 const TABS: { key: DetailTab; label: string }[] = [
   { key: 'details', label: 'Details' },
-  { key: 'content', label: 'Page Content' },
   { key: 'rooms', label: 'Rooms' },
+  { key: 'content', label: 'New Page' },
 ]
 
 export default function PropertyDetailPage() {
@@ -81,7 +81,7 @@ export default function PropertyDetailPage() {
       <S.TabBar>
         {TABS.map(({ key, label }) => (
           <S.Tab key={key} $active={activeTab === key} onClick={() => setActiveTab(key)}>
-            {key === 'rooms' ? `${label} (${property!.rooms.length})` : label}
+            {key === 'rooms' ? `Rooms (${property!.rooms.length})` : label}
           </S.Tab>
         ))}
       </S.TabBar>

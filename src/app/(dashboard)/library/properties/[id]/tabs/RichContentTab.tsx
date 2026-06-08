@@ -9,9 +9,11 @@ import {
   type PropertySection,
   type TextImageSection,
   type FastFactsSection,
+  type AccommodationSection,
   type SectionType,
   SECTION_TYPES,
   emptySection,
+  defaultTemplate,
 } from './pageContent.types'
 import * as S from '../page.styled'
 
@@ -26,11 +28,14 @@ function sectionLabel(type: string) {
   return SECTION_TYPES.find((s) => s.value === type)?.label ?? type
 }
 
-function parseContent(raw: unknown): PropertyPageContent {
+function parseContent(property: PropertyFull): PropertyPageContent {
+  const raw = property.pageContent
   if (raw && typeof raw === 'object' && 'sections' in raw) {
-    return raw as PropertyPageContent
+    const pc = raw as PropertyPageContent
+    if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
   }
-  return { sections: [] }
+  // No saved content — return default template pre-filled with this property's rooms
+  return defaultTemplate(property.rooms)
 }
 
 // ── sub-editors ────────────────────────────────────────────────
@@ -185,6 +190,55 @@ function FastFactsEditor({ section, onChange }: FastFactsProps) {
   )
 }
 
+interface AccommodationProps {
+  section: AccommodationSection
+  onChange: (updated: AccommodationSection) => void
+  property: PropertyFull
+}
+
+function AccommodationEditor({ section, onChange, property }: AccommodationProps) {
+  return (
+    <>
+      <S.FieldGroup>
+        <S.FieldLabel>Intro text (optional)</S.FieldLabel>
+        <S.FieldTextarea
+          value={section.intro}
+          onChange={(e) => onChange({ ...section, intro: e.target.value })}
+          placeholder="Brief introduction to your accommodation options…"
+        />
+      </S.FieldGroup>
+
+      <S.FieldGroup>
+        <S.FieldLabel>Rooms</S.FieldLabel>
+        {property.rooms.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>
+            No rooms added yet. Add rooms in the Rooms tab — they'll appear here automatically.
+          </div>
+        ) : (
+          <S.AccommodationRoomList>
+            {property.rooms.map((room) => (
+              <S.AccommodationRoomRow key={room.id}>
+                {room.photos[0] && <S.AccommodationRoomThumb $url={room.photos[0]} />}
+                <div>
+                  <S.AccommodationRoomName style={{ fontSize: 13 }}>{room.roomType}</S.AccommodationRoomName>
+                  {room.description && (
+                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+                      {room.description.slice(0, 80)}{room.description.length > 80 ? '…' : ''}
+                    </div>
+                  )}
+                </div>
+              </S.AccommodationRoomRow>
+            ))}
+          </S.AccommodationRoomList>
+        )}
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
+          Room details are managed in the Rooms tab.
+        </div>
+      </S.FieldGroup>
+    </>
+  )
+}
+
 // ── Main component ──────────────────────────────────────────────
 
 export default function RichContentTab({ property, onSaved }: Props) {
@@ -192,14 +246,14 @@ export default function RichContentTab({ property, onSaved }: Props) {
   const { getToken } = useAuth()
 
   const [content, setContent] = useState<PropertyPageContent>(() =>
-    parseContent(property.pageContent),
+    parseContent(property),
   )
   const [dirty, setDirty] = useState(false)
   const [newSectionType, setNewSectionType] = useState<SectionType>('overview')
 
   // Reset when switching properties
   useEffect(() => {
-    setContent(parseContent(property.pageContent))
+    setContent(parseContent(property))
     setDirty(false)
   }, [property.id])
 
@@ -273,6 +327,12 @@ export default function RichContentTab({ property, onSaved }: Props) {
                   section={section}
                   onChange={(updated) => updateSection(idx, updated)}
                 />
+              ) : section.type === 'accommodation' ? (
+                <AccommodationEditor
+                  section={section}
+                  onChange={(updated) => updateSection(idx, updated)}
+                  property={property}
+                />
               ) : (
                 <TextImageEditor
                   section={section as TextImageSection}
@@ -299,13 +359,11 @@ export default function RichContentTab({ property, onSaved }: Props) {
         </S.AddSectionBtn>
       </S.AddSectionBar>
 
-      {dirty && (
-        <S.SaveRow>
-          <S.SaveButton onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Content'}
-          </S.SaveButton>
-        </S.SaveRow>
-      )}
+      <S.SaveRow>
+        <S.SaveButton onClick={handleSave} disabled={saving || !dirty}>
+          {saving ? 'Saving…' : dirty ? 'Save Page' : 'Saved'}
+        </S.SaveButton>
+      </S.SaveRow>
     </div>
   )
 }

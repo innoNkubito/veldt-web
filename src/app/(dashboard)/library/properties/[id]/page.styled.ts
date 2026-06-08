@@ -925,3 +925,76 @@ export const EmptyContent = styled.div`
   color: ${T.muted};
   font-size: 13px;
 `
+
+// ── Accommodation section (view) ────────────────────────────────
+
+export const AccommodationGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 4px;
+`
+
+export const AccommodationCard = styled.div`
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  overflow: hidden;
+  background: ${T.card};
+`
+
+export const AccommodationPhoto = styled.div<{ $url: string }>`
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: ${({ $url }) => `url(${$url}) center/cover`};
+`
+
+export const AccommodationCardBody = styled.div`
+  padding: 12px 14px;
+`
+
+export const AccommodationRoomName = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${T.text};
+`
+
+export const AccommodationRoomDesc = styled.div`
+  font-size: 12px;
+  color: ${T.sub};
+  line-height: 1.5;
+  margin-top: 4px;
+`
+
+export const AccommodationPhotoCount = styled.div`
+  font-size: 11px;
+  color: ${T.muted};
+  margin-top: 6px;
+`
+
+// ── Accommodation section (editor) ──────────────────────────────
+
+export const AccommodationRoomList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+`
+
+export const AccommodationRoomRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid ${T.border};
+  border-radius: 8px;
+  background: ${T.bg};
+`
+
+export const AccommodationRoomThumb = styled.div<{ $url: string }>`
+  width: 44px;
+  height: 36px;
+  border-radius: 5px;
+  background: ${({ $url }) => `url(${$url}) center/cover`};
+  flex-shrink: 0;
+  border: 1px solid ${T.border};
+`
