@@ -1,25 +1,9 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-import TopNav from "@/components/layout/TopNav";
-import Sidebar from "@/components/layout/Sidebar";
-import * as S from "./layout.styled";
-
-export default function DashboardLayout({
+// Shell is provided by the parent (dashboard) group layout.
+// This file is kept as a passthrough so the route group nesting is explicit.
+export default function DashboardPageLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
-  return (
-    <S.Shell>
-      <TopNav activePath={pathname} />
-
-      <S.Body>
-        <Sidebar activePath={pathname} />
-        <S.Main>{children}</S.Main>
-      </S.Body>
-    </S.Shell>
-  );
+  return <>{children}</>;
 }

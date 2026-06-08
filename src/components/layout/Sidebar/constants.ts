@@ -49,6 +49,11 @@ export const NAV_SECTIONS = [
     section: "Library",
     items: [
       {
+        label: "Properties",
+        href: "/library/properties",
+        icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10",
+      },
+      {
         label: "Templates",
         href: "/templates",
         icon: "M4 4h6v6H4zM14 4h6v6h-6zM14 14h6v6h-6zM4 14h6v6H4z",
