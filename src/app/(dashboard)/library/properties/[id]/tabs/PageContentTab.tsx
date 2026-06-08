@@ -9,7 +9,6 @@ import {
   type TextImageSection,
   type FastFactsSection,
   type AccommodationSection,
-  defaultTemplate,
 } from './pageContent.types'
 import RichContentTab from './RichContentTab'
 import * as S from '../page.styled'
@@ -91,7 +90,9 @@ function AccommodationView({
                   <S.AccommodationRoomDesc>{room.description}</S.AccommodationRoomDesc>
                 )}
                 {room.photos.length > 1 && (
-                  <S.AccommodationPhotoCount>+{room.photos.length - 1} photo{room.photos.length - 1 !== 1 ? 's' : ''}</S.AccommodationPhotoCount>
+                  <S.AccommodationPhotoCount>
+                    +{room.photos.length - 1} photo{room.photos.length - 1 !== 1 ? 's' : ''}
+                  </S.AccommodationPhotoCount>
                 )}
               </S.AccommodationCardBody>
             </S.AccommodationCard>
@@ -123,7 +124,6 @@ function FastFactsView({ section }: { section: FastFactsSection }) {
 // ── Main component ──────────────────────────────────────────────
 
 export default function PageContentTab({ property }: Props) {
-  // If no content yet, start in edit mode with default template pre-loaded
   const [editing, setEditing] = useState(() => !hasContent(property.pageContent))
   const content = parseContent(property.pageContent)
 
@@ -147,27 +147,12 @@ export default function PageContentTab({ property }: Props) {
     }
   }
 
-  if (editing) {
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-          {content && (
-            <S.EditContentBtn onClick={() => setEditing(false)}>← Back to view</S.EditContentBtn>
-          )}
-        </div>
-        <RichContentTab property={property} onSaved={() => setEditing(false)} />
-      </div>
-    )
-  }
-
+  // Two-column layout is always visible — cover on left, content/editor on right
   return (
     <S.PageViewLayout>
-      {/* Left: sticky blurred cover with title */}
+      {/* Left: sticky blurred cover panel — always shown */}
       <S.PageViewCover $url={property.coverImageUrl ?? undefined}>
-        <S.CoverUploadBtn
-          htmlFor="cover-upload-new-page"
-          title="Change cover photo"
-        >
+        <S.CoverUploadBtn htmlFor="cover-upload-new-page" title="Change cover photo">
           {coverUploading ? '…' : (
             <>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -196,33 +181,47 @@ export default function PageContentTab({ property }: Props) {
         </S.PageViewCoverContent>
       </S.PageViewCover>
 
-      {/* Right: sections on white */}
+      {/* Right: editor or view */}
       <S.PageViewSections>
-        <S.PageViewSectionsHeader>
-          <span />
-          <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
-        </S.PageViewSectionsHeader>
-
-        {!content ? (
-          <S.EmptyContent>
-            No content yet.{' '}
-            <button
-              style={{ background: 'none', border: 'none', color: 'var(--terra)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}
-              onClick={() => setEditing(true)}
-            >
-              Add sections
-            </button>
-          </S.EmptyContent>
+        {editing ? (
+          <>
+            <S.PageViewSectionsHeader>
+              <span />
+              {content && (
+                <S.EditContentBtn onClick={() => setEditing(false)}>← View page</S.EditContentBtn>
+              )}
+            </S.PageViewSectionsHeader>
+            <RichContentTab property={property} onSaved={() => setEditing(false)} />
+          </>
         ) : (
-          content.sections.map((section, i) => {
-            if (section.type === 'fastFacts') {
-              return <FastFactsView key={i} section={section as FastFactsSection} />
-            }
-            if (section.type === 'accommodation') {
-              return <AccommodationView key={i} section={section as AccommodationSection} property={property} />
-            }
-            return <TextImageView key={i} section={section as TextImageSection} />
-          })
+          <>
+            <S.PageViewSectionsHeader>
+              <span />
+              <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
+            </S.PageViewSectionsHeader>
+
+            {!content ? (
+              <S.EmptyContent>
+                No content yet.{' '}
+                <button
+                  style={{ background: 'none', border: 'none', color: 'var(--terra)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}
+                  onClick={() => setEditing(true)}
+                >
+                  Add sections
+                </button>
+              </S.EmptyContent>
+            ) : (
+              content.sections.map((section, i) => {
+                if (section.type === 'fastFacts') {
+                  return <FastFactsView key={i} section={section as FastFactsSection} />
+                }
+                if (section.type === 'accommodation') {
+                  return <AccommodationView key={i} section={section as AccommodationSection} property={property} />
+                }
+                return <TextImageView key={i} section={section as TextImageSection} />
+              })
+            )}
+          </>
         )}
       </S.PageViewSections>
     </S.PageViewLayout>
