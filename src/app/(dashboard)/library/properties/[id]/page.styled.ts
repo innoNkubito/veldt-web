@@ -815,30 +815,109 @@ export const AddVideoBtn = styled.button`
   &:hover { text-decoration: underline; }
 `
 
-// ── Page Content view ───────────────────────────────────────────
+// ── Page Content view (two-column layout) ──────────────────────
 
-export const PageContentWrap = styled.div`
-  background: ${T.card};
+export const PageViewLayout = styled.div`
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: calc(100vh - 220px);
   border: 1px solid ${T.border};
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
 `
 
-export const PageContentHeader = styled.div`
+export const PageViewCover = styled.div<{ $url?: string }>`
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: calc(100vh - 220px);
+  overflow: hidden;
+
+  /* Blurred background layer */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    background: ${({ $url }) =>
+      $url
+        ? `url(${$url}) center/cover no-repeat`
+        : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
+    filter: blur(3px);
+  }
+
+  /* Dark gradient scrim */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08) 0%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  }
+`
+
+export const CoverUploadBtn = styled.label`
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s;
+  &:hover {
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+  }
+`
+
+export const PageViewCoverContent = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 28px 24px;
+`
+
+export const PageViewCoverTitle = styled.h2`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 6px;
+  line-height: 1.3;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+`
+
+export const PageViewCoverMeta = styled.div`
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.02em;
+`
+
+export const PageViewSections = styled.div`
+  background: #fff;
+  padding: 28px 40px 48px;
+  overflow-y: auto;
+`
+
+export const PageViewSectionsHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  border-bottom: 1px solid ${T.border};
-  background: ${T.dim};
-`
-
-export const PageContentTitle = styled.div`
-  font-size: 13px;
-  font-weight: 700;
-  color: ${T.sub};
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  margin-bottom: 28px;
 `
 
 export const EditContentBtn = styled.button`
@@ -854,69 +933,64 @@ export const EditContentBtn = styled.button`
   &:hover { border-color: ${T.terra}; color: ${T.terra}; }
 `
 
-export const PageContentBody = styled.div`
-  padding: 28px 32px;
-  max-width: 680px;
-`
-
 export const ContentSection = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 `
 
 export const ContentSectionTitle = styled.div`
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 18px;
+  font-size: 20px;
   font-style: italic;
-  color: ${T.text};
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid ${T.border};
+  color: #1a1a1a;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e3de;
 `
 
 export const ContentText = styled.p`
   font-size: 14px;
-  line-height: 1.7;
-  color: ${T.sub};
-  margin: 0 0 14px;
+  line-height: 1.8;
+  color: #4a4a4a;
+  margin: 0 0 16px;
   white-space: pre-wrap;
 `
 
 export const ContentImageGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 8px;
-  margin: 14px 0;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
 `
 
 export const ContentImage = styled.div<{ $url: string }>`
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/2;
   background: ${({ $url }) => `url(${$url}) center/cover`};
-  border-radius: 6px;
-  border: 1px solid ${T.border};
+  border-radius: 8px;
+  border: 1px solid #e8e3de;
 `
 
 export const FastFactsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
+  gap: 16px;
 `
 
 export const FastFactGroup = styled.div``
 
 export const FastFactGroupLabel = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: ${T.text};
+  color: #1a1a1a;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 6px;
+  letter-spacing: 0.07em;
+  margin-bottom: 8px;
 `
 
 export const FastFactItem = styled.div`
   font-size: 13px;
-  color: ${T.sub};
-  line-height: 1.6;
-  &::before { content: '·'; margin-right: 6px; color: ${T.muted}; }
+  color: #4a4a4a;
+  line-height: 1.7;
+  &::before { content: '·'; margin-right: 6px; color: #aaa; }
 `
 
 export const EmptyContent = styled.div`
@@ -925,6 +999,7 @@ export const EmptyContent = styled.div`
   color: ${T.muted};
   font-size: 13px;
 `
+
 
 // ── Accommodation section (view) ────────────────────────────────
 

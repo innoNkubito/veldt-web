@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { type PropertyFull } from '@/stores/contentLibraryStore'
+import { useRef, useState } from 'react'
+import { useAuth } from '@clerk/nextjs'
+import { useContentLibraryStore, type PropertyFull } from '@/stores/contentLibraryStore'
+import { uploadFile } from '@/lib/upload'
 import {
   type PropertyPageContent,
   type TextImageSection,
@@ -125,6 +127,26 @@ export default function PageContentTab({ property }: Props) {
   const [editing, setEditing] = useState(() => !hasContent(property.pageContent))
   const content = parseContent(property.pageContent)
 
+  const { getToken } = useAuth()
+  const { updateProperty } = useContentLibraryStore()
+  const coverInputRef = useRef<HTMLInputElement>(null)
+  const [coverUploading, setCoverUploading] = useState(false)
+
+  async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverUploading(true)
+    try {
+      const url = await uploadFile(file, getToken)
+      await updateProperty(property.id, { coverImageUrl: url })
+    } catch {
+      // TODO: toast
+    } finally {
+      setCoverUploading(false)
+      if (coverInputRef.current) coverInputRef.current.value = ''
+    }
+  }
+
   if (editing) {
     return (
       <div>
@@ -139,13 +161,48 @@ export default function PageContentTab({ property }: Props) {
   }
 
   return (
-    <S.PageContentWrap>
-      <S.PageContentHeader>
-        <S.PageContentTitle>New Page</S.PageContentTitle>
-        <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
-      </S.PageContentHeader>
+    <S.PageViewLayout>
+      {/* Left: sticky blurred cover with title */}
+      <S.PageViewCover $url={property.coverImageUrl ?? undefined}>
+        <S.CoverUploadBtn
+          htmlFor="cover-upload-new-page"
+          title="Change cover photo"
+        >
+          {coverUploading ? '…' : (
+            <>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              Choose photo
+            </>
+          )}
+        </S.CoverUploadBtn>
+        <input
+          id="cover-upload-new-page"
+          ref={coverInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleCoverUpload}
+        />
+        <S.PageViewCoverContent>
+          <S.PageViewCoverTitle>{property.name}</S.PageViewCoverTitle>
+          {(property.area || property.country) && (
+            <S.PageViewCoverMeta>
+              {[property.area?.name, property.country].filter(Boolean).join(' · ')}
+            </S.PageViewCoverMeta>
+          )}
+        </S.PageViewCoverContent>
+      </S.PageViewCover>
 
-      <S.PageContentBody>
+      {/* Right: sections on white */}
+      <S.PageViewSections>
+        <S.PageViewSectionsHeader>
+          <span />
+          <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
+        </S.PageViewSectionsHeader>
+
         {!content ? (
           <S.EmptyContent>
             No content yet.{' '}
@@ -167,7 +224,7 @@ export default function PageContentTab({ property }: Props) {
             return <TextImageView key={i} section={section as TextImageSection} />
           })
         )}
-      </S.PageContentBody>
-    </S.PageContentWrap>
+      </S.PageViewSections>
+    </S.PageViewLayout>
   )
 }
