@@ -709,7 +709,7 @@ export const AddVideoBtn = styled.button`
 /** ToC | Cover | Sections */
 export const PageViewLayout = styled.div`
   display: grid;
-  grid-template-columns: 160px 420px 1fr;
+  grid-template-columns: 160px 504px 1fr;
   min-height: calc(100vh - 56px);
 `
 
@@ -1063,7 +1063,7 @@ export const PreviewCloseBtn = styled.button`
 export const PreviewBody = styled.div`
   flex: 1; overflow-y: auto;
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 456px 1fr;
 `
 
 export const PreviewCover = styled.div<{ $url?: string }>`

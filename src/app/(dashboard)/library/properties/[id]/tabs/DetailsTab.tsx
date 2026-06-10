@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useContentLibraryStore, type PropertyFull, type UpdatePropertyInput } from '@/stores/contentLibraryStore'
-import { uploadFile } from '@/lib/upload'
 import * as S from '../page.styled'
 
 interface Props {
@@ -20,14 +19,11 @@ export default function DetailsTab({ property, getToken }: Props) {
     areaId: property.area?.id ?? '',
     areaName: property.area?.name ?? '',
     tags: property.tags,
-    coverImageUrl: property.coverImageUrl ?? '',
   })
   const [tagInput, setTagInput] = useState('')
   const [areaQuery, setAreaQuery] = useState(property.area?.name ?? '')
   const [areaOpen, setAreaOpen] = useState(false)
   const [dirty, setDirty] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchAreas()
@@ -42,7 +38,6 @@ export default function DetailsTab({ property, getToken }: Props) {
       areaId: property.area?.id ?? '',
       areaName: property.area?.name ?? '',
       tags: property.tags,
-      coverImageUrl: property.coverImageUrl ?? '',
     })
     setAreaQuery(property.area?.name ?? '')
     setDirty(false)
@@ -81,21 +76,6 @@ export default function DetailsTab({ property, getToken }: Props) {
     setF('tags', form.tags.filter((t) => t !== tag))
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploading(true)
-    try {
-      const url = await uploadFile(file, getToken)
-      setF('coverImageUrl', url)
-    } catch {
-      // TODO: show error toast
-    } finally {
-      setUploading(false)
-      if (fileRef.current) fileRef.current.value = ''
-    }
-  }
-
   async function handleSave() {
     const input: UpdatePropertyInput = {
       name: form.name || undefined,
@@ -103,7 +83,6 @@ export default function DetailsTab({ property, getToken }: Props) {
       locationName: form.locationName || null,
       areaId: form.areaId || null,
       tags: form.tags,
-      coverImageUrl: form.coverImageUrl || null,
     }
     await updateProperty(property.id, input)
     setDirty(false)
@@ -208,38 +187,7 @@ export default function DetailsTab({ property, getToken }: Props) {
         </S.TagsRow>
       </S.Card>
 
-      <S.Card>
-        <S.CardTitle>Cover Image</S.CardTitle>
-        <S.CoverPreview $url={form.coverImageUrl}>
-          {!form.coverImageUrl && (
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>No cover image</span>
-          )}
-        </S.CoverPreview>
-        <S.UploadButton htmlFor="cover-upload">
-          {uploading ? 'Uploading…' : 'Upload image'}
-        </S.UploadButton>
-        <input
-          id="cover-upload"
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          ref={fileRef}
-          onChange={handleImageUpload}
-        />
-        <S.UploadNote>JPG, PNG, or WebP · max 10 MB</S.UploadNote>
-        {form.coverImageUrl && (
-          <S.UploadNote style={{ marginTop: 6 }}>
-            <button
-              style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: 12, cursor: 'pointer', padding: 0 }}
-              onClick={() => setF('coverImageUrl', '')}
-            >
-              Remove image
-            </button>
-          </S.UploadNote>
-        )}
-      </S.Card>
-
-      {dirty && (
+{dirty && (
         <S.SaveRow>
           <S.SaveButton onClick={handleSave} disabled={saving}>
             {saving ? 'Saving…' : 'Save Details'}
