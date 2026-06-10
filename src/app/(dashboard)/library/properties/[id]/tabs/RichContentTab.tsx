@@ -1,6 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEditor, EditorContent } from '@tiptap/react'
+import { StarterKit } from '@tiptap/starter-kit'
+import Placeholder from '@tiptap/extension-placeholder'
 import { useAuth } from '@clerk/nextjs'
 import { useContentLibraryStore, type PropertyFull } from '@/stores/contentLibraryStore'
 import { uploadFile } from '@/lib/upload'
@@ -34,8 +37,84 @@ function parseContent(property: PropertyFull): PropertyPageContent {
     const pc = raw as PropertyPageContent
     if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
   }
-  // No saved content — return default template pre-filled with this property's rooms
   return defaultTemplate(property.rooms)
+}
+
+// ── Rich text editor ───────────────────────────────────────────
+
+interface RichEditorProps {
+  value: string
+  onChange: (html: string) => void
+  placeholder?: string
+}
+
+function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({ placeholder: placeholder ?? 'Write something…' }),
+    ],
+    content: value || '',
+    onUpdate: ({ editor: e }) => {
+      onChange(e.getHTML())
+    },
+  })
+
+  // Sync external value changes (e.g. section reset)
+  useEffect(() => {
+    if (!editor) return
+    const currentHtml = editor.getHTML()
+    if (value !== currentHtml) {
+      editor.commands.setContent(value || '')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+
+  const toggleBold = () => editor?.chain().focus().toggleBold().run()
+  const toggleItalic = () => editor?.chain().focus().toggleItalic().run()
+  const toggleBullet = () => editor?.chain().focus().toggleBulletList().run()
+  const toggleOrdered = () => editor?.chain().focus().toggleOrderedList().run()
+
+  return (
+    <S.RichEditorWrap>
+      <S.RichEditorToolbar>
+        <S.RichToolBtn
+          type="button"
+          $active={editor?.isActive('bold')}
+          onClick={toggleBold}
+          title="Bold"
+        >
+          <strong>B</strong>
+        </S.RichToolBtn>
+        <S.RichToolBtn
+          type="button"
+          $active={editor?.isActive('italic')}
+          onClick={toggleItalic}
+          title="Italic"
+        >
+          <em>I</em>
+        </S.RichToolBtn>
+        <S.RichToolDivider />
+        <S.RichToolBtn
+          type="button"
+          $active={editor?.isActive('bulletList')}
+          onClick={toggleBullet}
+          title="Bullet list"
+        >
+          ≡
+        </S.RichToolBtn>
+        <S.RichToolBtn
+          type="button"
+          $active={editor?.isActive('orderedList')}
+          onClick={toggleOrdered}
+          title="Numbered list"
+        >
+          1.
+        </S.RichToolBtn>
+      </S.RichEditorToolbar>
+      <EditorContent editor={editor} />
+    </S.RichEditorWrap>
+  )
 }
 
 // ── sub-editors ────────────────────────────────────────────────
@@ -70,13 +149,22 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
     onChange({ ...section, images: section.images.filter((_, i) => i !== idx) })
   }
 
+  const handleText1Change = useCallback(
+    (html: string) => onChange({ ...section, text1: html }),
+    [section, onChange],
+  )
+  const handleText2Change = useCallback(
+    (html: string) => onChange({ ...section, text2: html }),
+    [section, onChange],
+  )
+
   return (
     <>
       <S.FieldGroup>
         <S.FieldLabel>Text 1</S.FieldLabel>
-        <S.FieldTextarea
+        <RichEditor
           value={section.text1}
-          onChange={(e) => onChange({ ...section, text1: e.target.value })}
+          onChange={handleText1Change}
           placeholder="Opening paragraph…"
         />
       </S.FieldGroup>
@@ -110,9 +198,9 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
 
       <S.FieldGroup>
         <S.FieldLabel>Text 2</S.FieldLabel>
-        <S.FieldTextarea
+        <RichEditor
           value={section.text2}
-          onChange={(e) => onChange({ ...section, text2: e.target.value })}
+          onChange={handleText2Change}
           placeholder="Continuation paragraph…"
         />
       </S.FieldGroup>
@@ -218,7 +306,7 @@ function AccommodationEditor({ section, onChange, property }: AccommodationProps
         <S.FieldLabel>Rooms</S.FieldLabel>
         {property.rooms.length === 0 ? (
           <div style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>
-            No rooms added yet. Add rooms in the Rooms tab — they'll appear here automatically.
+            No rooms added yet. Add rooms in the Rooms tab — they&apos;ll appear here automatically.
           </div>
         ) : (
           <S.AccommodationRoomList>
@@ -257,7 +345,6 @@ export default function RichContentTab({ property, onSaved }: Props) {
   const [dirty, setDirty] = useState(false)
   const [newSectionType, setNewSectionType] = useState<SectionType>('overview')
 
-  // Reset when switching properties
   useEffect(() => {
     setContent(parseContent(property))
     setDirty(false)

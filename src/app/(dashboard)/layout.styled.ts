@@ -18,7 +18,7 @@ export const Body = styled.div`
   overflow: hidden;
 `;
 
-export const Main = styled.main`
+export const Main = styled.main<{ $fullWidth?: boolean }>`
   flex: 1;
   overflow-y: auto;
   display: flex;

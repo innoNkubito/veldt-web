@@ -49,46 +49,63 @@ export default function PropertyDetailPage() {
   }
 
   return (
-    <S.PageRoot>
-      <S.BackLink onClick={() => router.push('/library/properties')}>← Properties</S.BackLink>
+    <S.EditorRoot>
+      {/* ── Top bar ──────────────────────────────────────────── */}
+      <S.EditorTopBar>
+        <S.TopBarLeft>
+          <S.BackBtn onClick={() => router.push('/library/properties')} title="Back to properties">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </S.BackBtn>
+          <div>
+            <S.TopBarTitle>{property!.name}</S.TopBarTitle>
+            <S.TopBarSub>Property</S.TopBarSub>
+          </div>
+        </S.TopBarLeft>
 
-      <S.Header>
-        <div>
-          <S.PageTitle>{property!.name}</S.PageTitle>
-          <S.HeaderMeta>
-            {[property!.area?.name, property!.country].filter(Boolean).join(' · ') || 'No location set'}
-          </S.HeaderMeta>
-        </div>
-        <S.HeaderActions>
-          {saving && <S.SaveIndicator>Saving…</S.SaveIndicator>}
+        <S.TopBarTabs>
+          {TABS.map(({ key, label }) => (
+            <S.TopBarTab
+              key={key}
+              $active={activeTab === key}
+              onClick={() => setActiveTab(key)}
+            >
+              {key === 'rooms' ? `Rooms (${property!.rooms.length})` : label}
+            </S.TopBarTab>
+          ))}
+        </S.TopBarTabs>
+
+        <S.TopBarRight>
+          {saving && <S.SavingBadge>Saving…</S.SavingBadge>}
           {confirmDelete ? (
             <>
-              <span style={{ fontSize: 12, color: '#dc2626' }}>Are you sure?</span>
-              <S.DeleteButton onClick={handleDelete}>Yes, delete</S.DeleteButton>
-              <S.DeleteButton
-                style={{ borderColor: 'var(--border)', color: 'inherit' }}
-                onClick={() => setConfirmDelete(false)}
-              >
-                Cancel
-              </S.DeleteButton>
+              <span style={{ fontSize: 12, color: '#dc2626' }}>Delete this property?</span>
+              <S.TopBarBtn $danger onClick={handleDelete}>Yes, delete</S.TopBarBtn>
+              <S.TopBarBtn onClick={() => setConfirmDelete(false)}>Cancel</S.TopBarBtn>
             </>
           ) : (
-            <S.DeleteButton onClick={() => setConfirmDelete(true)}>Delete</S.DeleteButton>
+            <S.TopBarBtn $danger onClick={() => setConfirmDelete(true)}>Delete</S.TopBarBtn>
           )}
-        </S.HeaderActions>
-      </S.Header>
+        </S.TopBarRight>
+      </S.EditorTopBar>
 
-      <S.TabBar>
-        {TABS.map(({ key, label }) => (
-          <S.Tab key={key} $active={activeTab === key} onClick={() => setActiveTab(key)}>
-            {key === 'rooms' ? `Rooms (${property!.rooms.length})` : label}
-          </S.Tab>
-        ))}
-      </S.TabBar>
-
-      {activeTab === 'details' && <DetailsTab property={property!} getToken={getToken} />}
-      {activeTab === 'content' && <PageContentTab property={property!} />}
-      {activeTab === 'rooms' && <RoomsTab property={property!} />}
-    </S.PageRoot>
+      {/* ── Tab content ─────────────────────────────────────── */}
+      <S.EditorBody>
+        {activeTab === 'details' && (
+          <S.TabBody>
+            <DetailsTab property={property!} getToken={getToken} />
+          </S.TabBody>
+        )}
+        {activeTab === 'rooms' && (
+          <S.TabBody>
+            <RoomsTab property={property!} />
+          </S.TabBody>
+        )}
+        {activeTab === 'content' && (
+          <PageContentTab property={property!} />
+        )}
+      </S.EditorBody>
+    </S.EditorRoot>
   )
 }

@@ -17,6 +17,8 @@ interface Props {
   property: PropertyFull
 }
 
+// ── Helpers ─────────────────────────────────────────────────────
+
 function hasContent(raw: unknown): boolean {
   if (raw && typeof raw === 'object' && 'sections' in raw) {
     const pc = raw as PropertyPageContent
@@ -43,21 +45,99 @@ function sectionTitle(type: string) {
   }
 }
 
-// ── Section renderers ──────────────────────────────────────────
+function sectionIcon(type: string) {
+  switch (type) {
+    case 'overview': return '◈'
+    case 'experience': return '◉'
+    case 'accommodation': return '⊞'
+    case 'fastFacts': return '≡'
+    default: return '·'
+  }
+}
+
+// ── Photo slider ────────────────────────────────────────────────
+
+function PhotoSlider({ images }: { images: string[] }) {
+  const [index, setIndex] = useState(0)
+
+  if (images.length === 0) return null
+
+  if (images.length === 1) {
+    return (
+      <S.SliderWrap>
+        <S.SliderTrack $index={0}>
+          <S.SliderSlide $url={images[0]} />
+        </S.SliderTrack>
+      </S.SliderWrap>
+    )
+  }
+
+  return (
+    <S.SliderWrap>
+      <S.SliderTrack $index={index}>
+        {images.map((url, i) => (
+          <S.SliderSlide key={i} $url={url} />
+        ))}
+      </S.SliderTrack>
+
+      <S.SliderArrow
+        $side="left"
+        onClick={() => setIndex((i) => (i === 0 ? images.length - 1 : i - 1))}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </S.SliderArrow>
+
+      <S.SliderArrow
+        $side="right"
+        onClick={() => setIndex((i) => (i === images.length - 1 ? 0 : i + 1))}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </S.SliderArrow>
+
+      <S.SliderDots>
+        {images.map((_, i) => (
+          <S.SliderDot key={i} $active={i === index} onClick={() => setIndex(i)} />
+        ))}
+      </S.SliderDots>
+    </S.SliderWrap>
+  )
+}
+
+// ── Rich text renderer — handles HTML from Tiptap or plain text ─
+
+function RichText({ html }: { html: string }) {
+  if (!html) return null
+  const isHtml = html.trimStart().startsWith('<')
+  if (isHtml) {
+    return (
+      <S.ContentRichText
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    )
+  }
+  // Backward-compat: wrap plain text in paragraph tags
+  return (
+    <S.ContentRichText>
+      {html.split('\n').filter(Boolean).map((line, i) => (
+        <p key={i}>{line}</p>
+      ))}
+    </S.ContentRichText>
+  )
+}
+
+// ── Section renderers ────────────────────────────────────────────
 
 function TextImageView({ section }: { section: TextImageSection }) {
   return (
-    <S.ContentSection>
+    <S.ContentSection id={`section-${section.type}`}>
       <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
-      {section.text1 && <S.ContentText>{section.text1}</S.ContentText>}
-      {section.images.length > 0 && (
-        <S.ContentImageGrid>
-          {section.images.map((url, i) => (
-            <S.ContentImage key={i} $url={url} />
-          ))}
-        </S.ContentImageGrid>
-      )}
-      {section.text2 && <S.ContentText>{section.text2}</S.ContentText>}
+      {section.text1 && <RichText html={section.text1} />}
+      {section.images.length > 0 && <PhotoSlider images={section.images} />}
+      {section.text2 && <RichText html={section.text2} />}
     </S.ContentSection>
   )
 }
@@ -70,9 +150,9 @@ function AccommodationView({
   property: PropertyFull
 }) {
   return (
-    <S.ContentSection>
+    <S.ContentSection id="section-accommodation">
       <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
-      {section.intro && <S.ContentText>{section.intro}</S.ContentText>}
+      {section.intro && <RichText html={section.intro} />}
       {property.rooms.length === 0 ? (
         <S.EmptyContent style={{ textAlign: 'left', padding: '12px 0' }}>
           No rooms added yet. Add rooms in the Rooms tab.
@@ -105,7 +185,7 @@ function AccommodationView({
 
 function FastFactsView({ section }: { section: FastFactsSection }) {
   return (
-    <S.ContentSection>
+    <S.ContentSection id="section-fastFacts">
       <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
       <S.FastFactsGrid>
         {section.groups.map((group, i) => (
@@ -121,10 +201,89 @@ function FastFactsView({ section }: { section: FastFactsSection }) {
   )
 }
 
-// ── Main component ──────────────────────────────────────────────
+// ── Section list renderer ────────────────────────────────────────
+
+function SectionList({
+  content,
+  property,
+}: {
+  content: PropertyPageContent
+  property: PropertyFull
+}) {
+  return (
+    <>
+      {content.sections.map((section, i) => {
+        if (section.type === 'fastFacts') {
+          return <FastFactsView key={i} section={section as FastFactsSection} />
+        }
+        if (section.type === 'accommodation') {
+          return (
+            <AccommodationView
+              key={i}
+              section={section as AccommodationSection}
+              property={property}
+            />
+          )
+        }
+        return <TextImageView key={i} section={section as TextImageSection} />
+      })}
+    </>
+  )
+}
+
+// ── Preview modal ────────────────────────────────────────────────
+
+function PreviewModal({
+  property,
+  content,
+  onClose,
+}: {
+  property: PropertyFull
+  content: PropertyPageContent | null
+  onClose: () => void
+}) {
+  const meta = [property.area?.name, property.country].filter(Boolean).join(' · ')
+
+  return (
+    <S.PreviewOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <S.PreviewBar>
+        <S.PreviewBarTitle>
+          <S.PreviewBadge>Preview</S.PreviewBadge>
+          {property.name} — as seen by client
+        </S.PreviewBarTitle>
+        <S.PreviewCloseBtn onClick={onClose}>✕</S.PreviewCloseBtn>
+      </S.PreviewBar>
+
+      <S.PreviewBody>
+        {/* Cover */}
+        <S.PreviewCover $url={property.coverImageUrl ?? undefined}>
+          <S.PreviewCoverContent>
+            {meta && (
+              <S.PageViewCoverBrand>{meta}</S.PageViewCoverBrand>
+            )}
+            <S.PreviewCoverTitle>{property.name}</S.PreviewCoverTitle>
+            {meta && <S.PreviewCoverMeta>{meta}</S.PreviewCoverMeta>}
+          </S.PreviewCoverContent>
+        </S.PreviewCover>
+
+        {/* Content */}
+        <S.PreviewSections>
+          {!content ? (
+            <S.EmptyContent>No content added yet.</S.EmptyContent>
+          ) : (
+            <SectionList content={content} property={property} />
+          )}
+        </S.PreviewSections>
+      </S.PreviewBody>
+    </S.PreviewOverlay>
+  )
+}
+
+// ── Main component ───────────────────────────────────────────────
 
 export default function PageContentTab({ property }: Props) {
   const [editing, setEditing] = useState(() => !hasContent(property.pageContent))
+  const [showPreview, setShowPreview] = useState(false)
   const content = parseContent(property.pageContent)
 
   const { getToken } = useAuth()
@@ -147,83 +306,111 @@ export default function PageContentTab({ property }: Props) {
     }
   }
 
-  // Two-column layout is always visible — cover on left, content/editor on right
+  const meta = [property.area?.name, property.country].filter(Boolean).join(' · ')
+  const sectionTypes = content?.sections.map((s) => s.type) ?? []
+
   return (
-    <S.PageViewLayout>
-      {/* Left: sticky blurred cover panel — always shown */}
-      <S.PageViewCover $url={property.coverImageUrl ?? undefined}>
-        <S.CoverUploadBtn htmlFor="cover-upload-new-page" title="Change cover photo">
-          {coverUploading ? '…' : (
+    <>
+      <S.PageViewLayout>
+        {/* ── Col 1: Table of Contents ─── */}
+        <S.PageToC>
+          <S.ToCTitle>Contents</S.ToCTitle>
+          {sectionTypes.length === 0 ? (
+            <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>
+              Add sections to see the table of contents.
+            </div>
+          ) : (
+            sectionTypes.map((type, i) => (
+              <S.ToCItem
+                key={i}
+                href={`#section-${type}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById(`section-${type}`)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                <span style={{ fontSize: 11 }}>{sectionIcon(type)}</span>
+                {sectionTitle(type)}
+              </S.ToCItem>
+            ))
+          )}
+        </S.PageToC>
+
+        {/* ── Col 2: Cover ─────────────── */}
+        <S.PageViewCover $url={property.coverImageUrl ?? undefined}>
+          <S.CoverUploadBtn htmlFor="cover-upload-new-page" title="Change cover photo">
+            {coverUploading ? '…' : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                Choose photo
+              </>
+            )}
+          </S.CoverUploadBtn>
+          <input
+            id="cover-upload-new-page"
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleCoverUpload}
+          />
+          <S.PageViewCoverContent>
+            {meta && <S.PageViewCoverBrand>{meta}</S.PageViewCoverBrand>}
+            <S.PageViewCoverTitle>{property.name}</S.PageViewCoverTitle>
+            {meta && <S.PageViewCoverMeta>{meta}</S.PageViewCoverMeta>}
+          </S.PageViewCoverContent>
+        </S.PageViewCover>
+
+        {/* ── Col 3: Sections ──────────── */}
+        <S.PageViewSections>
+          <S.PageViewSectionsHeader>
+            <S.PreviewBtn onClick={() => setShowPreview(true)}>Preview</S.PreviewBtn>
+            {editing ? (
+              content && (
+                <S.EditContentBtn onClick={() => setEditing(false)}>← View page</S.EditContentBtn>
+              )
+            ) : (
+              <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
+            )}
+          </S.PageViewSectionsHeader>
+
+          {editing ? (
+            <RichContentTab property={property} onSaved={() => setEditing(false)} />
+          ) : (
             <>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-              Choose photo
+              {!content ? (
+                <S.EmptyContent>
+                  No content yet.{' '}
+                  <button
+                    style={{
+                      background: 'none', border: 'none',
+                      color: 'var(--terra)', cursor: 'pointer',
+                      fontSize: 13, textDecoration: 'underline',
+                    }}
+                    onClick={() => setEditing(true)}
+                  >
+                    Add sections
+                  </button>
+                </S.EmptyContent>
+              ) : (
+                <SectionList content={content} property={property} />
+              )}
             </>
           )}
-        </S.CoverUploadBtn>
-        <input
-          id="cover-upload-new-page"
-          ref={coverInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleCoverUpload}
+        </S.PageViewSections>
+      </S.PageViewLayout>
+
+      {/* Preview modal */}
+      {showPreview && (
+        <PreviewModal
+          property={property}
+          content={content}
+          onClose={() => setShowPreview(false)}
         />
-        <S.PageViewCoverContent>
-          <S.PageViewCoverTitle>{property.name}</S.PageViewCoverTitle>
-          {(property.area || property.country) && (
-            <S.PageViewCoverMeta>
-              {[property.area?.name, property.country].filter(Boolean).join(' · ')}
-            </S.PageViewCoverMeta>
-          )}
-        </S.PageViewCoverContent>
-      </S.PageViewCover>
-
-      {/* Right: editor or view */}
-      <S.PageViewSections>
-        {editing ? (
-          <>
-            <S.PageViewSectionsHeader>
-              <span />
-              {content && (
-                <S.EditContentBtn onClick={() => setEditing(false)}>← View page</S.EditContentBtn>
-              )}
-            </S.PageViewSectionsHeader>
-            <RichContentTab property={property} onSaved={() => setEditing(false)} />
-          </>
-        ) : (
-          <>
-            <S.PageViewSectionsHeader>
-              <span />
-              <S.EditContentBtn onClick={() => setEditing(true)}>Edit Sections</S.EditContentBtn>
-            </S.PageViewSectionsHeader>
-
-            {!content ? (
-              <S.EmptyContent>
-                No content yet.{' '}
-                <button
-                  style={{ background: 'none', border: 'none', color: 'var(--terra)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline' }}
-                  onClick={() => setEditing(true)}
-                >
-                  Add sections
-                </button>
-              </S.EmptyContent>
-            ) : (
-              content.sections.map((section, i) => {
-                if (section.type === 'fastFacts') {
-                  return <FastFactsView key={i} section={section as FastFactsSection} />
-                }
-                if (section.type === 'accommodation') {
-                  return <AccommodationView key={i} section={section as AccommodationSection} property={property} />
-                }
-                return <TextImageView key={i} section={section as TextImageSection} />
-              })
-            )}
-          </>
-        )}
-      </S.PageViewSections>
-    </S.PageViewLayout>
+      )}
+    </>
   )
 }
