@@ -16,6 +16,7 @@ import {
   type TextImageSection,
   type FastFactsSection,
   type AccommodationSection,
+  type GallerySection,
   type SectionType,
   SECTION_TYPES,
   emptySection,
@@ -385,6 +386,69 @@ function AccommodationEditor({
   )
 }
 
+// ── Gallery editor ─────────────────────────────────────────────
+
+interface GalleryEditorProps {
+  section: GallerySection
+  onChange: (updated: GallerySection) => void
+  getToken: () => Promise<string | null>
+}
+
+function GalleryEditor({ section, onChange, getToken }: GalleryEditorProps) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const inputId = 'gallery-upload'
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? [])
+    if (!files.length) return
+    setUploading(true)
+    try {
+      const urls = await Promise.all(files.map((f) => uploadFile(f, getToken)))
+      onChange({ ...section, images: [...section.images, ...urls] })
+    } catch {
+      // TODO: toast
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
+  function removeImage(idx: number) {
+    onChange({ ...section, images: section.images.filter((_, i) => i !== idx) })
+  }
+
+  return (
+    <S.FieldGroup>
+      <S.FieldLabel>Photos ({section.images.length})</S.FieldLabel>
+      {section.images.length > 0 && (
+        <S.PhotoGrid>
+          {section.images.map((url, i) => (
+            <S.PhotoThumb key={i} $url={url}>
+              <S.PhotoRemove type='button' onClick={() => removeImage(i)}>
+                ✕
+              </S.PhotoRemove>
+            </S.PhotoThumb>
+          ))}
+        </S.PhotoGrid>
+      )}
+      <S.PhotoUploadZone htmlFor={inputId}>
+        <S.PhotoUploadBtn>{uploading ? 'Uploading…' : 'Add Photos'}</S.PhotoUploadBtn>
+        <S.PhotoUploadNote>Click to upload. JPG, PNG, WEBP — max 5 MB each.</S.PhotoUploadNote>
+      </S.PhotoUploadZone>
+      <input
+        id={inputId}
+        type='file'
+        accept='image/*'
+        multiple
+        style={{ display: 'none' }}
+        ref={fileRef}
+        onChange={handleUpload}
+      />
+    </S.FieldGroup>
+  )
+}
+
 // ── Main component ──────────────────────────────────────────────
 
 export default function RichContentTab({ property, onSaved }: Props) {
@@ -492,6 +556,12 @@ export default function RichContentTab({ property, onSaved }: Props) {
                   section={section}
                   onChange={(updated) => updateSection(idx, updated)}
                   property={property}
+                />
+              ) : section.type === 'gallery' ? (
+                <GalleryEditor
+                  section={section as GallerySection}
+                  onChange={(updated) => updateSection(idx, updated)}
+                  getToken={getToken}
                 />
               ) : (
                 <TextImageEditor

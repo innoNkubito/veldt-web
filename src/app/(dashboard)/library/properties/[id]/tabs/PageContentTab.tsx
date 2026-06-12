@@ -1,6 +1,10 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import {
+  MapPin, Binoculars, Sun, BedDouble, Plane, Thermometer,
+  Users, CalendarDays, Leaf, Camera, Star, Info,
+} from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { useContentLibraryStore, type PropertyFull } from '@/stores/contentLibraryStore'
 import { uploadFile } from '@/lib/upload'
@@ -9,6 +13,7 @@ import {
   type TextImageSection,
   type FastFactsSection,
   type AccommodationSection,
+  type GallerySection,
 } from './pageContent.types'
 import RichContentTab from './RichContentTab'
 import * as S from '../page.styled'
@@ -41,6 +46,7 @@ function sectionTitle(type: string) {
     case 'experience': return 'Experience & Activities'
     case 'accommodation': return 'Accommodation'
     case 'fastFacts': return 'Fast Facts'
+    case 'gallery': return 'Gallery'
     default: return type.charAt(0).toUpperCase() + type.slice(1)
   }
 }
@@ -51,6 +57,7 @@ function sectionIcon(type: string) {
     case 'experience': return '◉'
     case 'accommodation': return '⊞'
     case 'fastFacts': return '≡'
+    case 'gallery': return '▦'
     default: return '·'
   }
 }
@@ -191,20 +198,126 @@ function AccommodationView({
   )
 }
 
+// Maps common safari fact labels to Lucide icons
+function factIcon(label: string) {
+  const l = label.toLowerCase()
+  if (l.includes('location') || l.includes('where'))           return <MapPin size={14} />
+  if (l.includes('wildlife') || l.includes('animal') || l.includes('game')) return <Binoculars size={14} />
+  if (l.includes('highlight') || l.includes('feature'))        return <Star size={14} />
+  if (l.includes('activ') || l.includes('experience'))         return <Sun size={14} />
+  if (l.includes('accommo') || l.includes('room') || l.includes('tent') || l.includes('suite')) return <BedDouble size={14} />
+  if (l.includes('getting') || l.includes('flight') || l.includes('transfer') || l.includes('access')) return <Plane size={14} />
+  if (l.includes('climate') || l.includes('weather') || l.includes('temp')) return <Thermometer size={14} />
+  if (l.includes('best time') || l.includes('season') || l.includes('when')) return <CalendarDays size={14} />
+  if (l.includes('family') || l.includes('child') || l.includes('guest'))    return <Users size={14} />
+  if (l.includes('conservation') || l.includes('environment') || l.includes('eco')) return <Leaf size={14} />
+  if (l.includes('photo') || l.includes('camera'))             return <Camera size={14} />
+  if (l.includes('quick') || l.includes('fact') || l.includes('detail'))     return <Info size={14} />
+  return <Star size={14} />
+}
+
 function FastFactsView({ section }: { section: FastFactsSection }) {
+  const groups = section.groups.filter((g) => g.items.some(Boolean))
+  if (groups.length === 0) return null
+
   return (
     <S.ContentSection id="section-fastFacts">
       <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
       <S.FastFactsGrid>
-        {section.groups.map((group, i) => (
+        {groups.map((group, i) => (
           <S.FastFactGroup key={i}>
-            {group.label && <S.FastFactGroupLabel>{group.label}</S.FastFactGroupLabel>}
-            {group.items.filter(Boolean).map((item, j) => (
-              <S.FastFactItem key={j}>{item}</S.FastFactItem>
-            ))}
+            <S.FastFactGroupHeader>
+              <S.FastFactGroupIcon>
+                {factIcon(group.label)}
+              </S.FastFactGroupIcon>
+              {group.label && (
+                <S.FastFactGroupLabel>{group.label}</S.FastFactGroupLabel>
+              )}
+            </S.FastFactGroupHeader>
+            <S.FastFactItems>
+              {group.items.filter(Boolean).map((item, j) => (
+                <S.FastFactItem key={j}>{item}</S.FastFactItem>
+              ))}
+            </S.FastFactItems>
           </S.FastFactGroup>
         ))}
       </S.FastFactsGrid>
+    </S.ContentSection>
+  )
+}
+
+// ── Gallery view ─────────────────────────────────────────────────
+
+function GalleryView({ section }: { section: GallerySection }) {
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [downloading, setDownloading] = useState(false)
+
+  if (section.images.length === 0) return null
+
+  function toggle(url: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(url) ? next.delete(url) : next.add(url)
+      return next
+    })
+  }
+
+  function toggleAll() {
+    if (selected.size === section.images.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(section.images))
+    }
+  }
+
+  async function downloadSelected() {
+    if (selected.size === 0) return
+    setDownloading(true)
+    try {
+      for (const url of selected) {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const objUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = objUrl
+        a.download = url.split('/').pop()?.split('?')[0] || 'image.jpg'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(objUrl)
+      }
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const allSelected = selected.size === section.images.length
+
+  return (
+    <S.ContentSection id="section-gallery">
+      <S.ContentSectionTitle>{sectionTitle('gallery')}</S.ContentSectionTitle>
+      <S.GalleryGrid>
+        {section.images.map((url, i) => {
+          const isSelected = selected.has(url)
+          return (
+            <S.GalleryCell key={i} $selected={isSelected} onClick={() => toggle(url)}>
+              <S.GalleryCellImg $url={url} />
+              <S.GalleryCellCheck $selected={isSelected}>✓</S.GalleryCellCheck>
+            </S.GalleryCell>
+          )
+        })}
+      </S.GalleryGrid>
+      <S.GalleryDownloadBar>
+        <S.GallerySelectAllBtn onClick={toggleAll}>
+          {allSelected ? 'Deselect all' : 'Select all'}
+        </S.GallerySelectAllBtn>
+        <S.GalleryDownloadBtn
+          onClick={downloadSelected}
+          disabled={selected.size === 0 || downloading}
+        >
+          {downloading ? 'Downloading…' : `Download${selected.size > 0 ? ` (${selected.size})` : ''}`}
+        </S.GalleryDownloadBtn>
+      </S.GalleryDownloadBar>
     </S.ContentSection>
   )
 }
@@ -233,6 +346,9 @@ function SectionList({
             />
           )
         }
+        if (section.type === 'gallery') {
+          return <GalleryView key={i} section={section as GallerySection} />
+        }
         return <TextImageView key={i} section={section as TextImageSection} />
       })}
     </>
@@ -250,7 +366,8 @@ function PreviewModal({
   content: PropertyPageContent | null
   onClose: () => void
 }) {
-  const meta = [property.area?.name, property.country].filter(Boolean).join(' · ')
+  const areaName = property.area?.name ?? null
+  const country = property.country ?? null
 
   return (
     <S.PreviewOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -266,11 +383,9 @@ function PreviewModal({
         {/* Cover */}
         <S.PreviewCover $url={property.coverImageUrl ?? undefined}>
           <S.PreviewCoverContent>
-            {meta && (
-              <S.PageViewCoverBrand>{meta}</S.PageViewCoverBrand>
-            )}
+            {areaName && <S.PageViewCoverBrand>{areaName}</S.PageViewCoverBrand>}
             <S.PreviewCoverTitle>{property.name}</S.PreviewCoverTitle>
-            {meta && <S.PreviewCoverMeta>{meta}</S.PreviewCoverMeta>}
+            {country && <S.PreviewCoverMeta>{country}</S.PreviewCoverMeta>}
           </S.PreviewCoverContent>
         </S.PreviewCover>
 
@@ -313,7 +428,8 @@ export default function PageContentTab({ property }: Props) {
     }
   }
 
-  const meta = [property.area?.name, property.country].filter(Boolean).join(' · ')
+  const areaName = property.area?.name ?? null
+  const country = property.country ?? null
   const sectionTypes = content?.sections.map((s) => s.type) ?? []
 
   return (
@@ -365,9 +481,9 @@ export default function PageContentTab({ property }: Props) {
             onChange={handleCoverUpload}
           />
           <S.PageViewCoverContent>
-            {meta && <S.PageViewCoverBrand>{meta}</S.PageViewCoverBrand>}
+            {areaName && <S.PageViewCoverBrand>{areaName}</S.PageViewCoverBrand>}
             <S.PageViewCoverTitle>{property.name}</S.PageViewCoverTitle>
-            {meta && <S.PageViewCoverMeta>{meta}</S.PageViewCoverMeta>}
+            {country && <S.PageViewCoverMeta>{country}</S.PageViewCoverMeta>}
           </S.PageViewCoverContent>
         </S.PageViewCover>
 

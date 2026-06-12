@@ -23,7 +23,12 @@ export interface AccommodationSection {
   intro: string
 }
 
-export type PropertySection = TextImageSection | FastFactsSection | AccommodationSection
+export interface GallerySection {
+  type: 'gallery'
+  images: string[]
+}
+
+export type PropertySection = TextImageSection | FastFactsSection | AccommodationSection | GallerySection
 
 export interface PropertyPageContent {
   sections: PropertySection[]
@@ -34,6 +39,7 @@ export const SECTION_TYPES = [
   { value: 'experience', label: 'Experience & Activities' },
   { value: 'accommodation', label: 'Accommodation' },
   { value: 'fastFacts', label: 'Fast Facts' },
+  { value: 'gallery', label: 'Gallery' },
 ] as const
 
 export type SectionType = (typeof SECTION_TYPES)[number]['value']
@@ -44,6 +50,9 @@ export function emptySection(type: SectionType): PropertySection {
   }
   if (type === 'accommodation') {
     return { type: 'accommodation', intro: '' }
+  }
+  if (type === 'gallery') {
+    return { type: 'gallery', images: [] }
   }
   return { type: type as 'overview' | 'experience', text1: '', images: [], text2: '' }
 }

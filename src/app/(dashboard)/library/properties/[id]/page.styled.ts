@@ -954,21 +954,134 @@ export const SliderDot = styled.button<{ $active: boolean }>`
 // ── Fast Facts ──────────────────────────────────────────────────
 
 export const FastFactsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
 `
 
-export const FastFactGroup = styled.div``
+export const FastFactGroup = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e8e3de;
+`
+
+export const FastFactGroupHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 180px;
+`
+
+export const FastFactGroupIcon = styled.div`
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: #f5f0e8;
+  display: flex; align-items: center; justify-content: center;
+  color: #7c5c3e;
+  flex-shrink: 0;
+`
 
 export const FastFactGroupLabel = styled.div`
-  font-size: 11px; font-weight: 700; color: #1a1a1a;
-  text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+`
+
+export const FastFactItems = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 `
 
 export const FastFactItem = styled.div`
-  font-size: 13px; color: #4a4a4a; line-height: 1.7;
-  &::before { content: '·'; margin-right: 6px; color: #aaa; }
+  font-size: 13px;
+  color: #4a4a4a;
+  line-height: 1.8;
+`
+
+// ── Gallery ──────────────────────────────────────────────────────
+
+export const GalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+`
+
+export const GalleryCell = styled.div<{ $selected: boolean }>`
+  position: relative;
+  aspect-ratio: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  outline: ${({ $selected }) => ($selected ? '2px solid #7c5c3e' : '2px solid transparent')};
+  outline-offset: -2px;
+  transition: outline-color 0.15s;
+
+  &:hover > span {
+    opacity: 1;
+  }
+`
+
+export const GalleryCellImg = styled.div<{ $url: string }>`
+  width: 100%; height: 100%;
+  background: url(${({ $url }) => $url}) center / cover no-repeat;
+`
+
+export const GalleryCellCheck = styled.span<{ $selected: boolean }>`
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: ${({ $selected }) => ($selected ? '#7c5c3e' : 'rgba(255,255,255,0.85)')};
+  border: 2px solid ${({ $selected }) => ($selected ? '#7c5c3e' : 'rgba(0,0,0,0.25)')};
+  display: flex; align-items: center; justify-content: center;
+  opacity: ${({ $selected }) => ($selected ? 1 : 0)};
+  transition: opacity 0.15s, background 0.15s;
+  pointer-events: none;
+  font-size: 11px;
+  color: #fff;
+`
+
+export const GalleryDownloadBar = styled.div`
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #fff;
+  border-top: 1px solid #e8e3de;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #4a4a4a;
+`
+
+export const GalleryDownloadBtn = styled.button`
+  padding: 7px 16px;
+  background: #7c5c3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+
+  &:hover { background: #6a4e35; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+`
+
+export const GallerySelectAllBtn = styled.button`
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #7c5c3e;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
 `
 
 export const EmptyContent = styled.div`
