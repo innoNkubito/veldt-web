@@ -5,7 +5,10 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { useAuth } from '@clerk/nextjs'
-import { useContentLibraryStore, type PropertyFull } from '@/stores/contentLibraryStore'
+import {
+  useContentLibraryStore,
+  type PropertyFull,
+} from '@/stores/contentLibraryStore'
 import { uploadFile } from '@/lib/upload'
 import {
   type PropertyPageContent,
@@ -37,7 +40,7 @@ function parseContent(property: PropertyFull): PropertyPageContent {
     const pc = raw as PropertyPageContent
     if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
   }
-  return defaultTemplate(property.rooms)
+  return defaultTemplate(property.rooms.length > 0)
 }
 
 // ── Rich text editor ───────────────────────────────────────────
@@ -79,35 +82,35 @@ function RichEditor({ value, onChange, placeholder }: RichEditorProps) {
     <S.RichEditorWrap>
       <S.RichEditorToolbar>
         <S.RichToolBtn
-          type="button"
+          type='button'
           $active={editor?.isActive('bold')}
           onClick={toggleBold}
-          title="Bold"
+          title='Bold'
         >
           <strong>B</strong>
         </S.RichToolBtn>
         <S.RichToolBtn
-          type="button"
+          type='button'
           $active={editor?.isActive('italic')}
           onClick={toggleItalic}
-          title="Italic"
+          title='Italic'
         >
           <em>I</em>
         </S.RichToolBtn>
         <S.RichToolDivider />
         <S.RichToolBtn
-          type="button"
+          type='button'
           $active={editor?.isActive('bulletList')}
           onClick={toggleBullet}
-          title="Bullet list"
+          title='Bullet list'
         >
           ≡
         </S.RichToolBtn>
         <S.RichToolBtn
-          type="button"
+          type='button'
           $active={editor?.isActive('orderedList')}
           onClick={toggleOrdered}
-          title="Numbered list"
+          title='Numbered list'
         >
           1.
         </S.RichToolBtn>
@@ -165,7 +168,7 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
         <RichEditor
           value={section.text1}
           onChange={handleText1Change}
-          placeholder="Opening paragraph…"
+          placeholder='Opening paragraph…'
         />
       </S.FieldGroup>
 
@@ -175,20 +178,26 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
           <S.PhotoGrid>
             {section.images.map((url, i) => (
               <S.PhotoThumb key={i} $url={url}>
-                <S.PhotoRemove type="button" onClick={() => removeImage(i)}>✕</S.PhotoRemove>
+                <S.PhotoRemove type='button' onClick={() => removeImage(i)}>
+                  ✕
+                </S.PhotoRemove>
               </S.PhotoThumb>
             ))}
           </S.PhotoGrid>
         )}
         <S.PhotoUploadZone htmlFor={inputId}>
-          <S.PhotoUploadBtn>{uploading ? 'Uploading…' : 'Add Photos'}</S.PhotoUploadBtn>
+          <S.PhotoUploadBtn>
+            {uploading ? 'Uploading…' : 'Add Photos'}
+          </S.PhotoUploadBtn>
           <S.PhotoUploadNote>Click here to upload photos.</S.PhotoUploadNote>
-          <S.PhotoUploadNote>File formats include JPG, PNG, WEBP. Max 5 MB each.</S.PhotoUploadNote>
+          <S.PhotoUploadNote>
+            File formats include JPG, PNG, WEBP. Max 5 MB each.
+          </S.PhotoUploadNote>
         </S.PhotoUploadZone>
         <input
           id={inputId}
-          type="file"
-          accept="image/*"
+          type='file'
+          accept='image/*'
           multiple
           style={{ display: 'none' }}
           ref={fileRef}
@@ -201,7 +210,7 @@ function TextImageEditor({ section, onChange, getToken }: TextImageProps) {
         <RichEditor
           value={section.text2}
           onChange={handleText2Change}
-          placeholder="Continuation paragraph…"
+          placeholder='Continuation paragraph…'
         />
       </S.FieldGroup>
     </>
@@ -214,21 +223,34 @@ interface FastFactsProps {
 }
 
 function FastFactsEditor({ section, onChange }: FastFactsProps) {
-  function updateGroup(gIdx: number, patch: Partial<(typeof section.groups)[0]>) {
-    const groups = section.groups.map((g, i) => (i === gIdx ? { ...g, ...patch } : g))
+  function updateGroup(
+    gIdx: number,
+    patch: Partial<(typeof section.groups)[0]>,
+  ) {
+    const groups = section.groups.map((g, i) =>
+      i === gIdx ? { ...g, ...patch } : g,
+    )
     onChange({ ...section, groups })
   }
 
   function addGroup() {
-    onChange({ ...section, groups: [...section.groups, { label: '', items: [''] }] })
+    onChange({
+      ...section,
+      groups: [...section.groups, { label: '', items: [''] }],
+    })
   }
 
   function removeGroup(gIdx: number) {
-    onChange({ ...section, groups: section.groups.filter((_, i) => i !== gIdx) })
+    onChange({
+      ...section,
+      groups: section.groups.filter((_, i) => i !== gIdx),
+    })
   }
 
   function updateItem(gIdx: number, iIdx: number, value: string) {
-    const items = section.groups[gIdx].items.map((it, i) => (i === iIdx ? value : it))
+    const items = section.groups[gIdx].items.map((it, i) =>
+      i === iIdx ? value : it,
+    )
     updateGroup(gIdx, { items })
   }
 
@@ -249,10 +271,14 @@ function FastFactsEditor({ section, onChange }: FastFactsProps) {
             <S.SmallInput
               value={group.label}
               onChange={(e) => updateGroup(gIdx, { label: e.target.value })}
-              placeholder="Group label (e.g. Highlights)"
+              placeholder='Group label (e.g. Highlights)'
             />
             {section.groups.length > 1 && (
-              <S.DangerIconBtn type="button" onClick={() => removeGroup(gIdx)} title="Remove group">
+              <S.DangerIconBtn
+                type='button'
+                onClick={() => removeGroup(gIdx)}
+                title='Remove group'
+              >
                 ✕
               </S.DangerIconBtn>
             )}
@@ -265,19 +291,27 @@ function FastFactsEditor({ section, onChange }: FastFactsProps) {
                 onChange={(e) => updateItem(gIdx, iIdx, e.target.value)}
                 placeholder={`Item ${iIdx + 1}`}
               />
-              <S.DangerIconBtn type="button" onClick={() => removeItem(gIdx, iIdx)} title="Remove item">
+              <S.DangerIconBtn
+                type='button'
+                onClick={() => removeItem(gIdx, iIdx)}
+                title='Remove item'
+              >
                 ✕
               </S.DangerIconBtn>
             </S.ItemRow>
           ))}
 
-          <S.IconBtn type="button" onClick={() => addItem(gIdx)} style={{ alignSelf: 'flex-start', fontSize: 13 }}>
+          <S.IconBtn
+            type='button'
+            onClick={() => addItem(gIdx)}
+            style={{ alignSelf: 'flex-start', fontSize: 13 }}
+          >
             + Add item
           </S.IconBtn>
         </S.GroupCard>
       ))}
 
-      <S.IconBtn type="button" onClick={addGroup} style={{ fontSize: 13 }}>
+      <S.IconBtn type='button' onClick={addGroup} style={{ fontSize: 13 }}>
         + Add group
       </S.IconBtn>
     </>
@@ -290,7 +324,11 @@ interface AccommodationProps {
   property: PropertyFull
 }
 
-function AccommodationEditor({ section, onChange, property }: AccommodationProps) {
+function AccommodationEditor({
+  section,
+  onChange,
+  property,
+}: AccommodationProps) {
   return (
     <>
       <S.FieldGroup>
@@ -298,26 +336,40 @@ function AccommodationEditor({ section, onChange, property }: AccommodationProps
         <S.FieldTextarea
           value={section.intro}
           onChange={(e) => onChange({ ...section, intro: e.target.value })}
-          placeholder="Brief introduction to your accommodation options…"
+          placeholder='Brief introduction to your accommodation options…'
         />
       </S.FieldGroup>
 
       <S.FieldGroup>
         <S.FieldLabel>Rooms</S.FieldLabel>
         {property.rooms.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}>
-            No rooms added yet. Add rooms in the Rooms tab — they&apos;ll appear here automatically.
+          <div
+            style={{ fontSize: 13, color: 'var(--muted)', padding: '8px 0' }}
+          >
+            No rooms added yet. Add rooms in the Rooms tab — they&apos;ll appear
+            here automatically.
           </div>
         ) : (
           <S.AccommodationRoomList>
             {property.rooms.map((room) => (
               <S.AccommodationRoomRow key={room.id}>
-                {room.photos[0] && <S.AccommodationRoomThumb $url={room.photos[0]} />}
+                {room.photos[0] && (
+                  <S.AccommodationRoomThumb $url={room.photos[0]} />
+                )}
                 <div>
-                  <S.AccommodationRoomName style={{ fontSize: 13 }}>{room.roomType}</S.AccommodationRoomName>
+                  <S.AccommodationRoomName style={{ fontSize: 13 }}>
+                    {room.roomType}
+                  </S.AccommodationRoomName>
                   {room.description && (
-                    <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                      {room.description.slice(0, 80)}{room.description.length > 80 ? '…' : ''}
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: 'var(--muted)',
+                        marginTop: 2,
+                      }}
+                    >
+                      {room.description.slice(0, 80)}
+                      {room.description.length > 80 ? '…' : ''}
                     </div>
                   )}
                 </div>
@@ -342,6 +394,7 @@ export default function RichContentTab({ property, onSaved }: Props) {
   const [content, setContent] = useState<PropertyPageContent>(() =>
     parseContent(property),
   )
+
   const [dirty, setDirty] = useState(false)
   const [newSectionType, setNewSectionType] = useState<SectionType>('overview')
 
@@ -372,7 +425,9 @@ export default function RichContentTab({ property, onSaved }: Props) {
   }
 
   function addSection() {
-    setContent((c) => ({ sections: [...c.sections, emptySection(newSectionType)] }))
+    setContent((c) => ({
+      sections: [...c.sections, emptySection(newSectionType)],
+    }))
     setDirty(true)
   }
 
@@ -386,7 +441,9 @@ export default function RichContentTab({ property, onSaved }: Props) {
     <div>
       <S.SectionList>
         {content.sections.length === 0 && (
-          <div style={{ fontSize: 13, color: 'var(--muted)', padding: '20px 0' }}>
+          <div
+            style={{ fontSize: 13, color: 'var(--muted)', padding: '20px 0' }}
+          >
             No sections yet. Add one below.
           </div>
         )}
@@ -396,20 +453,30 @@ export default function RichContentTab({ property, onSaved }: Props) {
             <S.SectionHeader>
               <S.SectionLabel>{sectionLabel(section.type)}</S.SectionLabel>
               <S.IconBtn
-                type="button"
-                title="Move up"
+                type='button'
+                title='Move up'
                 onClick={() => moveSection(idx, -1)}
                 disabled={idx === 0}
                 style={{ opacity: idx === 0 ? 0.3 : 1 }}
-              >↑</S.IconBtn>
+              >
+                ↑
+              </S.IconBtn>
               <S.IconBtn
-                type="button"
-                title="Move down"
+                type='button'
+                title='Move down'
                 onClick={() => moveSection(idx, 1)}
                 disabled={idx === content.sections.length - 1}
-                style={{ opacity: idx === content.sections.length - 1 ? 0.3 : 1 }}
-              >↓</S.IconBtn>
-              <S.DangerIconBtn type="button" title="Remove section" onClick={() => removeSection(idx)}>
+                style={{
+                  opacity: idx === content.sections.length - 1 ? 0.3 : 1,
+                }}
+              >
+                ↓
+              </S.IconBtn>
+              <S.DangerIconBtn
+                type='button'
+                title='Remove section'
+                onClick={() => removeSection(idx)}
+              >
                 ✕
               </S.DangerIconBtn>
             </S.SectionHeader>
@@ -444,10 +511,12 @@ export default function RichContentTab({ property, onSaved }: Props) {
           onChange={(e) => setNewSectionType(e.target.value as SectionType)}
         >
           {SECTION_TYPES.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
           ))}
         </S.SectionTypeSelect>
-        <S.AddSectionBtn type="button" onClick={addSection}>
+        <S.AddSectionBtn type='button' onClick={addSection}>
           + Add Section
         </S.AddSectionBtn>
       </S.AddSectionBar>

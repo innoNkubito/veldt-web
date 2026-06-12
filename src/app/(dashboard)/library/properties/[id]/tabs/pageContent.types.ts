@@ -48,16 +48,17 @@ export function emptySection(type: SectionType): PropertySection {
   return { type: type as 'overview' | 'experience', text1: '', images: [], text2: '' }
 }
 
-/** Default template for a new property page. Pass property.rooms to pre-fill accommodation. */
-export function defaultTemplate(
-  rooms: { roomType: string }[],
-): PropertyPageContent {
-  return {
-    sections: [
-      { type: 'overview', text1: '', images: [], text2: '' },
-      { type: 'experience', text1: '', images: [], text2: '' },
-      { type: 'accommodation', intro: rooms.length > 0 ? '' : '' },
-      { type: 'fastFacts', groups: [{ label: 'Highlights', items: [''] }, { label: 'Location', items: [''] }] },
-    ],
+/** Default template for a new property page.
+ *  Accommodation section is only included when the property already has rooms.
+ *  FastFacts groups start empty — no placeholder labels. */
+export function defaultTemplate(hasRooms: boolean): PropertyPageContent {
+  const sections: PropertySection[] = [
+    { type: 'overview', text1: '', images: [], text2: '' },
+    { type: 'experience', text1: '', images: [], text2: '' },
+  ]
+  if (hasRooms) {
+    sections.push({ type: 'accommodation', intro: '' })
   }
+  sections.push({ type: 'fastFacts', groups: [{ label: '', items: [''] }] })
+  return { sections }
 }

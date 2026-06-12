@@ -136,6 +136,8 @@ export const EditorBody = styled.div`
 export const TabBody = styled.div`
   padding: 2rem;
   max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
 `
 
 export const CenteredState = styled.div`
@@ -766,12 +768,11 @@ export const PageViewCover = styled.div<{ $url?: string }>`
   &::before {
     content: '';
     position: absolute;
-    inset: -8px;
+    inset: 0;
     background: ${({ $url }) =>
       $url
         ? `url(${$url}) center/cover no-repeat`
         : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
-    filter: blur(3px);
   }
 
   &::after {
@@ -1025,6 +1026,47 @@ export const AccommodationRoomThumb = styled.div<{ $url: string }>`
   flex-shrink: 0; border: 1px solid ${T.border};
 `
 
+// ── Accommodation — document-style view ────────────────────────
+
+export const AccomRoomBlock = styled.div`
+  padding: 28px 0;
+  border-bottom: 1px solid #e8e3de;
+
+  &:first-child { padding-top: 0; }
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+`
+
+export const AccomRoomHeading = styled.div`
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+`
+
+export const AccomRoomDescription = styled.p`
+  font-size: 14px;
+  line-height: 1.8;
+  color: #4a4a4a;
+  margin: 0 0 18px;
+`
+
+/** 1 photo: full width. 2 photos: equal-width 2-col grid. */
+export const AccomPhotoGrid = styled.div<{ $count: number }>`
+  display: grid;
+  grid-template-columns: ${({ $count }) => ($count >= 2 ? '1fr 1fr' : '1fr')};
+  gap: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+`
+
+export const AccomPhoto = styled.div<{ $url: string }>`
+  width: 100%;
+  aspect-ratio: ${({ }) => '16/10'};
+  background: ${({ $url }) => `url(${$url}) center/cover no-repeat`};
+  background-color: #e8e3de;
+`
+
 // ── Preview modal ───────────────────────────────────────────────
 
 export const PreviewOverlay = styled.div`
@@ -1073,12 +1115,11 @@ export const PreviewCover = styled.div<{ $url?: string }>`
 
   &::before {
     content: '';
-    position: absolute; inset: -8px;
+    position: absolute; inset: 0;
     background: ${({ $url }) =>
       $url
         ? `url(${$url}) center/cover no-repeat`
         : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
-    filter: blur(3px);
   }
 
   &::after {

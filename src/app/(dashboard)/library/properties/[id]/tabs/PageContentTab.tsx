@@ -158,26 +158,34 @@ function AccommodationView({
           No rooms added yet. Add rooms in the Rooms tab.
         </S.EmptyContent>
       ) : (
-        <S.AccommodationGrid>
-          {property.rooms.map((room) => (
-            <S.AccommodationCard key={room.id}>
-              {room.photos.length > 0 && (
-                <S.AccommodationPhoto $url={room.photos[0]} />
-              )}
-              <S.AccommodationCardBody>
-                <S.AccommodationRoomName>{room.roomType}</S.AccommodationRoomName>
+        <>
+          {property.rooms.map((room) => {
+            const photos = room.photos ?? []
+            // 1 photo → full-width slider; 2 photos → 2-col grid; 3+ → slider
+            const useSlider = photos.length === 1 || photos.length >= 3
+            const displayPhotos = useSlider ? photos : photos.slice(0, 2)
+
+            return (
+              <S.AccomRoomBlock key={room.id}>
+                <S.AccomRoomHeading>{room.roomType}</S.AccomRoomHeading>
                 {room.description && (
-                  <S.AccommodationRoomDesc>{room.description}</S.AccommodationRoomDesc>
+                  <S.AccomRoomDescription>{room.description}</S.AccomRoomDescription>
                 )}
-                {room.photos.length > 1 && (
-                  <S.AccommodationPhotoCount>
-                    +{room.photos.length - 1} photo{room.photos.length - 1 !== 1 ? 's' : ''}
-                  </S.AccommodationPhotoCount>
+                {photos.length > 0 && (
+                  useSlider ? (
+                    <PhotoSlider images={photos} />
+                  ) : (
+                    <S.AccomPhotoGrid $count={displayPhotos.length}>
+                      {displayPhotos.map((url, i) => (
+                        <S.AccomPhoto key={i} $url={url} />
+                      ))}
+                    </S.AccomPhotoGrid>
+                  )
                 )}
-              </S.AccommodationCardBody>
-            </S.AccommodationCard>
-          ))}
-        </S.AccommodationGrid>
+              </S.AccomRoomBlock>
+            )
+          })}
+        </>
       )}
     </S.ContentSection>
   )
@@ -285,7 +293,6 @@ export default function PageContentTab({ property }: Props) {
   const [editing, setEditing] = useState(() => !hasContent(property.pageContent))
   const [showPreview, setShowPreview] = useState(false)
   const content = parseContent(property.pageContent)
-
   const { getToken } = useAuth()
   const { updateProperty } = useContentLibraryStore()
   const coverInputRef = useRef<HTMLInputElement>(null)
