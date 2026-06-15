@@ -25,7 +25,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
         <S.Section key={section}>
           <S.SectionLabel>{section}</S.SectionLabel>
 
-          {items.map(({ label, href, icon, badge }) => {
+          {items.map(({ label, href, icon }) => {
             const active = activePath.startsWith(href);
             return (
               <S.NavItem
@@ -35,7 +35,6 @@ export default function Sidebar({ activePath }: SidebarProps) {
               >
                 <Icon d={icon} color={active ? T.terra : T.muted} size={14} />
                 {label}
-                {badge && <S.Badge>{badge}</S.Badge>}
               </S.NavItem>
             );
           })}
