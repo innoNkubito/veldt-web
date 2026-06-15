@@ -6,7 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import * as S from "./layout.styled";
 
 // Routes that get a full-width, sidebar-free layout
-const FULL_WIDTH_PATTERN = /^\/library\/properties\/[^/]+/
+const FULL_WIDTH_PATTERN = /^\/library\/(properties|areas|activities|about-us|introductory-notes)\/[^/]+/
 
 export default function DashboardGroupLayout({
   children,

@@ -715,6 +715,13 @@ export const PageViewLayout = styled.div`
   min-height: calc(100vh - 56px);
 `
 
+/** Cover | Sections (no ToC — for area pages) */
+export const AreaPageViewLayout = styled.div`
+  display: grid;
+  grid-template-columns: 504px 1fr;
+  min-height: calc(100vh - 56px);
+`
+
 // ── Table of Contents ───────────────────────────────────────────
 
 export const PageToC = styled.nav`

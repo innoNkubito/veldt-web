@@ -5,12 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import * as S from "./TopNav.styled";
 
 const NAV_LINKS = [
-  { label: "Dashboard", href: "/dashboard" },
   { label: "Itineraries", href: "/itineraries" },
-  { label: "Calendar", href: "/calendar" },
-  { label: "Clients", href: "/clients" },
-  { label: "Financials", href: "/financials" },
-  { label: "Library", href: "/library" },
+  { label: "Content", href: "/library" },
 ];
 
 interface TopNavProps {
