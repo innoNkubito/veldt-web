@@ -7,6 +7,31 @@ import * as S from './page.styled'
 
 // ── Types ──────────────────────────────────────────────────────
 
+interface Room {
+  id: string
+  roomType: string
+  description: string | null
+  photos: string[]
+}
+
+interface FullContentPage {
+  id: string
+  name: string
+  type: string
+  coverImageUrl: string | null
+  country: string | null
+  pageContent: unknown
+  area: { id: string; name: string } | null
+  rooms: Room[]
+}
+
+interface InfoPageSlot {
+  id: string
+  slot: string
+  position: number
+  contentPage: FullContentPage
+}
+
 interface PublicItinerary {
   id: string
   proposalTitle: string
@@ -14,16 +39,23 @@ interface PublicItinerary {
   travelDates: string | null
   whiteLabel: boolean
   slug: string
+  infoPageSlots: InfoPageSlot[]
   rows: {
     id: string
     position: number
     dateLabel: string | null
     numNights: number | null
     transfersText: string | null
+    areaPage: FullContentPage | null
+    activities: {
+      id: string
+      position: number
+      contentPage: FullContentPage
+    }[]
     accommodations: {
       id: string
       position: number
-      contentPage: { id: string; name: string }
+      contentPage: FullContentPage
       room: { id: string; roomType: string } | null
       areaPage: { id: string; name: string } | null
     }[]
@@ -49,17 +81,25 @@ interface PublicItinerary {
 const GET_BY_SLUG = gql`
   query GetBySlug($slug: String!) {
     itineraryBySlug(slug: $slug) {
-      id
-      proposalTitle
-      preparedFor
-      travelDates
-      whiteLabel
-      slug
+      id proposalTitle preparedFor travelDates whiteLabel slug
+      infoPageSlots {
+        id slot position
+        contentPage { id name type coverImageUrl country pageContent area { id name } }
+      }
       rows {
         id position dateLabel numNights transfersText
+        areaPage { id name type coverImageUrl country pageContent area { id name } }
+        activities {
+          id position
+          contentPage { id name type coverImageUrl country pageContent area { id name } }
+        }
         accommodations {
           id position
-          contentPage { id name }
+          contentPage {
+            id name type coverImageUrl country pageContent
+            area { id name }
+            rooms { id roomType description photos }
+          }
           room { id roomType }
           areaPage { id name }
         }
@@ -79,15 +119,210 @@ const RECORD_VIEW = gql`
   }
 `
 
+// ── Content type helpers ────────────────────────────────────────
+
+interface TextImageSection { type: string; text1: string; images: string[]; text2: string }
+interface FastFactsGroup { label: string; items: string[] }
+interface FastFactsSection { type: 'fastFacts'; groups: FastFactsGroup[] }
+interface AccommodationSection { type: 'accommodation'; intro: string }
+interface GallerySection { type: 'gallery'; images: string[] }
+type AnySection = TextImageSection | FastFactsSection | AccommodationSection | GallerySection
+
+function parsePropertySections(raw: unknown): AnySection[] | null {
+  if (raw && typeof raw === 'object' && 'sections' in raw) {
+    const s = (raw as any).sections
+    if (Array.isArray(s) && s.length > 0) return s
+  }
+  return null
+}
+
+function parseOverview(raw: unknown): TextImageSection | null {
+  if (raw && typeof raw === 'object' && 'sections' in raw) {
+    const sections = (raw as any).sections
+    if (Array.isArray(sections) && sections[0]?.type === 'overview') {
+      const s = sections[0] as TextImageSection
+      if (s.text1 || s.text2 || s.images?.length > 0) return s
+    }
+  }
+  return null
+}
+
+function sectionTitle(type: string) {
+  switch (type) {
+    case 'overview': return 'Overview'
+    case 'experience': return 'Experience & Activities'
+    case 'accommodation': return 'Accommodation'
+    case 'fastFacts': return 'Fast Facts'
+    case 'gallery': return 'Gallery'
+    default: return type
+  }
+}
+
+// ── Shared renderers ────────────────────────────────────────────
+
+function PhotoSlider({ images }: { images: string[] }) {
+  const [index, setIndex] = useState(0)
+  if (!images?.length) return null
+  return (
+    <S.DocSliderWrap>
+      <S.DocSliderTrack $index={index}>
+        {images.map((url, i) => <S.DocSliderSlide key={i} $url={url} />)}
+      </S.DocSliderTrack>
+      {images.length > 1 && (
+        <>
+          <S.DocSliderArrow $side="left" onClick={() => setIndex(i => i === 0 ? images.length - 1 : i - 1)}>‹</S.DocSliderArrow>
+          <S.DocSliderArrow $side="right" onClick={() => setIndex(i => i === images.length - 1 ? 0 : i + 1)}>›</S.DocSliderArrow>
+          <S.DocSliderDots>
+            {images.map((_, i) => <S.DocSliderDot key={i} $active={i === index} onClick={() => setIndex(i)} />)}
+          </S.DocSliderDots>
+        </>
+      )}
+    </S.DocSliderWrap>
+  )
+}
+
+function RichText({ html }: { html: string }) {
+  if (!html) return null
+  if (html.trimStart().startsWith('<')) {
+    return <S.DocRichText dangerouslySetInnerHTML={{ __html: html }} />
+  }
+  return (
+    <S.DocRichText>
+      {html.split('\n').filter(Boolean).map((line, i) => <p key={i}>{line}</p>)}
+    </S.DocRichText>
+  )
+}
+
+function TextImageView({ section, title }: { section: TextImageSection; title?: string }) {
+  return (
+    <S.DocSection>
+      {title && <S.DocSectionTitle>{title}</S.DocSectionTitle>}
+      {section.text1 && <RichText html={section.text1} />}
+      {section.images?.length > 0 && <PhotoSlider images={section.images} />}
+      {section.text2 && <RichText html={section.text2} />}
+    </S.DocSection>
+  )
+}
+
+function FastFactsView({ section }: { section: FastFactsSection }) {
+  const groups = section.groups?.filter(g => g.items?.some(Boolean)) ?? []
+  if (!groups.length) return null
+  return (
+    <S.DocSection>
+      <S.DocSectionTitle>Fast Facts</S.DocSectionTitle>
+      <S.DocFactsGrid>
+        {groups.map((group, i) => (
+          <S.DocFactGroup key={i}>
+            {group.label && <S.DocFactLabel>{group.label}</S.DocFactLabel>}
+            <S.DocFactItems>
+              {group.items.filter(Boolean).map((item, j) => (
+                <S.DocFactItem key={j}>{item}</S.DocFactItem>
+              ))}
+            </S.DocFactItems>
+          </S.DocFactGroup>
+        ))}
+      </S.DocFactsGrid>
+    </S.DocSection>
+  )
+}
+
+function GalleryView({ section }: { section: GallerySection }) {
+  if (!section.images?.length) return null
+  return (
+    <S.DocSection>
+      <S.DocSectionTitle>Gallery</S.DocSectionTitle>
+      <S.DocGalleryGrid>
+        {section.images.map((url, i) => (
+          <S.DocGalleryCell key={i} $url={url} />
+        ))}
+      </S.DocGalleryGrid>
+    </S.DocSection>
+  )
+}
+
+function RoomsView({ rooms, intro }: { rooms: Room[]; intro?: string }) {
+  if (!rooms?.length && !intro) return null
+  return (
+    <S.DocSection>
+      <S.DocSectionTitle>Accommodation</S.DocSectionTitle>
+      {intro && <RichText html={intro} />}
+      {rooms?.map((room) => (
+        <S.DocRoomBlock key={room.id}>
+          <S.DocRoomHeading>{room.roomType}</S.DocRoomHeading>
+          {room.description && <RichText html={room.description} />}
+          {room.photos?.length > 0 && (
+            room.photos.length >= 3
+              ? <PhotoSlider images={room.photos} />
+              : (
+                <S.DocRoomPhotoGrid $count={room.photos.length}>
+                  {room.photos.slice(0, 2).map((url, i) => (
+                    <S.DocRoomPhoto key={i} $url={url} />
+                  ))}
+                </S.DocRoomPhotoGrid>
+              )
+          )}
+        </S.DocRoomBlock>
+      ))}
+    </S.DocSection>
+  )
+}
+
+// ── Page document blocks ────────────────────────────────────────
+
+function PageCover({ page }: { page: FullContentPage }) {
+  return (
+    <S.DocCover $url={page.coverImageUrl ?? ''} $hasImage={!!page.coverImageUrl}>
+      <S.DocCoverContent>
+        {page.area?.name && <S.DocCoverSub>{page.area.name}</S.DocCoverSub>}
+        <S.DocCoverTitle>{page.name}</S.DocCoverTitle>
+        {page.country && <S.DocCoverMeta>{page.country}</S.DocCoverMeta>}
+      </S.DocCoverContent>
+    </S.DocCover>
+  )
+}
+
+function PropertyPageDoc({ page }: { page: FullContentPage }) {
+  const sections = parsePropertySections(page.pageContent)
+  return (
+    <S.DocPageBlock>
+      <PageCover page={page} />
+      <S.DocPageBody>
+        {sections?.map((section, i) => {
+          if (section.type === 'fastFacts') return <FastFactsView key={i} section={section as FastFactsSection} />
+          if (section.type === 'gallery') return <GalleryView key={i} section={section as GallerySection} />
+          if (section.type === 'accommodation') {
+            return <RoomsView key={i} rooms={page.rooms ?? []} intro={(section as AccommodationSection).intro} />
+          }
+          return <TextImageView key={i} section={section as TextImageSection} title={sectionTitle(section.type)} />
+        })}
+      </S.DocPageBody>
+    </S.DocPageBlock>
+  )
+}
+
+function SimplePageDoc({ page }: { page: FullContentPage }) {
+  const overview = parseOverview(page.pageContent)
+  return (
+    <S.DocPageBlock>
+      <PageCover page={page} />
+      <S.DocPageBody>
+        {overview && <TextImageView section={overview} />}
+      </S.DocPageBody>
+    </S.DocPageBlock>
+  )
+}
+
+function ContentPageDoc({ page }: { page: FullContentPage }) {
+  if (!page) return null
+  if (page.type === 'PROPERTY') return <PropertyPageDoc page={page} />
+  return <SimplePageDoc page={page} />
+}
+
 // ── Currency formatter ─────────────────────────────────────────
 
 function formatPrice(amount: number, currency: string) {
   try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0,
-    }).format(amount)
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount)
   } catch {
     return `${currency} ${amount.toLocaleString()}`
   }
@@ -120,7 +355,6 @@ function CostsSection({ costs }: { costs: NonNullable<PublicItinerary['costs']> 
           </S.CostsMeta>
         </S.CostsHeader>
       )}
-
       {(costs.costIncludes || costs.costExcludes) && (
         <S.CostsBody>
           {costs.costIncludes && (
@@ -137,11 +371,7 @@ function CostsSection({ costs }: { costs: NonNullable<PublicItinerary['costs']> 
           )}
         </S.CostsBody>
       )}
-
-      {costs.notesVisible && costs.costNotes && (
-        <S.CostsNotes>{costs.costNotes}</S.CostsNotes>
-      )}
-
+      {costs.notesVisible && costs.costNotes && <S.CostsNotes>{costs.costNotes}</S.CostsNotes>}
       {costs.miscVisible && costs.miscText && (
         <S.CostsNotes style={{ borderTop: '1px solid #EDE6D6', fontStyle: 'italic' }}>
           {costs.miscText}
@@ -163,30 +393,16 @@ export default function SharePage() {
 
   useEffect(() => {
     if (!slug) return
-
     const apiUrl = process.env.NEXT_PUBLIC_API_URL
     if (!apiUrl) return
-
-    // Unauthenticated client — public query
     const client = new GraphQLClient(apiUrl)
 
     async function load() {
       try {
-        const data = await client.request<{ itineraryBySlug: PublicItinerary | null }>(
-          GET_BY_SLUG,
-          { slug },
-        )
-
-        if (!data.itineraryBySlug) {
-          setNotFound(true)
-          setLoading(false)
-          return
-        }
-
+        const data = await client.request<{ itineraryBySlug: PublicItinerary | null }>(GET_BY_SLUG, { slug })
+        if (!data.itineraryBySlug) { setNotFound(true); setLoading(false); return }
         setItinerary(data.itineraryBySlug)
         setLoading(false)
-
-        // Fire-and-forget view recording
         client.request(RECORD_VIEW, { slug }).catch(() => {})
       } catch {
         setNotFound(true)
@@ -201,9 +417,7 @@ export default function SharePage() {
     return (
       <S.PageRoot>
         <S.PageInner>
-          <S.CenteredState>
-            <div>Loading your itinerary…</div>
-          </S.CenteredState>
+          <S.CenteredState><div>Loading your itinerary…</div></S.CenteredState>
         </S.PageInner>
       </S.PageRoot>
     )
@@ -222,21 +436,25 @@ export default function SharePage() {
     )
   }
 
-  const hasCosts =
-    itinerary.costs &&
-    (itinerary.costs.costsToBeDetetermined ||
-      itinerary.costs.pricePerPerson != null ||
-      itinerary.costs.costIncludes ||
-      itinerary.costs.costExcludes)
+  const hasCosts = itinerary.costs && (
+    itinerary.costs.costsToBeDetetermined ||
+    itinerary.costs.pricePerPerson != null ||
+    itinerary.costs.costIncludes ||
+    itinerary.costs.costExcludes
+  )
+
+  const slotsAfterCover = itinerary.infoPageSlots.filter(s => s.slot === 'AFTER_COVER').sort((a, b) => a.position - b.position)
+  const slotsBeforeDayByDay = itinerary.infoPageSlots.filter(s => s.slot === 'BEFORE_DAY_BY_DAY').sort((a, b) => a.position - b.position)
+  const slotsEnd = itinerary.infoPageSlots.filter(s => s.slot === 'END').sort((a, b) => a.position - b.position)
 
   return (
     <S.PageRoot>
       <S.PageInner>
-        {/* ── Hero ────────────────────────────────────────── */}
+
+        {/* ── Hero ──────────────────────────────────────────── */}
         <S.HeroSection>
           <S.HeroPretitle>Your Veldt Itinerary</S.HeroPretitle>
           <S.HeroTitle>{itinerary.proposalTitle}</S.HeroTitle>
-
           <S.HeroMeta>
             {itinerary.preparedFor && (
               <S.HeroMetaItem>
@@ -259,67 +477,53 @@ export default function SharePage() {
           </S.HeroMeta>
         </S.HeroSection>
 
-        {/* ── Day-by-day ──────────────────────────────────── */}
+        {/* ── Info pages: After Cover ───────────────────────── */}
+        {slotsAfterCover.map(slot => (
+          <ContentPageDoc key={slot.id} page={slot.contentPage} />
+        ))}
+
+        {/* ── Info pages: Before Day-by-Day ────────────────── */}
+        {slotsBeforeDayByDay.map(slot => (
+          <ContentPageDoc key={slot.id} page={slot.contentPage} />
+        ))}
+
+        {/* ── Journey ───────────────────────────────────────── */}
         {itinerary.rows.length > 0 && (
-          <S.Section>
-            <S.SectionHeading>Your Journey</S.SectionHeading>
-            <S.DayList>
-              {itinerary.rows.map((row, i) => (
-                <S.DayRow key={row.id} $last={i === itinerary.rows.length - 1}>
-                  <S.DayLabelCol>
-                    {row.dateLabel ? (
-                      <S.DayLabel>{row.dateLabel}</S.DayLabel>
-                    ) : (
-                      <S.DayLabel>Day {i + 1}</S.DayLabel>
-                    )}
-                    {row.numNights != null && (
-                      <S.NightsLabel>
-                        {row.numNights} night{row.numNights !== 1 ? 's' : ''}
-                      </S.NightsLabel>
-                    )}
-                  </S.DayLabelCol>
+          <>
+            <S.DocJourneyHeading>Your Journey</S.DocJourneyHeading>
+            {itinerary.rows.map((row, i) => (
+              <div key={row.id}>
+                <S.DocDayHeader>
+                  <S.DocDayLabel>{row.dateLabel ?? `Day ${i + 1}`}</S.DocDayLabel>
+                  {row.numNights != null && (
+                    <S.DocNightsLabel>{row.numNights} night{row.numNights !== 1 ? 's' : ''}</S.DocNightsLabel>
+                  )}
+                </S.DocDayHeader>
 
-                  <S.DayContentCol>
-                    {row.transfersText && (
-                      <S.TransferLine>
-                        <span>✈</span>
-                        {row.transfersText}
-                      </S.TransferLine>
-                    )}
+                {row.transfersText && (
+                  <S.DocTransferNote>
+                    <span>✈</span> {row.transfersText}
+                  </S.DocTransferNote>
+                )}
 
-                    {row.accommodations.length > 0 && (
-                      <S.AccommodationList>
-                        {row.accommodations.map((acc) => (
-                          <S.AccommodationCard key={acc.id}>
-                            <S.AccommodationIcon>🏕</S.AccommodationIcon>
-                            <div>
-                              <S.AccommodationName>{acc.contentPage.name}</S.AccommodationName>
-                              {(acc.room || acc.areaPage) && (
-                                <S.AccommodationSub>
-                                  {[acc.room?.roomType, acc.areaPage?.name]
-                                    .filter(Boolean)
-                                    .join(' · ')}
-                                </S.AccommodationSub>
-                              )}
-                            </div>
-                          </S.AccommodationCard>
-                        ))}
-                      </S.AccommodationList>
-                    )}
+                {row.areaPage && <ContentPageDoc page={row.areaPage} />}
 
-                    {!row.transfersText && row.accommodations.length === 0 && (
-                      <div style={{ fontSize: 13, color: '#9E8E7A', fontStyle: 'italic' }}>
-                        Details to follow
-                      </div>
-                    )}
-                  </S.DayContentCol>
-                </S.DayRow>
-              ))}
-            </S.DayList>
-          </S.Section>
+                {row.accommodations.map(acc => (
+                  <ContentPageDoc key={acc.id} page={acc.contentPage} />
+                ))}
+
+                {row.activities
+                  .slice()
+                  .sort((a, b) => a.position - b.position)
+                  .map(act => (
+                    <ContentPageDoc key={act.id} page={act.contentPage} />
+                  ))}
+              </div>
+            ))}
+          </>
         )}
 
-        {/* ── Costs ───────────────────────────────────────── */}
+        {/* ── Costs ─────────────────────────────────────────── */}
         {hasCosts && (
           <S.Section>
             <S.SectionHeading>Investment</S.SectionHeading>
@@ -327,12 +531,18 @@ export default function SharePage() {
           </S.Section>
         )}
 
-        {/* ── Footer ──────────────────────────────────────── */}
+        {/* ── Info pages: End ───────────────────────────────── */}
+        {slotsEnd.map(slot => (
+          <ContentPageDoc key={slot.id} page={slot.contentPage} />
+        ))}
+
+        {/* ── Footer ────────────────────────────────────────── */}
         {!itinerary.whiteLabel && (
           <S.Footer>
             Built with <S.FooterBrand>Veldt</S.FooterBrand> — the safari itinerary platform
           </S.Footer>
         )}
+
       </S.PageInner>
     </S.PageRoot>
   )

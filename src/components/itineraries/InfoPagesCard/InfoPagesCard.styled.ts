@@ -103,6 +103,26 @@ export const PillRemove = styled.button`
   &:hover { background: #a0826a; }
 `
 
+export const PillMoveBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  border: none;
+  background: none;
+  color: #8a6a50;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+
+  &:hover { background: #c5b09a; color: #fff; }
+  &:disabled { opacity: 0.3; cursor: default; }
+`
+
 // ── Add page picker ─────────────────────────────────────────────
 
 export const AddRow = styled.div`
@@ -165,9 +185,9 @@ export const DropdownList = styled.div`
 export const DropdownItem = styled.button`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 7px 12px;
   border: none;
   background: none;
   text-align: left;
@@ -176,6 +196,28 @@ export const DropdownItem = styled.button`
   cursor: pointer;
 
   &:hover { background: #faf7f4; }
+`
+
+export const DropdownItemThumb = styled.div<{ $url: string }>`
+  width: 36px;
+  height: 28px;
+  border-radius: 4px;
+  background: ${({ $url }) => $url ? `url(${$url}) center/cover` : T.dim};
+  border: 1px solid ${T.border};
+  flex-shrink: 0;
+`
+
+export const DropdownItemInfo = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+export const DropdownItemName = styled.div`
+  font-size: 12.5px;
+  color: ${T.text};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export const DropdownItemType = styled.span`

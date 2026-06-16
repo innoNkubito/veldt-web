@@ -254,6 +254,15 @@ const REMOVE_INFO_PAGE_SLOT = gql`
   }
 `
 
+const REORDER_INFO_PAGE_SLOTS = gql`
+  mutation ReorderInfoPageSlots($itineraryId: ID!, $slot: InfoPageSlot!, $ids: [ID!]!) {
+    reorderInfoPageSlots(itineraryId: $itineraryId, slot: $slot, ids: $ids) {
+      id slot position
+      contentPage { id name type }
+    }
+  }
+`
+
 // ── Content page search types ──────────────────────────────────
 
 export interface PropertyOption {
@@ -328,6 +337,7 @@ interface BuilderState {
 
   addInfoPageSlot: (itineraryId: string, contentPageId: string, slot: string, position?: number) => Promise<void>
   removeInfoPageSlot: (slotId: string) => Promise<void>
+  reorderInfoPageSlots: (itineraryId: string, slot: string, ids: string[]) => Promise<void>
 }
 
 export const useBuilderStore = create<BuilderState>((set, get) => ({
@@ -662,6 +672,28 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       })
     } catch (err: any) {
       set({ saving: false, error: err?.response?.errors?.[0]?.message ?? 'Failed to remove info page' })
+    }
+  },
+
+  reorderInfoPageSlots: async (itineraryId, slot, ids) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ reorderInfoPageSlots: ItineraryInfoPageSlot[] }>(
+        REORDER_INFO_PAGE_SLOTS, { itineraryId, slot, ids }
+      )
+      set((s) => {
+        if (!s.itinerary) return {}
+        const others = s.itinerary.infoPageSlots.filter((p) => p.slot !== slot)
+        return {
+          itinerary: {
+            ...s.itinerary,
+            infoPageSlots: [...others, ...data.reorderInfoPageSlots],
+          },
+        }
+      })
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to reorder' })
     }
   },
 }))

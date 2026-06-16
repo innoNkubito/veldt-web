@@ -73,7 +73,7 @@ export const useContentHubStore = create<ContentHubState>((set) => ({
     try {
       const data = await client.request<{ contentPages: HubContentItem[] }>(LIST_ALL_CONTENT)
       // Filter to only the types we surface in the hub
-      const known = new Set(['PROPERTY', 'AREA', 'ACTIVITY', 'ABOUT_US', 'INTRODUCTORY_NOTES'])
+      const known = new Set(['PROPERTY', 'AREA', 'ACTIVITY', 'ABOUT_US', 'INTRODUCTORY_NOTES', 'TERMS_CONDITIONS'])
       set({
         pages: data.contentPages.filter((p) => known.has(p.type)),
         loading: false,

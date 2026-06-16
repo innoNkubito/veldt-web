@@ -25,15 +25,15 @@ export const Backdrop = styled.div`
   z-index: 10;
 `
 
-export const Dropdown = styled.div`
-  position: absolute;
-  right: 0;
-  top: 32px;
+export const Dropdown = styled.div<{ $top: number; $right: number }>`
+  position: fixed;
+  top: ${({ $top }) => $top}px;
+  right: ${({ $right }) => $right}px;
   background: ${T.card};
   border: 1px solid ${T.border};
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 20;
+  z-index: 1000;
   min-width: 160px;
   overflow: hidden;
 `

@@ -280,6 +280,28 @@ export const NotFoundTitle = styled.div`
   margin-bottom: 4px;
 `
 
+// ── Info page slot sections ────────────────────────────────────
+
+export const InfoPagesSection = styled.div`
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+export const InfoPageEntry = styled.div`
+  padding: 16px 20px;
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+`
+
+export const InfoPageName = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${T.text};
+`
+
 // ── Footer ─────────────────────────────────────────────────────
 
 export const Footer = styled.div`
@@ -294,4 +316,301 @@ export const Footer = styled.div`
 export const FooterBrand = styled.span`
   font-weight: 600;
   color: ${T.terra};
+`
+
+// ── Document blocks ────────────────────────────────────────────
+
+export const DocPageBlock = styled.div`
+  margin-bottom: 56px;
+`
+
+export const DocCover = styled.div<{ $url: string; $hasImage: boolean }>`
+  position: relative;
+  width: 100%;
+  height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: ${({ $url, $hasImage }) =>
+    $hasImage ? `url(${$url}) center/cover no-repeat` : T.cardAlt};
+  margin-bottom: 0;
+  display: flex;
+  align-items: flex-end;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: ${({ $hasImage }) =>
+      $hasImage
+        ? 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)'
+        : 'none'};
+  }
+`
+
+export const DocCoverContent = styled.div`
+  position: relative;
+  z-index: 1;
+  padding: 28px 32px;
+  width: 100%;
+`
+
+export const DocCoverSub = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 6px;
+`
+
+export const DocCoverTitle = styled.h2`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0;
+  line-height: 1.15;
+`
+
+export const DocCoverMeta = styled.div`
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 6px;
+`
+
+export const DocPageBody = styled.div`
+  padding: 28px 0 0;
+`
+
+export const DocSection = styled.div`
+  margin-bottom: 32px;
+`
+
+export const DocSectionTitle = styled.h3`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: ${T.text};
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid ${T.border};
+`
+
+export const DocRichText = styled.div`
+  font-size: 14px;
+  line-height: 1.75;
+  color: ${T.sub};
+
+  p { margin: 0 0 10px; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: ${T.text}; font-weight: 600; }
+  em { font-style: italic; }
+  ul, ol { padding-left: 20px; margin: 8px 0; }
+  li { margin-bottom: 4px; }
+  h1, h2, h3, h4 {
+    font-family: var(--font-playfair), 'Playfair Display', serif;
+    color: ${T.text};
+    margin: 16px 0 8px;
+  }
+`
+
+// ── Slider ─────────────────────────────────────────────────────
+
+export const DocSliderWrap = styled.div`
+  position: relative;
+  width: 100%;
+  height: 360px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+  background: ${T.dim};
+`
+
+export const DocSliderTrack = styled.div<{ $index: number }>`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  transform: translateX(${({ $index }) => $index * -100}%);
+  transition: transform 0.35s ease;
+`
+
+export const DocSliderSlide = styled.div<{ $url: string }>`
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+  background: url(${({ $url }) => $url}) center/cover no-repeat;
+`
+
+export const DocSliderArrow = styled.button<{ $side: 'left' | 'right' }>`
+  position: absolute;
+  top: 50%;
+  ${({ $side }) => $side}: 12px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  color: ${T.text};
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  line-height: 1;
+  padding-bottom: 2px;
+
+  &:hover { background: #fff; }
+`
+
+export const DocSliderDots = styled.div`
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+`
+
+export const DocSliderDot = styled.button<{ $active: boolean }>`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.45)')};
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+`
+
+// ── Fast Facts ─────────────────────────────────────────────────
+
+export const DocFactsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+`
+
+export const DocFactGroup = styled.div`
+  background: ${T.cardAlt};
+  border-radius: 8px;
+  padding: 14px 16px;
+`
+
+export const DocFactLabel = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: ${T.muted};
+  margin-bottom: 8px;
+`
+
+export const DocFactItems = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+export const DocFactItem = styled.div`
+  font-size: 13px;
+  color: ${T.text};
+  line-height: 1.4;
+`
+
+// ── Gallery ────────────────────────────────────────────────────
+
+export const DocGalleryGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`
+
+export const DocGalleryCell = styled.div<{ $url: string }>`
+  height: 160px;
+  border-radius: 8px;
+  background: url(${({ $url }) => $url}) center/cover no-repeat;
+  background-color: ${T.dim};
+`
+
+// ── Rooms ──────────────────────────────────────────────────────
+
+export const DocRoomBlock = styled.div`
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+`
+
+export const DocRoomHeading = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${T.text};
+  margin-bottom: 8px;
+`
+
+export const DocRoomPhotoGrid = styled.div<{ $count: number }>`
+  display: grid;
+  grid-template-columns: repeat(${({ $count }) => $count}, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+`
+
+export const DocRoomPhoto = styled.div<{ $url: string }>`
+  height: 180px;
+  border-radius: 8px;
+  background: url(${({ $url }) => $url}) center/cover no-repeat;
+  background-color: ${T.dim};
+`
+
+// ── Journey ────────────────────────────────────────────────────
+
+export const DocJourneyHeading = styled.h2`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: ${T.text};
+  margin: 0 0 24px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid ${T.border};
+`
+
+export const DocDayHeader = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+`
+
+export const DocDayLabel = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: ${T.terra};
+`
+
+export const DocNightsLabel = styled.div`
+  font-size: 11px;
+  color: ${T.muted};
+`
+
+export const DocTransferNote = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: ${T.sub};
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  background: ${T.cardAlt};
+  border-radius: 8px;
 `

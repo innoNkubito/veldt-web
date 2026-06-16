@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { T } from '@/lib/theme'
 import { ItineraryListItem } from '@/stores/itineraryStore'
 import * as S from './ItineraryRowMenu.styled'
@@ -19,6 +19,19 @@ interface Props {
 
 export default function ItineraryRowMenu({ itinerary, onDuplicate, onDelete }: Props) {
   const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+  const triggerRef = useRef<HTMLButtonElement>(null)
+
+  function handleOpen() {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPos({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setOpen((o) => !o)
+  }
 
   const items: MenuItem[] = [
     { label: 'Duplicate', action: onDuplicate, color: T.sub },
@@ -35,13 +48,13 @@ export default function ItineraryRowMenu({ itinerary, onDuplicate, onDelete }: P
 
   return (
     <S.Wrapper>
-      <S.Trigger $open={open} onClick={() => setOpen(!open)}>
+      <S.Trigger ref={triggerRef} $open={open} onClick={handleOpen}>
         ⋯
       </S.Trigger>
       {open && (
         <>
           <S.Backdrop onClick={() => setOpen(false)} />
-          <S.Dropdown>
+          <S.Dropdown $top={pos.top} $right={pos.right}>
             {items.map(({ label, action, color }) => (
               <S.Item
                 key={label}
