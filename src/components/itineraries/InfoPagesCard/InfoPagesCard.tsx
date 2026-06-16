@@ -20,7 +20,7 @@ const SLOTS: {
 ]
 
 // Types available for info page slots (Properties and Areas go via the Day-by-Day tab)
-const ALLOWED_TYPES: ContentType[] = ['ACTIVITY', 'ABOUT_US', 'INTRODUCTORY_NOTES']
+const ALLOWED_TYPES: ContentType[] = ['ACTIVITY', 'ABOUT_US', 'INTRODUCTORY_NOTES', 'TERMS_CONDITIONS']
 
 // ── Slot picker ─────────────────────────────────────────────────
 

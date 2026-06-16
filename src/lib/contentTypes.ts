@@ -7,6 +7,7 @@ export type ContentType =
   | 'ACTIVITY'
   | 'ABOUT_US'
   | 'INTRODUCTORY_NOTES'
+  | 'TERMS_CONDITIONS'
 
 export interface ContentTypeConfig {
   type: ContentType
@@ -76,6 +77,17 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     badgeColor: '#f0e4ea',
     badgeText: '#7c2e5a',
   },
+  TERMS_CONDITIONS: {
+    type: 'TERMS_CONDITIONS',
+    label: 'Terms & Conditions',
+    pluralLabel: 'Terms & Conditions',
+    createPlaceholder: 'e.g. Standard Booking Terms',
+    listRoute: '/library/terms-and-conditions',
+    detailRoute: (id) => `/library/terms-and-conditions/${id}`,
+    category: 'Trip Materials',
+    badgeColor: '#e8f0e4',
+    badgeText: '#3a6b2e',
+  },
 }
 
 export const CONTENT_CATEGORIES: {
@@ -91,7 +103,7 @@ export const CONTENT_CATEGORIES: {
   {
     label: 'Trip Materials',
     description: 'Personalised content for client pages',
-    types: ['ABOUT_US', 'INTRODUCTORY_NOTES'],
+    types: ['ABOUT_US', 'INTRODUCTORY_NOTES', 'TERMS_CONDITIONS'],
   },
 ]
 
@@ -102,4 +114,5 @@ export const CREATABLE_TYPES: ContentType[] = [
   'ACTIVITY',
   'ABOUT_US',
   'INTRODUCTORY_NOTES',
+  'TERMS_CONDITIONS',
 ]
