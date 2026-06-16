@@ -13,6 +13,7 @@ import {
   CheckboxRow,
 } from '@/components/itineraries/shared/FieldPrimitives'
 import * as S from './OverviewTab.styled'
+import InfoPagesCard from '@/components/itineraries/InfoPagesCard'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -131,6 +132,9 @@ export default function OverviewTab() {
         </FieldGroup>
         {saveButton}
       </S.Card>
+
+      {/* Information pages — full width */}
+      <InfoPagesCard />
 
       {/* Share link — full width */}
       <S.Card style={{ gridColumn: '1 / -1' }}>

@@ -32,7 +32,15 @@ export interface ItineraryRow {
   endDate: string | null
   numNights: number | null
   transfersText: string | null
+  areaPage: { id: string; name: string } | null
   accommodations: RowAccommodation[]
+  activities: RowActivity[]
+}
+
+export interface RowActivity {
+  id: string
+  position: number
+  contentPage: { id: string; name: string }
 }
 
 export interface RowAccommodation {
@@ -47,7 +55,7 @@ export interface ItineraryInfoPageSlot {
   id: string
   slot: string
   position: number
-  contentPage: { id: string; name: string }
+  contentPage: { id: string; name: string; type: string }
 }
 
 export interface ItineraryCosts {
@@ -89,16 +97,21 @@ const GET_ITINERARY = gql`
       assignedTo { id firstName lastName }
       rows {
         id position dateLabel startDate endDate numNights transfersText
+        areaPage { id name }
         accommodations {
           id position
           contentPage { id name }
           room { id roomType }
           areaPage { id name }
         }
+        activities {
+          id position
+          contentPage { id name }
+        }
       }
       infoPageSlots {
         id slot position
-        contentPage { id name }
+        contentPage { id name type }
       }
       costs {
         id pricePerPerson numGuests accommodationType currency
@@ -126,31 +139,51 @@ const PUBLISH_ITINERARY = gql`
   }
 `
 
+const ROW_FIELDS = `
+  id position dateLabel startDate endDate numNights transfersText
+  areaPage { id name }
+  accommodations {
+    id position
+    contentPage { id name }
+    room { id roomType }
+    areaPage { id name }
+  }
+  activities {
+    id position
+    contentPage { id name }
+  }
+`
+
 const ADD_ROW = gql`
   mutation AddRow($itineraryId: ID!, $input: RowInput!) {
-    addRow(itineraryId: $itineraryId, input: $input) {
-      id position dateLabel startDate endDate numNights transfersText
-      accommodations {
-        id position
-        contentPage { id name }
-        room { id roomType }
-        areaPage { id name }
-      }
-    }
+    addRow(itineraryId: $itineraryId, input: $input) { ${ROW_FIELDS} }
   }
 `
 
 const UPDATE_ROW = gql`
   mutation UpdateRow($id: ID!, $input: RowInput!) {
-    updateRow(id: $id, input: $input) {
-      id position dateLabel startDate endDate numNights transfersText
-      accommodations {
-        id position
-        contentPage { id name }
-        room { id roomType }
-        areaPage { id name }
-      }
+    updateRow(id: $id, input: $input) { ${ROW_FIELDS} }
+  }
+`
+
+const SET_ROW_AREA_PAGE = gql`
+  mutation SetRowAreaPage($rowId: ID!, $areaPageId: ID) {
+    setRowAreaPage(rowId: $rowId, areaPageId: $areaPageId) { ${ROW_FIELDS} }
+  }
+`
+
+const ADD_ROW_ACTIVITY = gql`
+  mutation AddRowActivity($rowId: ID!, $contentPageId: ID!) {
+    addRowActivity(rowId: $rowId, contentPageId: $contentPageId) {
+      id position
+      contentPage { id name }
     }
+  }
+`
+
+const REMOVE_ROW_ACTIVITY = gql`
+  mutation RemoveRowActivity($id: ID!) {
+    removeRowActivity(id: $id)
   }
 `
 
@@ -206,12 +239,32 @@ const REMOVE_ACCOMMODATION = gql`
   }
 `
 
-// ── Property search types ──────────────────────────────────────
+const ADD_INFO_PAGE_SLOT = gql`
+  mutation AddInfoPageSlot($itineraryId: ID!, $input: InfoPageSlotInput!) {
+    addInfoPageSlot(itineraryId: $itineraryId, input: $input) {
+      id slot position
+      contentPage { id name type }
+    }
+  }
+`
+
+const REMOVE_INFO_PAGE_SLOT = gql`
+  mutation RemoveInfoPageSlot($id: ID!) {
+    removeInfoPageSlot(id: $id)
+  }
+`
+
+// ── Content page search types ──────────────────────────────────
 
 export interface PropertyOption {
   id: string
   name: string
   rooms: { id: string; roomType: string }[]
+}
+
+export interface ContentPageOption {
+  id: string
+  name: string
 }
 
 // ── Store ──────────────────────────────────────────────────────
@@ -223,9 +276,13 @@ interface BuilderState {
   error: string | null
   properties: PropertyOption[]
   propertiesLoading: boolean
+  areaPages: ContentPageOption[]
+  activityPages: ContentPageOption[]
+  contentPagesLoading: boolean
 
   fetchItinerary: (id: string) => Promise<void>
   fetchProperties: () => Promise<void>
+  fetchAreaAndActivityPages: () => Promise<void>
   updateItinerary: (id: string, input: {
     proposalTitle?: string
     preparedFor?: string
@@ -264,6 +321,13 @@ interface BuilderState {
     position?: number
   }) => Promise<void>
   removeAccommodation: (accommodationId: string, rowId: string) => Promise<void>
+
+  setRowAreaPage: (rowId: string, areaPageId: string | null) => Promise<void>
+  addRowActivity: (rowId: string, contentPageId: string) => Promise<void>
+  removeRowActivity: (activityId: string, rowId: string) => Promise<void>
+
+  addInfoPageSlot: (itineraryId: string, contentPageId: string, slot: string, position?: number) => Promise<void>
+  removeInfoPageSlot: (slotId: string) => Promise<void>
 }
 
 export const useBuilderStore = create<BuilderState>((set, get) => ({
@@ -273,6 +337,9 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
   error: null,
   properties: [],
   propertiesLoading: false,
+  areaPages: [],
+  activityPages: [],
+  contentPagesLoading: false,
 
   fetchProperties: async () => {
     const client = useClientStore.getState().client
@@ -285,6 +352,25 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       set({ properties: data.contentPages, propertiesLoading: false })
     } catch {
       set({ propertiesLoading: false })
+    }
+  },
+
+  fetchAreaAndActivityPages: async () => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    set({ contentPagesLoading: true })
+    try {
+      const [areaData, activityData] = await Promise.all([
+        client.request<{ contentPages: ContentPageOption[] }>(GET_CONTENT_PAGES, { type: 'AREA' }),
+        client.request<{ contentPages: ContentPageOption[] }>(GET_CONTENT_PAGES, { type: 'ACTIVITY' }),
+      ])
+      set({
+        areaPages: areaData.contentPages,
+        activityPages: activityData.contentPages,
+        contentPagesLoading: false,
+      })
+    } catch {
+      set({ contentPagesLoading: false })
     }
   },
 
@@ -472,6 +558,110 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       })
     } catch (err: any) {
       set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove accommodation' })
+    }
+  },
+
+  setRowAreaPage: async (rowId, areaPageId) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ setRowAreaPage: ItineraryRow }>(
+        SET_ROW_AREA_PAGE, { rowId, areaPageId }
+      )
+      set((s) => ({
+        itinerary: s.itinerary
+          ? { ...s.itinerary, rows: s.itinerary.rows.map((r) => r.id === rowId ? data.setRowAreaPage : r) }
+          : null,
+      }))
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to set area page' })
+    }
+  },
+
+  addRowActivity: async (rowId, contentPageId) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ addRowActivity: RowActivity }>(
+        ADD_ROW_ACTIVITY, { rowId, contentPageId }
+      )
+      set((s) => ({
+        itinerary: s.itinerary
+          ? {
+              ...s.itinerary,
+              rows: s.itinerary.rows.map((r) =>
+                r.id === rowId ? { ...r, activities: [...r.activities, data.addRowActivity] } : r
+              ),
+            }
+          : null,
+      }))
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add activity' })
+    }
+  },
+
+  removeRowActivity: async (activityId, rowId) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      await client.request(REMOVE_ROW_ACTIVITY, { id: activityId })
+      set((s) => ({
+        itinerary: s.itinerary
+          ? {
+              ...s.itinerary,
+              rows: s.itinerary.rows.map((r) =>
+                r.id === rowId ? { ...r, activities: r.activities.filter((a) => a.id !== activityId) } : r
+              ),
+            }
+          : null,
+      }))
+    } catch (err: any) {
+      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove activity' })
+    }
+  },
+
+  addInfoPageSlot: async (itineraryId, contentPageId, slot, position) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    set({ saving: true })
+    try {
+      const data = await client.request<{ addInfoPageSlot: ItineraryInfoPageSlot }>(
+        ADD_INFO_PAGE_SLOT,
+        { itineraryId, input: { contentPageId, slot, position } },
+      )
+      set((s) => {
+        if (!s.itinerary) return { saving: false }
+        return {
+          saving: false,
+          itinerary: {
+            ...s.itinerary,
+            infoPageSlots: [...s.itinerary.infoPageSlots, data.addInfoPageSlot],
+          },
+        }
+      })
+    } catch (err: any) {
+      set({ saving: false, error: err?.response?.errors?.[0]?.message ?? 'Failed to add info page' })
+    }
+  },
+
+  removeInfoPageSlot: async (slotId) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    set({ saving: true })
+    try {
+      await client.request(REMOVE_INFO_PAGE_SLOT, { id: slotId })
+      set((s) => {
+        if (!s.itinerary) return { saving: false }
+        return {
+          saving: false,
+          itinerary: {
+            ...s.itinerary,
+            infoPageSlots: s.itinerary.infoPageSlots.filter((p) => p.id !== slotId),
+          },
+        }
+      })
+    } catch (err: any) {
+      set({ saving: false, error: err?.response?.errors?.[0]?.message ?? 'Failed to remove info page' })
     }
   },
 }))

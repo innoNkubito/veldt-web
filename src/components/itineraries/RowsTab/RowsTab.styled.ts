@@ -170,3 +170,128 @@ export const NightsText = styled.span`
   font-size: 11px;
   color: ${T.muted};
 `
+
+export const AreaChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: ${T.sub};
+  background: #e4f0ea;
+  border-radius: 5px;
+  padding: 3px 6px 3px 9px;
+  margin-top: 6px;
+  margin-right: 5px;
+`
+
+export const ActivityChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: ${T.sub};
+  background: #ede4f0;
+  border-radius: 5px;
+  padding: 3px 6px 3px 9px;
+  margin-top: 6px;
+  margin-right: 5px;
+`
+
+export const RowSection = styled.div`
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+`
+
+export const SectionAddButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: ${T.muted};
+  background: none;
+  border: 1px dashed ${T.border};
+  border-radius: 5px;
+  padding: 3px 9px;
+  margin-top: 6px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.12s, border-color 0.12s;
+
+  &:hover {
+    color: ${T.teal};
+    border-color: ${T.teal};
+  }
+`
+
+// Inline mini picker (shared by area + activity)
+export const MiniPickerWrap = styled.div`
+  position: relative;
+  display: inline-block;
+  margin-top: 6px;
+`
+
+export const MiniPickerInput = styled.input`
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid ${T.border};
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: ${T.text};
+  outline: none;
+  width: 200px;
+
+  &::placeholder { color: #bbb; }
+  &:focus { border-color: ${T.teal}; }
+`
+
+export const MiniPickerDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid ${T.border};
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  z-index: 50;
+  overflow: hidden;
+  max-height: 180px;
+  overflow-y: auto;
+`
+
+export const MiniPickerItem = styled.button`
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 12.5px;
+  color: ${T.text};
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+
+  &:hover { background: #faf7f4; }
+`
+
+export const MiniPickerEmpty = styled.div`
+  padding: 10px 12px;
+  font-size: 12px;
+  color: ${T.muted};
+`
+
+export const MiniPickerCancel = styled.button`
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: ${T.muted};
+  cursor: pointer;
+  margin-left: 6px;
+  margin-top: 6px;
+  font-family: 'DM Sans', sans-serif;
+
+  &:hover { color: ${T.text}; }
+`

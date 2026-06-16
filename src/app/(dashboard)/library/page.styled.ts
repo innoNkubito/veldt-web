@@ -4,8 +4,8 @@ import styled from '@emotion/styled'
 
 export const PageRoot = styled.div`
   max-width: 1100px;
-  margin: 2rem auto;
-  padding: 64px 40px 2rem;
+  margin: 2rem 0;
+  padding: 16px 40px 2rem;
   box-sizing: border-box;
 `
 
@@ -22,15 +22,15 @@ export const TitleGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding-bottom: 2rem;
 `
 
 export const PageTitle = styled.h1`
-  font-size: 36px;
-  font-weight: 700;
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 500;
   color: #1a1a1a;
   margin: 0 0 4px;
-  letter-spacing: -0.8px;
-  line-height: 1.1;
 `
 
 export const PageSubtitle = styled.p`
