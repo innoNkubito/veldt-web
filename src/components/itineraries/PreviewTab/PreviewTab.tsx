@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
   MapPin, Binoculars, Sun, BedDouble, Plane, Thermometer,
   Users, CalendarDays, Leaf, Camera, Star, Info,
@@ -38,9 +38,20 @@ function parsePageContent(raw: unknown): PageContent | null {
 // Section title / icon helpers
 // ─────────────────────────────────────────────────────────────────
 
-function sectionTitle(type: string) {
+// Section titles mirror each content type's own Page Mode:
+// PROPERTY → PageContentTab, AREA → AreaPageContentTab, etc.
+function sectionTitle(type: string, contentType?: string) {
+  if (type === 'overview') {
+    switch (contentType) {
+      case 'AREA':               return 'Area Overview'
+      case 'ACTIVITY':           return 'Activity Overview'
+      case 'ABOUT_US':           return 'About Us'
+      case 'INTRODUCTORY_NOTES': return 'Introductory Notes'
+      case 'TERMS_CONDITIONS':   return 'Terms & Conditions'
+      default:                   return 'Property Overview'
+    }
+  }
   switch (type) {
-    case 'overview':      return 'Property Overview'
     case 'experience':    return 'Experience & Activities'
     case 'accommodation': return 'Accommodation'
     case 'fastFacts':     return 'Fast Facts'
@@ -138,10 +149,10 @@ function RichHtml({ html }: { html: string }) {
 // pageContent section renderers
 // ─────────────────────────────────────────────────────────────────
 
-function TextImageView({ section, pageId }: { section: TextImageSection; pageId: string }) {
+function TextImageView({ section, pageId, contentType }: { section: TextImageSection; pageId: string; contentType?: string }) {
   return (
     <S.ContentSection id={`${pageId}-${section.type}`}>
-      <S.ContentSectionTitle>{sectionTitle(section.type)}</S.ContentSectionTitle>
+      <S.ContentSectionTitle>{sectionTitle(section.type, contentType)}</S.ContentSectionTitle>
       {section.text1 && <RichHtml html={section.text1} />}
       {section.images.length > 0 && <PhotoSlider images={section.images} />}
       {section.text2 && <RichHtml html={section.text2} />}
@@ -221,10 +232,12 @@ function ContentSections({
   content,
   rooms,
   pageId,
+  contentType,
 }: {
   content: PageContent
   rooms: InfoPageRoom[]
   pageId: string
+  contentType?: string
 }) {
   return (
     <>
@@ -248,7 +261,7 @@ function ContentSections({
             </S.ContentSection>
           )
         }
-        return <TextImageView key={i} section={section as TextImageSection} pageId={pageId} />
+        return <TextImageView key={i} section={section as TextImageSection} pageId={pageId} contentType={contentType} />
       })}
     </>
   )
@@ -353,11 +366,121 @@ const SLOT_LABELS: Record<SlotKey, string> = {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Cover info type
+// ─────────────────────────────────────────────────────────────────
+
+interface CoverInfo {
+  url: string | null
+  label: string
+  title: string
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────
 
 export default function PreviewTab() {
   const itinerary = useBuilderStore((s) => s.itinerary)
+
+  // ── Cover crossfade state (double-buffer pattern) ────────────────
+  const [layerA, setLayerA] = useState<CoverInfo>(() => ({
+    url: null, label: 'Itinerary', title: itinerary?.proposalTitle ?? '',
+  }))
+  const [layerB, setLayerB] = useState<CoverInfo>(() => ({
+    url: null, label: 'Itinerary', title: itinerary?.proposalTitle ?? '',
+  }))
+  const [showA, setShowA] = useState(true)
+  const showingRef = useRef<'A' | 'B'>('A')
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  const switchCover = useCallback((info: CoverInfo) => {
+    if (showingRef.current === 'A') {
+      setLayerB(info)
+      setShowA(false)
+      showingRef.current = 'B'
+    } else {
+      setLayerA(info)
+      setShowA(true)
+      showingRef.current = 'A'
+    }
+  }, [])
+
+  const infoPageSlots = itinerary?.infoPageSlots ?? []
+
+  useEffect(() => {
+    const container = contentRef.current
+    if (!container) return
+
+    // Build cover lookup from current slots
+    const coverMap = new Map<string, CoverInfo>()
+    for (const slot of infoPageSlots) {
+      const typeCfg = CONTENT_TYPE_CONFIG[slot.contentPage.type as ContentType]
+      coverMap.set(`infoslot-${slot.id}`, {
+        url: slot.contentPage.coverImageUrl ?? null,
+        label: typeCfg?.label ?? slot.contentPage.type,
+        title: slot.contentPage.name,
+      })
+    }
+    coverMap.set('day-by-day', {
+      url: null,
+      label: 'Day by Day',
+      title: 'Day-by-Day Itinerary',
+    })
+    // Tagged content pages from day rows
+    for (const row of (itinerary?.rows ?? [])) {
+      const allTagged = [
+        ...[...row.activities].sort((a, b) => a.position - b.position).map((a) => a.contentPage),
+        ...[...row.accommodations].sort((a, b) => a.position - b.position).map((a) => a.contentPage),
+      ]
+      for (const cp of allTagged) {
+        if (!coverMap.has(`tagged-${cp.id}`) && cp.type) {
+          const typeCfg = CONTENT_TYPE_CONFIG[cp.type as ContentType]
+          coverMap.set(`tagged-${cp.id}`, {
+            url: cp.coverImageUrl ?? null,
+            label: typeCfg?.label ?? cp.type,
+            title: cp.name,
+          })
+        }
+      }
+    }
+
+    const itineraryTitle = itinerary?.proposalTitle ?? ''
+    let lastKey = ''
+
+    // Detection line at 25% from the top of the scroll container.
+    // The last sentinel whose top is at or above this line is the active section —
+    // works correctly for both scroll directions.
+    const getActiveCover = (): CoverInfo => {
+      const containerRect = container.getBoundingClientRect()
+      const detectionY = containerRect.top + containerRect.height * 0.25
+
+      const sentinels = Array.from(
+        container.querySelectorAll('[data-cover-id]')
+      ) as HTMLElement[]
+
+      let active: HTMLElement | null = null
+      for (const el of sentinels) {
+        if (el.getBoundingClientRect().top <= detectionY) active = el
+      }
+
+      if (!active) return { url: null, label: 'Itinerary', title: itineraryTitle }
+      return coverMap.get(active.dataset.coverId!) ?? { url: null, label: 'Itinerary', title: itineraryTitle }
+    }
+
+    const handleScroll = () => {
+      const cover = getActiveCover()
+      const key = `${cover.label}::${cover.title}`
+      if (key !== lastKey) {
+        lastKey = key
+        switchCover(cover)
+      }
+    }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [infoPageSlots.length, itinerary?.rows?.length, switchCover])
+
   if (!itinerary) return null
 
   const rows = [...itinerary.rows].sort((a, b) => a.position - b.position)
@@ -373,27 +496,69 @@ export default function PreviewTab() {
   const beforeDayByDay   = slotMap('BEFORE_DAY_BY_DAY')
   const endSlots         = slotMap('END')
 
-  // ── Render an info page block ──────────────────────────────────
+  // ── Collect unique tagged content pages from day rows (in order of first appearance)
+  // Activities then accommodations per row, deduplicated by contentPage.id
+  type TaggedPage = NonNullable<typeof rows[number]['activities'][number]['contentPage']> & {
+    type: string; coverImageUrl: string | null; pageContent: unknown; rooms: InfoPageRoom[]
+  }
+  const taggedPages: TaggedPage[] = []
+  const seenIds = new Set<string>()
+  for (const row of rows) {
+    const allTagged = [
+      ...[...row.activities].sort((a, b) => a.position - b.position).map((a) => a.contentPage),
+      ...[...row.accommodations].sort((a, b) => a.position - b.position).map((a) => a.contentPage),
+    ]
+    for (const cp of allTagged) {
+      if (!seenIds.has(cp.id) && cp.type) {
+        seenIds.add(cp.id)
+        taggedPages.push(cp as TaggedPage)
+      }
+    }
+  }
+
+  // Current cover text (whichever layer is on top)
+  const coverText = showA ? layerA : layerB
+
+  // ── Render an info page block (from a slot) ───────────────────
   function InfoPage({ slot }: { slot: typeof afterCover[number] }) {
     const { contentPage } = slot
     const content = parsePageContent(contentPage.pageContent)
-    const typeCfg = CONTENT_TYPE_CONFIG[contentPage.type as ContentType]
 
     return (
-      <S.InfoPageBlock id={`infoslot-${slot.id}`}>
-        <S.InfoPageCover $url={contentPage.coverImageUrl ?? undefined}>
-          <S.InfoPageCoverContent>
-            {typeCfg && <S.InfoPageCoverType>{typeCfg.label}</S.InfoPageCoverType>}
-            <S.InfoPageCoverTitle>{contentPage.name}</S.InfoPageCoverTitle>
-          </S.InfoPageCoverContent>
-        </S.InfoPageCover>
-
+      <S.InfoPageBlock id={`infoslot-${slot.id}`} data-cover-id={`infoslot-${slot.id}`}>
         {content && (
           <S.InfoPageBody>
+            <S.InfoPageHeader>
+              <S.InfoPageTitle>{contentPage.name}</S.InfoPageTitle>
+            </S.InfoPageHeader>
             <ContentSections
               content={content}
-              rooms={contentPage.rooms}
+              rooms={contentPage.rooms ?? []}
               pageId={slot.id}
+              contentType={contentPage.type}
+            />
+          </S.InfoPageBody>
+        )}
+      </S.InfoPageBlock>
+    )
+  }
+
+  // ── Render a tagged content page block ────────────────────────
+  function TaggedPage({ cp }: { cp: TaggedPage }) {
+    const content = parsePageContent(cp.pageContent)
+
+    return (
+      <S.InfoPageBlock id={`tagged-${cp.id}`} data-cover-id={`tagged-${cp.id}`}>
+        {content && (
+          <S.InfoPageBody>
+            <S.InfoPageHeader>
+              <S.InfoPageTitle>{cp.name}</S.InfoPageTitle>
+            </S.InfoPageHeader>
+            <ContentSections
+              content={content}
+              rooms={cp.rooms ?? []}
+              pageId={cp.id}
+              contentType={cp.type}
             />
           </S.InfoPageBody>
         )}
@@ -454,6 +619,25 @@ export default function PreviewTab() {
           </S.ToCGroup>
         )}
 
+        {/* Tagged content pages */}
+        {taggedPages.length > 0 && (
+          <S.ToCGroup>
+            <S.ToCGroupLabel>Content Pages</S.ToCGroupLabel>
+            {taggedPages.map((cp) => (
+              <S.ToCItem
+                key={cp.id}
+                href={`#tagged-${cp.id}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById(`tagged-${cp.id}`)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                {cp.name}
+              </S.ToCItem>
+            ))}
+          </S.ToCGroup>
+        )}
+
         {/* End slots */}
         {endSlots.length > 0 && (
           <S.ToCGroup>
@@ -474,25 +658,39 @@ export default function PreviewTab() {
         )}
       </S.PreviewToC>
 
-      {/* ── Itinerary content ─────────────────────────── */}
-      <S.PreviewContent>
+      {/* ── Sticky cover panel (col 2) ───────────────── */}
+      <S.PreviewCoverPanel>
+        {/* Double-buffered crossfade background layers */}
+        <S.CoverBgLayer $url={layerA.url} $visible={showA} />
+        <S.CoverBgLayer $url={layerB.url} $visible={!showA} />
 
-        {/* ── Itinerary cover ─ */}
-        <S.PreviewCover>
-          <S.PreviewCoverLabel>Itinerary</S.PreviewCoverLabel>
-          <S.PreviewCoverTitle>{itinerary.proposalTitle}</S.PreviewCoverTitle>
-          <S.PreviewCoverMeta>
-            {itinerary.preparedFor && <span>Prepared for {itinerary.preparedFor}</span>}
-            {itinerary.preparedFor && itinerary.travelDates && <S.PreviewCoverDot />}
-            {itinerary.travelDates && <span>{itinerary.travelDates}</span>}
-            {rows.length > 0 && (
-              <>
-                <S.PreviewCoverDot />
-                <span>{rows.length} {rows.length === 1 ? 'day' : 'days'}</span>
-              </>
-            )}
-          </S.PreviewCoverMeta>
-        </S.PreviewCover>
+        <S.PreviewCoverContent>
+          <S.PreviewCoverLabel>{coverText.label}</S.PreviewCoverLabel>
+          <S.PreviewCoverTitle>{coverText.title || itinerary.proposalTitle}</S.PreviewCoverTitle>
+          {coverText.label === 'Itinerary' && (
+            <S.PreviewCoverMeta>
+              {itinerary.preparedFor && (
+                <S.PreviewCoverMetaRow>
+                  <span>Prepared for {itinerary.preparedFor}</span>
+                </S.PreviewCoverMetaRow>
+              )}
+              {itinerary.travelDates && (
+                <S.PreviewCoverMetaRow>
+                  <span>{itinerary.travelDates}</span>
+                </S.PreviewCoverMetaRow>
+              )}
+              {rows.length > 0 && (
+                <S.PreviewCoverMetaRow>
+                  <span>{rows.length} {rows.length === 1 ? 'day' : 'days'}</span>
+                </S.PreviewCoverMetaRow>
+              )}
+            </S.PreviewCoverMeta>
+          )}
+        </S.PreviewCoverContent>
+      </S.PreviewCoverPanel>
+
+      {/* ── Scrollable content (col 3) ───────────────── */}
+      <S.PreviewContent ref={contentRef}>
 
         {/* ── AFTER_COVER info pages ─ */}
         {afterCover.map((slot) => <InfoPage key={slot.id} slot={slot} />)}
@@ -501,7 +699,7 @@ export default function PreviewTab() {
         {beforeDayByDay.map((slot) => <InfoPage key={slot.id} slot={slot} />)}
 
         {/* ── Day-by-Day ─ */}
-        <S.DayByDayBlock id="day-by-day">
+        <S.DayByDayBlock id="day-by-day" data-cover-id="day-by-day">
           <S.DayByDayHeader>
             <S.DayByDayHeading>Day-by-Day Itinerary</S.DayByDayHeading>
             {rows.length > 0 && (
@@ -567,6 +765,9 @@ export default function PreviewTab() {
             )}
           </S.DaySections>
         </S.DayByDayBlock>
+
+        {/* ── Tagged content pages (from day-by-day, in order of first appearance) ─ */}
+        {taggedPages.map((cp) => <TaggedPage key={cp.id} cp={cp} />)}
 
         {/* ── END info pages ─ */}
         {endSlots.map((slot) => <InfoPage key={slot.id} slot={slot} />)}

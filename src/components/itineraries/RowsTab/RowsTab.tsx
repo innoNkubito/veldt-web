@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useBuilderStore, type ItineraryRow } from '@/stores/builderStore'
+import { useBuilderStore, type ItineraryRow, type PropertyOption } from '@/stores/builderStore'
 import RichTextEditor from '@/components/itineraries/RichTextEditor'
 import * as S from './RowsTab.styled'
 
@@ -185,6 +185,213 @@ function AddRowForm({
   )
 }
 
+// ── Activity / area tagger ────────────────────────────────────────
+
+function ActivityTagger({ row }: { row: ItineraryRow }) {
+  const { areaPages, activityPages, addRowActivity, removeRowActivity } = useBuilderStore()
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  const allOptions = [...areaPages, ...activityPages]
+  const sorted = [...row.activities].sort((a, b) => a.position - b.position)
+  const filtered = allOptions.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  function openPicker() {
+    setOpen(true)
+    setSearch('')
+  }
+
+  function select(contentPageId: string) {
+    addRowActivity(row.id, contentPageId)
+    setOpen(false)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    function handle(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  return (
+    <S.TaggerWrap ref={wrapRef}>
+      {sorted.length > 0 && (
+        <S.TaggerChips>
+          {sorted.map((a) => (
+            <S.TaggerChip key={a.id}>
+              <span>{a.contentPage.name}</span>
+              <S.TaggerChipRemove
+                onClick={() => removeRowActivity(a.id, row.id)}
+                title="Remove"
+              >
+                ×
+              </S.TaggerChipRemove>
+            </S.TaggerChip>
+          ))}
+        </S.TaggerChips>
+      )}
+
+      <S.TaggerAddBtn onClick={openPicker}>+ Tag activity / area</S.TaggerAddBtn>
+
+      {open && (
+        <S.TaggerDropdown>
+          <S.TaggerSearch
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search activities & areas…"
+          />
+          <S.TaggerList>
+            {filtered.length === 0 ? (
+              <S.TaggerEmpty>No matches found</S.TaggerEmpty>
+            ) : (
+              filtered.map((p) => (
+                <S.TaggerListItem key={p.id} onClick={() => select(p.id)}>
+                  {p.name}
+                </S.TaggerListItem>
+              ))
+            )}
+          </S.TaggerList>
+        </S.TaggerDropdown>
+      )}
+    </S.TaggerWrap>
+  )
+}
+
+// ── Property tagger (accommodations) ─────────────────────────────
+
+function AccommodationTagger({ row }: { row: ItineraryRow }) {
+  const { properties, addAccommodation, removeAccommodation } = useBuilderStore()
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [step, setStep] = useState<'pick-property' | 'pick-room'>('pick-property')
+  const [pending, setPending] = useState<PropertyOption | null>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+
+  const sorted = [...row.accommodations].sort((a, b) => a.position - b.position)
+  const filtered = properties.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  function openPicker() {
+    setOpen(true)
+    setStep('pick-property')
+    setSearch('')
+    setPending(null)
+  }
+
+  function selectProperty(prop: PropertyOption) {
+    if (prop.rooms.length > 0) {
+      setPending(prop)
+      setStep('pick-room')
+    } else {
+      addAccommodation(row.id, { contentPageId: prop.id })
+      setOpen(false)
+    }
+  }
+
+  function selectRoom(roomId: string | null) {
+    if (!pending) return
+    addAccommodation(row.id, {
+      contentPageId: pending.id,
+      roomId: roomId ?? undefined,
+    })
+    setOpen(false)
+  }
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return
+    function handle(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  return (
+    <S.TaggerWrap ref={wrapRef}>
+      {/* Tagged properties */}
+      {sorted.length > 0 && (
+        <S.TaggerChips>
+          {sorted.map((a) => (
+            <S.TaggerChip key={a.id}>
+              <span>{a.contentPage.name}{a.room ? ` · ${a.room.roomType}` : ''}</span>
+              <S.TaggerChipRemove
+                onClick={() => removeAccommodation(a.id, row.id)}
+                title="Remove"
+              >
+                ×
+              </S.TaggerChipRemove>
+            </S.TaggerChip>
+          ))}
+        </S.TaggerChips>
+      )}
+
+      <S.TaggerAddBtn onClick={openPicker}>+ Tag property</S.TaggerAddBtn>
+
+      {open && (
+        <S.TaggerDropdown>
+          {step === 'pick-property' && (
+            <>
+              <S.TaggerSearch
+                autoFocus
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search properties…"
+              />
+              <S.TaggerList>
+                {filtered.length === 0 ? (
+                  <S.TaggerEmpty>No properties found</S.TaggerEmpty>
+                ) : (
+                  filtered.map((p) => (
+                    <S.TaggerListItem key={p.id} onClick={() => selectProperty(p)}>
+                      <span>{p.name}</span>
+                      {p.rooms.length > 0 && (
+                        <S.TaggerMeta>
+                          {p.rooms.length} room{p.rooms.length !== 1 ? 's' : ''}
+                        </S.TaggerMeta>
+                      )}
+                    </S.TaggerListItem>
+                  ))
+                )}
+              </S.TaggerList>
+            </>
+          )}
+
+          {step === 'pick-room' && pending && (
+            <>
+              <S.TaggerBackRow>
+                <S.TaggerBack onClick={() => setStep('pick-property')}>← Back</S.TaggerBack>
+                <S.TaggerBackLabel>{pending.name}</S.TaggerBackLabel>
+              </S.TaggerBackRow>
+              <S.TaggerList>
+                <S.TaggerListItem onClick={() => selectRoom(null)}>
+                  <span>No specific room</span>
+                </S.TaggerListItem>
+                {pending.rooms.map((r) => (
+                  <S.TaggerListItem key={r.id} onClick={() => selectRoom(r.id)}>
+                    {r.roomType}
+                  </S.TaggerListItem>
+                ))}
+              </S.TaggerList>
+            </>
+          )}
+        </S.TaggerDropdown>
+      )}
+    </S.TaggerWrap>
+  )
+}
+
 // ── RowsTab ───────────────────────────────────────────────────────
 
 export default function RowsTab() {
@@ -230,7 +437,8 @@ export default function RowsTab() {
   }
 
   useEffect(() => {
-    if (properties.length === 0 && !propertiesLoading) fetchProperties()
+    // Always refresh properties so newly created ones appear immediately
+    fetchProperties()
     if (areaPages.length === 0 && activityPages.length === 0) fetchAreaAndActivityPages()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -308,7 +516,7 @@ export default function RowsTab() {
               />
             </S.DateCell>
 
-            {/* Activities rich text */}
+            {/* Activities rich text + activity/area tagger */}
             <S.ContentCell>
               <RichTextEditor
                 content={row.activitiesRichText}
@@ -316,11 +524,12 @@ export default function RowsTab() {
                   debouncedSave(row.id, 'activitiesRichText', json)
                 }
                 mentionOptions={activityMentionOptions}
-                placeholder="Describe the day's activities, transfers, and flights… use @ to tag a page"
+                placeholder="Describe the day's activities, transfers, and flights… use @ to mention or tag below"
               />
+              <ActivityTagger row={row} />
             </S.ContentCell>
 
-            {/* Accommodations rich text */}
+            {/* Accommodations rich text + property tagger */}
             <S.ContentCell>
               <RichTextEditor
                 content={row.accommodationsRichText}
@@ -328,8 +537,9 @@ export default function RowsTab() {
                   debouncedSave(row.id, 'accommodationsRichText', json)
                 }
                 mentionOptions={accommodationMentionOptions}
-                placeholder="Overnight at… use @ to tag a property"
+                placeholder="Overnight at… use @ to mention or tag a property below"
               />
+              <AccommodationTagger row={row} />
             </S.ContentCell>
 
             {/* Actions */}

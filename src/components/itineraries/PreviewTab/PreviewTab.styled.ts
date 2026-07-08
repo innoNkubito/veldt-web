@@ -3,11 +3,12 @@ import { T } from '@/lib/theme'
 
 // ── Layout ──────────────────────────────────────────────────────
 // Bleeds out of PageRoot's 2rem padding to go full-width
+// 3 columns: ToC | sticky cover panel | scrollable content
 
 export const PreviewLayout = styled.div`
   margin: 0 -2rem -2rem;
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 160px 9fr 11fr;
   min-height: calc(100vh - 200px);
 `
 
@@ -17,8 +18,8 @@ export const PreviewToC = styled.nav`
   position: sticky;
   top: 0;
   align-self: start;
-  max-height: calc(100vh - 200px);
-  padding: 28px 12px 28px 16px;
+  height: calc(100vh - 200px);
+  padding: 24px 8px 24px 16px;
   border-right: 1px solid ${T.border};
   background: ${T.bg};
   overflow-y: auto;
@@ -77,29 +78,45 @@ export const ToCDayNum = styled.span`
   min-width: 14px;
 `
 
-// ── Main content area ───────────────────────────────────────────
+// ── Sticky cover panel (col 2) ──────────────────────────────────
 
-export const PreviewContent = styled.div`
-  background: #fff;
-  overflow-y: auto;
-  min-height: calc(100vh - 200px);
+export const PreviewCoverPanel = styled.div`
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: calc(100vh - 200px);
+  overflow: hidden;
 `
 
-// ── Itinerary cover card ────────────────────────────────────────
+/** Crossfade layer — two of these sit stacked; we toggle opacity */
+export const CoverBgLayer = styled.div<{ $url: string | null; $visible: boolean }>`
+  position: absolute;
+  inset: 0;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transition: opacity 0.6s ease;
 
-export const PreviewCover = styled.div`
-  background: linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%);
-  padding: 56px 64px 48px;
-  position: relative;
-  overflow: hidden;
+  /* Photo when available, gradient fallback */
+  background: ${({ $url }) =>
+    $url
+      ? `url(${$url}) center/cover no-repeat`
+      : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
 
+  /* Darken overlay */
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.18);
-    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.60) 100%);
   }
+`
+
+export const PreviewCoverContent = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  padding: 32px;
 `
 
 export const PreviewCoverLabel = styled.div`
@@ -107,31 +124,30 @@ export const PreviewCoverLabel = styled.div`
   color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 8px;
 `
 
 export const PreviewCoverTitle = styled.h1`
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 700;
   color: #fff;
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   line-height: 1.15;
-  position: relative;
-  z-index: 1;
 `
 
 export const PreviewCoverMeta = styled.div`
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`
+
+export const PreviewCoverMetaRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
+  gap: 8px;
 `
 
 export const PreviewCoverDot = styled.span`
@@ -143,63 +159,35 @@ export const PreviewCoverDot = styled.span`
   flex-shrink: 0;
 `
 
+// ── Scrollable content area (col 3) ─────────────────────────────
+
+export const PreviewContent = styled.div`
+  background: #fff;
+  overflow-y: auto;
+  min-height: calc(100vh - 200px);
+  border-left: 1px solid ${T.border};
+`
+
 // ── Info page block ─────────────────────────────────────────────
 
 export const InfoPageBlock = styled.div`
   border-bottom: 1px solid ${T.border};
 `
 
-export const InfoPageCover = styled.div<{ $url?: string }>`
-  position: relative;
-  height: 260px;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: ${({ $url }) =>
-      $url
-        ? `url(${$url}) center/cover no-repeat`
-        : 'linear-gradient(160deg, #5c7c3e 0%, #3a4a3d 100%)'};
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
-  }
-`
-
-export const InfoPageCoverContent = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1;
-  padding: 24px 32px;
-`
-
-export const InfoPageCoverType = styled.div`
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.65);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-`
-
-export const InfoPageCoverTitle = styled.h2`
-  font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 26px;
-  font-weight: 700;
-  color: #fff;
-  margin: 0;
-  line-height: 1.2;
-`
-
 export const InfoPageBody = styled.div`
   padding: 40px 64px 52px;
+`
+
+export const InfoPageHeader = styled.div`
+  margin-bottom: 32px;
+`
+
+export const InfoPageTitle = styled.h2`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: ${T.text};
+  margin: 0;
 `
 
 // ── Day sections ────────────────────────────────────────────────

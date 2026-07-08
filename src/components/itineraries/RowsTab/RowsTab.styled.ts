@@ -357,6 +357,150 @@ export const AddRowCancel = styled.button`
   }
 `
 
+// ── Property tagger ───────────────────────────────────────────────
+
+export const TaggerWrap = styled.div`
+  position: relative;
+  padding: 8px 12px;
+  border-top: 1px dashed ${T.border};
+`
+
+export const TaggerChips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+`
+
+export const TaggerChip = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: ${T.terraLt};
+  color: ${T.terra};
+  border: 1px solid rgba(124, 92, 62, 0.15);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+`
+
+export const TaggerChipRemove = styled.button`
+  background: none;
+  border: none;
+  color: ${T.terra};
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.5;
+  font-family: inherit;
+  &:hover { opacity: 1; }
+`
+
+export const TaggerAddBtn = styled.button`
+  font-size: 11.5px;
+  color: ${T.muted};
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.12s;
+  &:hover { color: ${T.terra}; }
+`
+
+export const TaggerDropdown = styled.div`
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  width: 288px;
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+`
+
+export const TaggerSearch = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid ${T.border};
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: ${T.text};
+  background: ${T.card};
+  outline: none;
+  box-sizing: border-box;
+  &::placeholder { color: ${T.muted}; }
+`
+
+export const TaggerList = styled.div`
+  max-height: 200px;
+  overflow-y: auto;
+`
+
+export const TaggerListItem = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: ${T.text};
+  text-align: left;
+  cursor: pointer;
+  &:hover { background: ${T.dim}; }
+`
+
+export const TaggerMeta = styled.span`
+  font-size: 11px;
+  color: ${T.muted};
+  flex-shrink: 0;
+`
+
+export const TaggerEmpty = styled.div`
+  padding: 12px;
+  font-size: 13px;
+  color: ${T.muted};
+  font-style: italic;
+`
+
+export const TaggerBackRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid ${T.border};
+  background: ${T.bg};
+`
+
+export const TaggerBack = styled.button`
+  background: none;
+  border: none;
+  color: ${T.terra};
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  padding: 0;
+  &:hover { text-decoration: underline; }
+`
+
+export const TaggerBackLabel = styled.span`
+  font-size: 12px;
+  color: ${T.muted};
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`
+
 // ── Empty state ───────────────────────────────────────────────────
 
 export const EmptyState = styled.div`

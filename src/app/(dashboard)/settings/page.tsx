@@ -84,7 +84,7 @@ export default function SettingsPage() {
       <S.Section>
         <S.SectionLabel>Account</S.SectionLabel>
         <S.ClerkWrap>
-          <UserProfile appearance={clerkAppearance} />
+          <UserProfile routing="hash" appearance={clerkAppearance} />
         </S.ClerkWrap>
       </S.Section>
     </S.PageRoot>

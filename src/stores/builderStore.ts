@@ -44,13 +44,27 @@ export interface ItineraryRow {
 export interface RowActivity {
   id: string
   position: number
-  contentPage: { id: string; name: string }
+  contentPage: {
+    id: string
+    name: string
+    type?: string
+    coverImageUrl?: string | null
+    pageContent?: unknown
+    rooms?: InfoPageRoom[]
+  }
 }
 
 export interface RowAccommodation {
   id: string
   position: number
-  contentPage: { id: string; name: string }
+  contentPage: {
+    id: string
+    name: string
+    type?: string
+    coverImageUrl?: string | null
+    pageContent?: unknown
+    rooms?: InfoPageRoom[]
+  }
   room: { id: string; roomType: string } | null
   areaPage: { id: string; name: string } | null
 }
@@ -72,7 +86,7 @@ export interface ItineraryInfoPageSlot {
     type: string
     coverImageUrl: string | null
     pageContent: unknown
-    rooms: InfoPageRoom[]
+    rooms?: InfoPageRoom[]
   }
 }
 
@@ -119,13 +133,13 @@ const GET_ITINERARY = gql`
         areaPage { id name }
         accommodations {
           id position
-          contentPage { id name }
+          contentPage { id name type coverImageUrl pageContent rooms { id roomType description photos } }
           room { id roomType }
           areaPage { id name }
         }
         activities {
           id position
-          contentPage { id name }
+          contentPage { id name type coverImageUrl pageContent rooms { id roomType description photos } }
         }
       }
       infoPageSlots {
@@ -201,7 +215,7 @@ const ADD_ROW_ACTIVITY = gql`
   mutation AddRowActivity($rowId: ID!, $contentPageId: ID!) {
     addRowActivity(rowId: $rowId, contentPageId: $contentPageId) {
       id position
-      contentPage { id name }
+      contentPage { id name type coverImageUrl pageContent }
     }
   }
 `
@@ -251,7 +265,7 @@ const ADD_ACCOMMODATION = gql`
   mutation AddAccommodation($rowId: ID!, $input: AccommodationInput!) {
     addAccommodation(rowId: $rowId, input: $input) {
       id position
-      contentPage { id name }
+      contentPage { id name type coverImageUrl pageContent }
       room { id roomType }
       areaPage { id name }
     }
@@ -272,7 +286,6 @@ const ADD_INFO_PAGE_SLOT = gql`
         id name type
         coverImageUrl
         pageContent
-        rooms { id roomType description photos }
       }
     }
   }
@@ -320,6 +333,7 @@ interface BuilderState {
   contentPagesLoading: boolean
 
   fetchItinerary: (id: string) => Promise<void>
+  refreshItinerary: (id: string) => Promise<void>
   fetchProperties: () => Promise<void>
   fetchAreaAndActivityPages: () => Promise<void>
   updateItinerary: (id: string, input: {
@@ -430,6 +444,19 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }
   },
 
+  // Silent refetch — no loading flag, so the UI doesn't flash. Used after row
+  // tagging mutations to pull complete contentPage data (rooms, pageContent).
+  refreshItinerary: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ itinerary: ItineraryFull }>(GET_ITINERARY, { id })
+      set({ itinerary: data.itinerary })
+    } catch {
+      // keep current state; a later fetch will recover
+    }
+  },
+
   updateItinerary: async (id, input) => {
     const client = useClientStore.getState().client
     if (!client) return
@@ -493,7 +520,14 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         itinerary: s.itinerary
           ? {
               ...s.itinerary,
-              rows: s.itinerary.rows.map((r) => (r.id === id ? data.updateRow : r)),
+              // ROW_FIELDS only returns contentPage { id name } for activities /
+              // accommodations — keep the store's richer arrays (type, pageContent,
+              // rooms) since this mutation doesn't modify them.
+              rows: s.itinerary.rows.map((r) =>
+                r.id === id
+                  ? { ...data.updateRow, activities: r.activities, accommodations: r.accommodations }
+                  : r
+              ),
             }
           : null,
       }))
@@ -577,6 +611,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           },
         }
       })
+      // Mutation response can't include rooms (server returns null for
+      // non-property types) — silently refetch to fill in complete data.
+      const itinId = get().itinerary?.id
+      if (itinId) void get().refreshItinerary(itinId)
     } catch (err: any) {
       set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add accommodation' })
     }
@@ -614,7 +652,15 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       )
       set((s) => ({
         itinerary: s.itinerary
-          ? { ...s.itinerary, rows: s.itinerary.rows.map((r) => r.id === rowId ? data.setRowAreaPage : r) }
+          ? {
+              ...s.itinerary,
+              // Preserve rich activities/accommodations (see updateRow note)
+              rows: s.itinerary.rows.map((r) =>
+                r.id === rowId
+                  ? { ...data.setRowAreaPage, activities: r.activities, accommodations: r.accommodations }
+                  : r
+              ),
+            }
           : null,
       }))
     } catch (err: any) {
@@ -639,6 +685,9 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             }
           : null,
       }))
+      // Silently refetch for complete contentPage data (rooms, etc.)
+      const itinId = get().itinerary?.id
+      if (itinId) void get().refreshItinerary(itinId)
     } catch (err: any) {
       set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add activity' })
     }

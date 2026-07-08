@@ -7,15 +7,15 @@ export const PageRoot = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: 2rem;
+  padding: 8px 2rem 2rem;
 `
 
 export const Header = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 24px;
+  gap: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid ${T.border};
 `
 
@@ -35,7 +35,7 @@ export const BackLink = styled.button`
   cursor: pointer;
   padding: 0;
   font-family: 'DM Sans', sans-serif;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   transition: color 0.12s;
 
   &:hover { color: ${T.terra}; }
@@ -50,7 +50,7 @@ export const TitleRow = styled.div`
 
 export const PageTitle = styled.h1`
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 500;
   color: ${T.text};
   margin: 0;
@@ -58,7 +58,7 @@ export const PageTitle = styled.h1`
 `
 
 export const HeaderMeta = styled.div`
-  margin-top: 8px;
+  margin-top: 4px;
   font-size: 12px;
   color: ${T.muted};
   display: flex;
@@ -93,8 +93,8 @@ export const TabBar = styled.div`
   display: flex;
   gap: 2px;
   border-bottom: 1px solid ${T.border};
-  margin-top: 24px;
-  margin-bottom: 28px;
+  margin-top: 8px;
+  margin-bottom: 8px;
 `
 
 export const Tab = styled.button<{ $active: boolean }>`
