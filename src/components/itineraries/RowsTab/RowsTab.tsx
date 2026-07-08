@@ -1,111 +1,252 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { T } from '@/lib/theme'
-import { useBuilderStore, type ContentPageOption } from '@/stores/builderStore'
-import RowForm from '@/components/itineraries/RowForm'
-import AccommodationPicker from '@/components/itineraries/AccommodationPicker'
+import { useBuilderStore, type ItineraryRow } from '@/stores/builderStore'
+import RichTextEditor from '@/components/itineraries/RichTextEditor'
 import * as S from './RowsTab.styled'
 
-// ── Mini picker (shared by area + activity) ──────────────────────
+// ── Row action menu ───────────────────────────────────────────────
 
-function MiniPicker({
-  options,
-  placeholder,
-  onSelect,
-  onCancel,
+function RowActionMenu({
+  onMoveUp,
+  onMoveDown,
+  onDelete,
+  disableUp,
+  disableDown,
 }: {
-  options: ContentPageOption[]
-  placeholder: string
-  onSelect: (opt: ContentPageOption) => void
-  onCancel: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  onDelete: () => void
+  disableUp: boolean
+  disableDown: boolean
 }) {
-  const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState({ top: 0, right: 0 })
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    function handle(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onCancel()
-      }
+  function handleOpen() {
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
     }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [onCancel])
-
-  const filtered = options
-    .filter((o) => query === '' || o.name.toLowerCase().includes(query.toLowerCase()))
-    .slice(0, 8)
+    setOpen((o) => !o)
+  }
 
   return (
-    <S.MiniPickerWrap ref={ref}>
-      <S.MiniPickerInput
-        autoFocus
-        placeholder={placeholder}
-        value={query}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
-        onFocus={() => setOpen(true)}
-      />
+    <>
+      <S.ActionTrigger ref={triggerRef} onClick={handleOpen} title="Row actions">
+        ⋯
+      </S.ActionTrigger>
       {open && (
-        <S.MiniPickerDropdown>
-          {filtered.length === 0 ? (
-            <S.MiniPickerEmpty>No results</S.MiniPickerEmpty>
-          ) : (
-            filtered.map((o) => (
-              <S.MiniPickerItem
-                key={o.id}
-                type="button"
-                onMouseDown={(e) => { e.preventDefault(); onSelect(o) }}
-              >
-                {o.name}
-              </S.MiniPickerItem>
-            ))
-          )}
-        </S.MiniPickerDropdown>
+        <>
+          <S.ActionBackdrop onClick={() => setOpen(false)} />
+          <S.ActionDropdown $top={pos.top} $right={pos.right}>
+            <S.ActionItem
+              disabled={disableUp}
+              onClick={() => { onMoveUp(); setOpen(false) }}
+              style={{ opacity: disableUp ? 0.4 : 1 }}
+            >
+              ↑ Move up
+            </S.ActionItem>
+            <S.ActionItem
+              disabled={disableDown}
+              onClick={() => { onMoveDown(); setOpen(false) }}
+              style={{ opacity: disableDown ? 0.4 : 1 }}
+            >
+              ↓ Move down
+            </S.ActionItem>
+            <S.ActionItem $danger onClick={() => { onDelete(); setOpen(false) }}>
+              Delete row
+            </S.ActionItem>
+          </S.ActionDropdown>
+        </>
       )}
-      <S.MiniPickerCancel type="button" onClick={onCancel}>cancel</S.MiniPickerCancel>
-    </S.MiniPickerWrap>
+    </>
   )
 }
 
-// ── RowsTab ──────────────────────────────────────────────────────
+// ── Inline date editor ────────────────────────────────────────────
+
+function DateCell({
+  row,
+  onSave,
+}: {
+  row: ItineraryRow
+  onSave: (dateLabel: string, numNights: number | undefined) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [dateLabel, setDateLabel] = useState(row.dateLabel ?? '')
+  const [numNights, setNumNights] = useState(
+    row.numNights != null ? String(row.numNights) : '',
+  )
+
+  function handleSave() {
+    onSave(dateLabel, numNights ? parseInt(numNights, 10) : undefined)
+    setEditing(false)
+  }
+
+  function handleCancel() {
+    setDateLabel(row.dateLabel ?? '')
+    setNumNights(row.numNights != null ? String(row.numNights) : '')
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <S.DateEditForm>
+        <S.DateInput
+          autoFocus
+          value={dateLabel}
+          onChange={(e) => setDateLabel(e.target.value)}
+          placeholder="e.g. Day 1 · May 15"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSave()
+            if (e.key === 'Escape') handleCancel()
+          }}
+        />
+        <S.DateInput
+          type="number"
+          min={0}
+          value={numNights}
+          onChange={(e) => setNumNights(e.target.value)}
+          placeholder="Nights"
+        />
+        <S.DateEditActions>
+          <S.DateEditSave onClick={handleSave}>Save</S.DateEditSave>
+          <S.DateEditCancel onClick={handleCancel}>Cancel</S.DateEditCancel>
+        </S.DateEditActions>
+      </S.DateEditForm>
+    )
+  }
+
+  return (
+    <S.DateDisplay onClick={() => setEditing(true)}>
+      {row.dateLabel ? (
+        <S.DateLabel className="date-label">{row.dateLabel}</S.DateLabel>
+      ) : (
+        <S.DatePlaceholder>Click to set date</S.DatePlaceholder>
+      )}
+      {row.numNights != null && (
+        <S.NightsLabel>
+          {row.numNights} night{row.numNights !== 1 ? 's' : ''}
+        </S.NightsLabel>
+      )}
+    </S.DateDisplay>
+  )
+}
+
+// ── Add row form ──────────────────────────────────────────────────
+
+function AddRowForm({
+  onSave,
+  onCancel,
+}: {
+  onSave: (dateLabel: string, numNights: number | undefined) => void
+  onCancel: () => void
+}) {
+  const [dateLabel, setDateLabel] = useState('')
+  const [numNights, setNumNights] = useState('')
+
+  return (
+    <S.AddRowForm>
+      <S.AddRowFormGrid>
+        <div>
+          <S.AddRowFieldLabel>Day / Date Label</S.AddRowFieldLabel>
+          <S.AddRowInput
+            autoFocus
+            value={dateLabel}
+            onChange={(e) => setDateLabel(e.target.value)}
+            placeholder="e.g. Day 1 · May 15"
+            onKeyDown={(e) => e.key === 'Escape' && onCancel()}
+          />
+        </div>
+        <div>
+          <S.AddRowFieldLabel>Nights</S.AddRowFieldLabel>
+          <S.AddRowInput
+            type="number"
+            min={0}
+            value={numNights}
+            onChange={(e) => setNumNights(e.target.value)}
+            placeholder="e.g. 2"
+          />
+        </div>
+      </S.AddRowFormGrid>
+      <S.AddRowFormActions>
+        <S.AddRowCancel onClick={onCancel}>Cancel</S.AddRowCancel>
+        <S.AddRowSave
+          onClick={() =>
+            onSave(dateLabel, numNights ? parseInt(numNights, 10) : undefined)
+          }
+        >
+          Add Row
+        </S.AddRowSave>
+      </S.AddRowFormActions>
+    </S.AddRowForm>
+  )
+}
+
+// ── RowsTab ───────────────────────────────────────────────────────
 
 export default function RowsTab() {
   const {
     itinerary,
-    addRow, updateRow, deleteRow, reorderRows,
-    addAccommodation, removeAccommodation,
-    setRowAreaPage, addRowActivity, removeRowActivity,
-    properties, propertiesLoading, fetchProperties,
-    areaPages, activityPages, fetchAreaAndActivityPages,
+    addRow,
+    updateRow,
+    deleteRow,
+    reorderRows,
+    areaPages,
+    activityPages,
+    properties,
+    propertiesLoading,
+    fetchProperties,
+    fetchAreaAndActivityPages,
   } = useBuilderStore()
 
   const [addingNew, setAddingNew] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [pickingAccomForRow, setPickingAccomForRow] = useState<string | null>(null)
-  const [pickingAreaForRow, setPickingAreaForRow] = useState<string | null>(null)
-  const [pickingActivityForRow, setPickingActivityForRow] = useState<string | null>(null)
 
-  const rows = itinerary?.rows ?? []
+  // Combined area + activity options for the activities column @mentions
+  const activityMentionOptions = [...areaPages, ...activityPages]
+  // Property options for the accommodations column @mentions
+  const accommodationMentionOptions = properties
+
+  // Debounced auto-save for rich text columns
+  const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+
+  function debouncedSave(
+    rowId: string,
+    field: 'activitiesRichText' | 'accommodationsRichText',
+    json: Record<string, unknown>,
+  ) {
+    const key = `${rowId}:${field}`
+    const existing = saveTimers.current.get(key)
+    if (existing) clearTimeout(existing)
+    saveTimers.current.set(
+      key,
+      setTimeout(() => {
+        updateRow(rowId, { [field]: json })
+        saveTimers.current.delete(key)
+      }, 800),
+    )
+  }
 
   useEffect(() => {
     if (properties.length === 0 && !propertiesLoading) fetchProperties()
     if (areaPages.length === 0 && activityPages.length === 0) fetchAreaAndActivityPages()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function handleAdd(data: Parameters<typeof addRow>[1]) {
+  const rows = itinerary?.rows ?? []
+
+  async function handleAddRow(dateLabel: string, numNights: number | undefined) {
     if (!itinerary) return
-    await addRow(itinerary.id, data)
+    await addRow(itinerary.id, {
+      dateLabel: dateLabel || undefined,
+      numNights,
+    })
     setAddingNew(false)
   }
 
-  async function handleUpdate(id: string, data: Parameters<typeof updateRow>[1]) {
-    await updateRow(id, data)
-    setEditingId(null)
-  }
-
-  async function handleDelete(id: string) {
+  async function handleDeleteRow(id: string) {
     if (!confirm('Delete this row?')) return
     await deleteRow(id)
   }
@@ -118,22 +259,11 @@ export default function RowsTab() {
     reorderRows(itinerary.id, next.map((r) => r.id))
   }
 
-  return (
-    <S.List>
-      {rows.length === 0 && !addingNew && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 10,
-            padding: '80px 20px',
-            color: T.muted,
-            fontSize: 13,
-            textAlign: 'center',
-          }}
-        >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={T.muted} strokeWidth="1.5">
+  if (rows.length === 0 && !addingNew) {
+    return (
+      <S.Root>
+        <S.EmptyState>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
             <polyline points="14 2 14 8 20 8" />
             <line x1="12" y1="18" x2="12" y2="12" />
@@ -141,144 +271,87 @@ export default function RowsTab() {
           </svg>
           <div>No rows yet</div>
           <div style={{ fontSize: 12 }}>Add your first day to start building the itinerary</div>
-        </div>
-      )}
+        </S.EmptyState>
+        <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
+      </S.Root>
+    )
+  }
 
-      {rows.map((row, i) => (
-        <div key={row.id}>
-          {editingId === row.id ? (
-            <RowForm
-              initial={row}
-              onSave={(data) => handleUpdate(row.id, data)}
-              onCancel={() => setEditingId(null)}
-            />
-          ) : (
-            <S.Card>
-              <S.DragHandle title="Move row">⠿</S.DragHandle>
-              <S.Content>
-                <S.Meta>
-                  {row.dateLabel && <S.DayLabel>{row.dateLabel}</S.DayLabel>}
-                  {row.numNights != null && (
-                    <S.NightsText>
-                      {row.numNights} night{row.numNights !== 1 ? 's' : ''}
-                    </S.NightsText>
-                  )}
-                </S.Meta>
+  return (
+    <S.Root>
+      <S.Table>
+        {/* Header */}
+        <S.Header>
+          <S.HeaderCell />
+          <S.HeaderCell>Date</S.HeaderCell>
+          <S.HeaderCell>Transfers, Flights & Daily Activities</S.HeaderCell>
+          <S.HeaderCell>Accommodations & Rooming</S.HeaderCell>
+          <S.HeaderCell />
+        </S.Header>
 
-                {row.transfersText && <S.SubText>✈ {row.transfersText}</S.SubText>}
+        {/* Rows */}
+        {rows.map((row, i) => (
+          <S.Row key={row.id} $last={i === rows.length - 1}>
+            {/* Drag handle */}
+            <S.DragCell title="Drag to reorder">⠿</S.DragCell>
 
-                {/* ── Area ──────────────────────────────── */}
-                <S.RowSection>
-                  {row.areaPage && (
-                    <S.AreaChip>
-                      📍 {row.areaPage.name}
-                      <S.ChipRemove
-                        onClick={() => setRowAreaPage(row.id, null)}
-                        title="Remove area"
-                      >✕</S.ChipRemove>
-                    </S.AreaChip>
-                  )}
+            {/* Date */}
+            <S.DateCell>
+              <DateCell
+                row={row}
+                onSave={(dateLabel, numNights) =>
+                  updateRow(row.id, {
+                    dateLabel: dateLabel || undefined,
+                    numNights,
+                  })
+                }
+              />
+            </S.DateCell>
 
-                  {pickingAreaForRow === row.id ? (
-                    <MiniPicker
-                      options={areaPages}
-                      placeholder="Search areas…"
-                      onSelect={(opt) => {
-                        setRowAreaPage(row.id, opt.id)
-                        setPickingAreaForRow(null)
-                      }}
-                      onCancel={() => setPickingAreaForRow(null)}
-                    />
-                  ) : !row.areaPage ? (
-                    <S.SectionAddButton onClick={() => setPickingAreaForRow(row.id)}>
-                      + area
-                    </S.SectionAddButton>
-                  ) : null}
-                </S.RowSection>
+            {/* Activities rich text */}
+            <S.ContentCell>
+              <RichTextEditor
+                content={row.activitiesRichText}
+                onChange={(json) =>
+                  debouncedSave(row.id, 'activitiesRichText', json)
+                }
+                mentionOptions={activityMentionOptions}
+                placeholder="Describe the day's activities, transfers, and flights… use @ to tag a page"
+              />
+            </S.ContentCell>
 
-                {/* ── Accommodations ────────────────────── */}
-                <S.AccomRow>
-                  {row.accommodations.map((acc) => (
-                    <S.Chip key={acc.id}>
-                      🏕 {acc.contentPage.name}
-                      {acc.room && <span style={{ color: T.muted }}> · {acc.room.roomType}</span>}
-                      <S.ChipRemove
-                        onClick={() => removeAccommodation(acc.id, row.id)}
-                        title="Remove accommodation"
-                      >✕</S.ChipRemove>
-                    </S.Chip>
-                  ))}
-                </S.AccomRow>
+            {/* Accommodations rich text */}
+            <S.ContentCell>
+              <RichTextEditor
+                content={row.accommodationsRichText}
+                onChange={(json) =>
+                  debouncedSave(row.id, 'accommodationsRichText', json)
+                }
+                mentionOptions={accommodationMentionOptions}
+                placeholder="Overnight at… use @ to tag a property"
+              />
+            </S.ContentCell>
 
-                {pickingAccomForRow === row.id ? (
-                  <AccommodationPicker
-                    rowId={row.id}
-                    properties={properties}
-                    onAdd={addAccommodation}
-                    onClose={() => setPickingAccomForRow(null)}
-                  />
-                ) : (
-                  <S.AddAccomButton onClick={() => setPickingAccomForRow(row.id)}>
-                    + accommodation
-                  </S.AddAccomButton>
-                )}
+            {/* Actions */}
+            <S.ActionsCell>
+              <RowActionMenu
+                disableUp={i === 0}
+                disableDown={i === rows.length - 1}
+                onMoveUp={() => moveRow(i, -1)}
+                onMoveDown={() => moveRow(i, 1)}
+                onDelete={() => handleDeleteRow(row.id)}
+              />
+            </S.ActionsCell>
+          </S.Row>
+        ))}
+      </S.Table>
 
-                {/* ── Activities ────────────────────────── */}
-                <S.RowSection>
-                  {row.activities.map((act) => (
-                    <S.ActivityChip key={act.id}>
-                      🎯 {act.contentPage.name}
-                      <S.ChipRemove
-                        onClick={() => removeRowActivity(act.id, row.id)}
-                        title="Remove activity"
-                      >✕</S.ChipRemove>
-                    </S.ActivityChip>
-                  ))}
-
-                  {pickingActivityForRow === row.id ? (
-                    <MiniPicker
-                      options={activityPages}
-                      placeholder="Search activities…"
-                      onSelect={(opt) => {
-                        addRowActivity(row.id, opt.id)
-                        setPickingActivityForRow(null)
-                      }}
-                      onCancel={() => setPickingActivityForRow(null)}
-                    />
-                  ) : (
-                    <S.SectionAddButton onClick={() => setPickingActivityForRow(row.id)}>
-                      + activity
-                    </S.SectionAddButton>
-                  )}
-                </S.RowSection>
-              </S.Content>
-
-              <S.Actions>
-                <S.IconButton
-                  title="Move up"
-                  onClick={() => moveRow(i, -1)}
-                  $color={i === 0 ? T.muted : T.sub}
-                  disabled={i === 0}
-                >↑</S.IconButton>
-                <S.IconButton
-                  title="Move down"
-                  onClick={() => moveRow(i, 1)}
-                  $color={i === rows.length - 1 ? T.muted : T.sub}
-                  disabled={i === rows.length - 1}
-                >↓</S.IconButton>
-                <S.IconButton title="Edit" onClick={() => setEditingId(row.id)}>✎</S.IconButton>
-                <S.IconButton title="Delete" $color="#DC2626" onClick={() => handleDelete(row.id)}>✕</S.IconButton>
-              </S.Actions>
-            </S.Card>
-          )}
-        </div>
-      ))}
-
+      {/* Add row */}
       {addingNew ? (
-        <RowForm onSave={handleAdd} onCancel={() => setAddingNew(false)} />
+        <AddRowForm onSave={handleAddRow} onCancel={() => setAddingNew(false)} />
       ) : (
         <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
       )}
-    </S.List>
+    </S.Root>
   )
 }

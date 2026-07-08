@@ -1,141 +1,271 @@
 import styled from '@emotion/styled'
 import { T } from '@/lib/theme'
 
-export const List = styled.div`
+// ── Outer wrapper ─────────────────────────────────────────────────
+
+export const Root = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
 `
 
-export const Card = styled.div<{ $dragging?: boolean }>`
-  background: ${T.card};
-  border: 1px solid ${({ $dragging }) => ($dragging ? T.terra : T.border)};
-  border-radius: 10px;
-  padding: 18px 22px;
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: ${({ $dragging }) => ($dragging ? '0 4px 16px rgba(0,0,0,0.10)' : 'none')};
+// ── Table shell ───────────────────────────────────────────────────
 
-  &:hover {
-    border-color: ${({ $dragging }) => ($dragging ? T.terra : '#D4C8B4')};
+export const Table = styled.div`
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  overflow: hidden;
+  background: ${T.card};
+`
+
+// ── Header ────────────────────────────────────────────────────────
+
+export const Header = styled.div`
+  display: grid;
+  grid-template-columns: 28px 190px 1fr 1fr 36px;
+  border-bottom: 1px solid ${T.border};
+  background: ${T.bg};
+`
+
+export const HeaderCell = styled.div`
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: ${T.muted};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid ${T.border};
+
+  &:last-child {
+    border-right: none;
   }
 `
 
-export const DragHandle = styled.div`
+// ── Data row ──────────────────────────────────────────────────────
+
+export const Row = styled.div<{ $last?: boolean }>`
+  display: grid;
+  grid-template-columns: 28px 190px 1fr 1fr 36px;
+  border-bottom: ${({ $last }) => ($last ? 'none' : `1px solid ${T.border}`)};
+  min-height: 120px;
+
+  &:hover > * {
+    background: #fdfaf6;
+  }
+`
+
+export const DragCell = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 14px;
   color: ${T.muted};
+  font-size: 15px;
   cursor: grab;
-  padding-top: 2px;
-  font-size: 16px;
   user-select: none;
+  border-right: 1px solid ${T.border};
+  background: ${T.bg};
 
   &:active {
     cursor: grabbing;
   }
 `
 
-export const Content = styled.div`
-  flex: 1;
-  min-width: 0;
-`
+// ── Date cell ─────────────────────────────────────────────────────
 
-export const Meta = styled.div`
+export const DateCell = styled.div`
+  padding: 12px 14px;
+  border-right: 1px solid ${T.border};
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 6px;
 `
 
-export const DayLabel = styled.div`
-  font-size: 11px;
-  font-weight: 700;
-  color: ${T.terra};
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-`
-
-export const SubText = styled.div`
-  font-size: 12px;
-  color: ${T.muted};
-  margin-top: 3px;
-`
-
-export const AccomRow = styled.div`
-  margin-top: 6px;
-  display: flex;
-  flex-wrap: wrap;
-`
-
-export const Chip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-  color: ${T.sub};
-  background: ${T.dim};
-  border-radius: 5px;
-  padding: 3px 6px 3px 9px;
-  margin-top: 6px;
-  margin-right: 5px;
-`
-
-export const ChipRemove = styled.button`
-  background: none;
-  border: none;
+export const DateDisplay = styled.div`
   cursor: pointer;
-  color: ${T.muted};
-  font-size: 10px;
-  padding: 0 1px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  border-radius: 3px;
+  flex: 1;
 
-  &:hover {
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.08);
+  &:hover .date-label {
+    color: ${T.terra};
   }
 `
 
-export const Actions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
+export const DateLabel = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: ${T.text};
+  transition: color 0.12s;
 `
 
-export const IconButton = styled.button<{ $color?: string }>`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px 7px;
-  border-radius: 6px;
-  color: ${({ $color }) => $color ?? T.muted};
-  font-family: 'DM Sans', sans-serif;
+export const NightsLabel = styled.div`
+  font-size: 11.5px;
+  color: ${T.muted};
+  margin-top: 2px;
+`
+
+export const DatePlaceholder = styled.div`
   font-size: 12px;
-  transition: background 0.12s;
+  color: ${T.muted};
+  font-style: italic;
+`
+
+// Inline date edit form
+export const DateEditForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`
+
+export const DateInput = styled.input`
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid ${T.border};
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: ${T.text};
+  background: ${T.card};
+  outline: none;
+
+  &:focus {
+    border-color: ${T.teal};
+  }
+
+  &::placeholder {
+    color: ${T.muted};
+  }
+`
+
+export const DateEditActions = styled.div`
+  display: flex;
+  gap: 5px;
+`
+
+export const DateEditSave = styled.button`
+  flex: 1;
+  padding: 4px 0;
+  border: none;
+  border-radius: 4px;
+  background: ${T.terra};
+  color: #fff;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.12s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`
+
+export const DateEditCancel = styled.button`
+  flex: 1;
+  padding: 4px 0;
+  border: 1px solid ${T.border};
+  border-radius: 4px;
+  background: none;
+  color: ${T.muted};
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+
+  &:hover {
+    color: ${T.text};
+  }
+`
+
+// ── Content cells (rich text) ─────────────────────────────────────
+
+export const ContentCell = styled.div`
+  border-right: 1px solid ${T.border};
+
+  &:last-of-type {
+    border-right: none;
+  }
+`
+
+// ── Actions cell ──────────────────────────────────────────────────
+
+export const ActionsCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+`
+
+export const ActionTrigger = styled.button`
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  border-radius: 5px;
+  font-size: 16px;
+  color: ${T.muted};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
 
   &:hover {
     background: ${T.dim};
+    color: ${T.text};
   }
 `
+
+export const ActionDropdown = styled.div<{ $top: number; $right: number }>`
+  position: fixed;
+  top: ${({ $top }) => $top}px;
+  right: ${({ $right }) => $right}px;
+  z-index: 50;
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 140px;
+`
+
+export const ActionItem = styled.button<{ $danger?: boolean }>`
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: ${({ $danger }) => ($danger ? '#DC2626' : T.text)};
+  cursor: pointer;
+  transition: background 0.1s;
+
+  &:hover {
+    background: ${({ $danger }) => ($danger ? '#fef2f2' : T.dim)};
+  }
+`
+
+export const ActionBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+`
+
+// ── Add row ───────────────────────────────────────────────────────
 
 export const AddRowButton = styled.button`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-  padding: 14px 20px;
-  border-radius: 10px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px 20px;
   border: 1.5px dashed ${T.border};
+  border-radius: 10px;
   background: transparent;
   font-size: 13px;
   color: ${T.muted};
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
-  width: 100%;
-  justify-content: center;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 
   &:hover {
@@ -145,153 +275,97 @@ export const AddRowButton = styled.button`
   }
 `
 
-export const AddAccomButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: ${T.muted};
-  background: none;
-  border: 1px dashed ${T.border};
-  border-radius: 5px;
-  padding: 3px 9px;
-  margin-top: 8px;
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  transition: color 0.12s, border-color 0.12s;
-
-  &:hover {
-    color: ${T.terra};
-    border-color: ${T.terra};
-  }
+export const AddRowForm = styled.div`
+  margin-top: 10px;
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  padding: 14px 16px;
 `
 
-export const NightsText = styled.span`
+export const AddRowFormGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 100px;
+  gap: 10px;
+  margin-bottom: 10px;
+`
+
+export const AddRowFieldLabel = styled.label`
+  display: block;
   font-size: 11px;
+  font-weight: 600;
   color: ${T.muted};
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
 `
 
-export const AreaChip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-  color: ${T.sub};
-  background: #e4f0ea;
-  border-radius: 5px;
-  padding: 3px 6px 3px 9px;
-  margin-top: 6px;
-  margin-right: 5px;
-`
-
-export const ActivityChip = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-  color: ${T.sub};
-  background: #ede4f0;
-  border-radius: 5px;
-  padding: 3px 6px 3px 9px;
-  margin-top: 6px;
-  margin-right: 5px;
-`
-
-export const RowSection = styled.div`
-  margin-top: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-`
-
-export const SectionAddButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: ${T.muted};
-  background: none;
-  border: 1px dashed ${T.border};
-  border-radius: 5px;
-  padding: 3px 9px;
-  margin-top: 6px;
-  cursor: pointer;
+export const AddRowInput = styled.input`
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid ${T.border};
+  border-radius: 6px;
+  font-size: 13px;
   font-family: 'DM Sans', sans-serif;
-  transition: color 0.12s, border-color 0.12s;
+  color: ${T.text};
+  background: ${T.bg};
+  outline: none;
 
-  &:hover {
-    color: ${T.teal};
+  &:focus {
     border-color: ${T.teal};
   }
+
+  &::placeholder {
+    color: ${T.muted};
+  }
 `
 
-// Inline mini picker (shared by area + activity)
-export const MiniPickerWrap = styled.div`
-  position: relative;
-  display: inline-block;
-  margin-top: 6px;
+export const AddRowFormActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 `
 
-export const MiniPickerInput = styled.input`
-  height: 28px;
-  padding: 0 10px;
-  border: 1px solid ${T.border};
-  border-radius: 5px;
-  font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
-  color: ${T.text};
-  outline: none;
-  width: 200px;
-
-  &::placeholder { color: #bbb; }
-  &:focus { border-color: ${T.teal}; }
-`
-
-export const MiniPickerDropdown = styled.div`
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  min-width: 220px;
-  background: #fff;
-  border: 1px solid ${T.border};
-  border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-  z-index: 50;
-  overflow: hidden;
-  max-height: 180px;
-  overflow-y: auto;
-`
-
-export const MiniPickerItem = styled.button`
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
+export const AddRowSave = styled.button`
+  padding: 6px 16px;
   border: none;
-  background: none;
-  text-align: left;
-  font-size: 12.5px;
-  color: ${T.text};
-  cursor: pointer;
+  border-radius: 6px;
+  background: ${T.terra};
+  color: #fff;
+  font-size: 13px;
   font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.12s;
 
-  &:hover { background: #faf7f4; }
+  &:hover {
+    opacity: 0.85;
+  }
 `
 
-export const MiniPickerEmpty = styled.div`
-  padding: 10px 12px;
-  font-size: 12px;
+export const AddRowCancel = styled.button`
+  padding: 6px 14px;
+  border: 1px solid ${T.border};
+  border-radius: 6px;
+  background: none;
   color: ${T.muted};
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+
+  &:hover {
+    color: ${T.text};
+  }
 `
 
-export const MiniPickerCancel = styled.button`
-  background: none;
-  border: none;
-  font-size: 11px;
-  color: ${T.muted};
-  cursor: pointer;
-  margin-left: 6px;
-  margin-top: 6px;
-  font-family: 'DM Sans', sans-serif;
+// ── Empty state ───────────────────────────────────────────────────
 
-  &:hover { color: ${T.text}; }
+export const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 80px 20px;
+  color: ${T.muted};
+  font-size: 13px;
+  text-align: center;
 `

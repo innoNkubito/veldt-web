@@ -1,39 +1,41 @@
-"use client";
+'use client'
 
-import { styled, Box } from "@mui/material";
+import styled from '@emotion/styled'
+import { T } from '@/lib/theme'
 
-export const AuthRoot = styled(Box)(({ theme }) => ({
-  minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: theme.spacing(3),
-}));
+export const AuthRoot = styled.div`
+  min-height: 100vh;
+  background: ${T.bg};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+`
 
-export const WordmarkWrapper = styled(Box)(({ theme }) => ({
-  textAlign: "center",
-  marginBottom: theme.spacing(1),
-}));
+export const WordmarkWrapper = styled.div`
+  text-align: center;
+  margin-bottom: 4px;
+`
 
-export const WordmarkTitle = styled("span")(({ theme }) => ({
-  fontFamily: "var(--font-playfair)",
-  fontSize: 28,
-  fontWeight: 700,
-  color: theme.palette.text.primary,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  lineHeight: 1.1,
-  display: "block",
-}));
+export const WordmarkTitle = styled.span`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: ${T.text};
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  display: block;
+`
 
-export const WordmarkSubtitle = styled("span")(({ theme }) => ({
-  fontSize: 8.5,
-  fontWeight: 700,
-  color: theme.palette.text.disabled,
-  letterSpacing: "0.25em",
-  textTransform: "uppercase",
-  display: "block",
-  marginTop: theme.spacing(0.5),
-}));
+export const WordmarkSubtitle = styled.span`
+  font-size: 8.5px;
+  font-weight: 700;
+  color: ${T.muted};
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  display: block;
+  margin-top: 4px;
+`

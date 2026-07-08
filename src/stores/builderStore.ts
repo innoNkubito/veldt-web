@@ -32,6 +32,10 @@ export interface ItineraryRow {
   endDate: string | null
   numNights: number | null
   transfersText: string | null
+  // Tiptap ProseMirror JSON for the "Transfers, Flights & Activities" column
+  activitiesRichText: Record<string, unknown> | null
+  // Tiptap ProseMirror JSON for the "Accommodations & Rooming" column
+  accommodationsRichText: Record<string, unknown> | null
   areaPage: { id: string; name: string } | null
   accommodations: RowAccommodation[]
   activities: RowActivity[]
@@ -97,6 +101,7 @@ const GET_ITINERARY = gql`
       assignedTo { id firstName lastName }
       rows {
         id position dateLabel startDate endDate numNights transfersText
+        activitiesRichText accommodationsRichText
         areaPage { id name }
         accommodations {
           id position
@@ -141,6 +146,7 @@ const PUBLISH_ITINERARY = gql`
 
 const ROW_FIELDS = `
   id position dateLabel startDate endDate numNights transfersText
+  activitiesRichText accommodationsRichText
   areaPage { id name }
   accommodations {
     id position
@@ -310,6 +316,8 @@ interface BuilderState {
     endDate?: string
     numNights?: number
     transfersText?: string
+    activitiesRichText?: Record<string, unknown>
+    accommodationsRichText?: Record<string, unknown>
   }) => Promise<ItineraryRow | null>
   updateRow: (id: string, input: {
     dateLabel?: string
@@ -317,6 +325,8 @@ interface BuilderState {
     endDate?: string
     numNights?: number
     transfersText?: string
+    activitiesRichText?: Record<string, unknown>
+    accommodationsRichText?: Record<string, unknown>
   }) => Promise<void>
   deleteRow: (id: string) => Promise<void>
   reorderRows: (itineraryId: string, rowIds: string[]) => Promise<void>

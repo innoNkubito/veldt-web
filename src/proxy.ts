@@ -1,16 +1,24 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-// Define which routes require authentication.
-// Everything under /dashboard, /itineraries, /content, /settings
-// is protected. Sign-in, sign-up, and the root are public.
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/itineraries(.*)",
-  "/content(.*)",
+  "/library(.*)",
   "/settings(.*)",
 ]);
 
+const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+
 export const proxy = clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
+  // Signed-in users don't need to see sign-in/sign-up
+  if (userId && isAuthRoute(req)) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Protected routes require auth
   if (isProtectedRoute(req)) {
     await auth.protect();
   }

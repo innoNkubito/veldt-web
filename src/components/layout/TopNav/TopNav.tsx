@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
+import { useProfileStore } from "@/stores/profileStore";
 import * as S from "./TopNav.styled";
 
 const NAV_LINKS = [
@@ -15,13 +17,32 @@ interface TopNavProps {
 
 export default function TopNav({ activePath }: TopNavProps) {
   const router = useRouter();
+  const { signOut } = useClerk();
   const { user } = useUser();
+  const profile = useProfileStore((s) => s.profile);
+
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+  const avatarRef = useRef<HTMLDivElement>(null);
 
   const initials = user
     ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase()
-    : "??";
+    : "··";
 
-  const operatorName = "Veldt DMC · Nairobi"; // TODO: pull from operator store
+  const fullName =
+    [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||
+    user?.fullName ||
+    "Account";
+
+  const operatorName = profile?.operator?.name ?? "···";
+
+  function handleAvatarClick() {
+    if (!open && avatarRef.current) {
+      const rect = avatarRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setOpen((o) => !o);
+  }
 
   return (
     <S.Nav>
@@ -34,7 +55,7 @@ export default function TopNav({ activePath }: TopNavProps) {
         {NAV_LINKS.map((item) => (
           <S.NavLink
             key={item.label}
-            $active={activePath === item.href}
+            $active={activePath.startsWith(item.href)}
             onClick={() => router.push(item.href)}
           >
             {item.label}
@@ -50,7 +71,43 @@ export default function TopNav({ activePath }: TopNavProps) {
           New Itinerary
         </S.NewBtn>
 
-        <S.Avatar>{initials}</S.Avatar>
+        <S.AvatarWrap>
+          <S.Avatar ref={avatarRef} onClick={handleAvatarClick}>
+            {initials}
+          </S.Avatar>
+
+          {open && (
+            <>
+              <S.Backdrop onClick={() => setOpen(false)} />
+              <S.AvatarDropdown $top={pos.top} $right={pos.right}>
+                <S.AvatarDropdownHeader>
+                  <S.AvatarDropdownName>{fullName}</S.AvatarDropdownName>
+                  {profile && (
+                    <S.AvatarDropdownMeta>
+                      {profile.operator.name}
+                      {" · "}
+                      {profile.role.charAt(0) + profile.role.slice(1).toLowerCase()}
+                    </S.AvatarDropdownMeta>
+                  )}
+                </S.AvatarDropdownHeader>
+
+                <S.AvatarDropdownItem
+                  onClick={() => { setOpen(false); router.push("/settings"); }}
+                >
+                  ⚙ Settings
+                </S.AvatarDropdownItem>
+
+                <S.AvatarDropdownDivider />
+
+                <S.AvatarDropdownSignOut
+                  onClick={() => signOut({ redirectUrl: "/sign-in" })}
+                >
+                  ↪ Sign out
+                </S.AvatarDropdownSignOut>
+              </S.AvatarDropdown>
+            </>
+          )}
+        </S.AvatarWrap>
       </S.RightControls>
     </S.Nav>
   );

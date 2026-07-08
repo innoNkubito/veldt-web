@@ -105,4 +105,72 @@ export const Avatar = styled.div`
   color: #fff;
   flex-shrink: 0;
   cursor: pointer;
+  user-select: none;
+`;
+
+export const AvatarWrap = styled.div`
+  position: relative;
+`;
+
+export const AvatarDropdown = styled.div<{ $top: number; $right: number }>`
+  position: fixed;
+  top: ${({ $top }) => $top}px;
+  right: ${({ $right }) => $right}px;
+  background: ${T.card};
+  border: 1px solid ${T.border};
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 220px;
+  overflow: hidden;
+`;
+
+export const AvatarDropdownHeader = styled.div`
+  padding: 14px 16px;
+  border-bottom: 1px solid ${T.border};
+`;
+
+export const AvatarDropdownName = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: ${T.text};
+  line-height: 1.3;
+`;
+
+export const AvatarDropdownMeta = styled.div`
+  font-size: 11.5px;
+  color: ${T.muted};
+  margin-top: 2px;
+`;
+
+export const AvatarDropdownItem = styled.button`
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13px;
+  color: ${T.sub};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: ${T.dim};
+  }
+`;
+
+export const AvatarDropdownDivider = styled.div`
+  border-top: 1px solid ${T.border};
+`;
+
+export const AvatarDropdownSignOut = styled(AvatarDropdownItem)`
+  color: #dc2626;
+`;
+
+export const Backdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 999;
 `;
