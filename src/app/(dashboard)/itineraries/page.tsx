@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { Suspense, useEffect, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useItineraryStore, ItineraryListItem } from '@/stores/itineraryStore'
 import { useClientStore } from '@/stores/clientStore'
@@ -40,7 +40,7 @@ function SortIcon({
   )
 }
 
-export default function ItinerariesPage() {
+function ItinerariesPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const client = useClientStore((s) => s.client)
@@ -222,5 +222,13 @@ export default function ItinerariesPage() {
         <CreateItineraryModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />
       )}
     </Box>
+  )
+}
+
+export default function ItinerariesPage() {
+  return (
+    <Suspense>
+      <ItinerariesPageInner />
+    </Suspense>
   )
 }
