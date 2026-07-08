@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useItineraryStore, ItineraryListItem } from '@/stores/itineraryStore'
 import { useClientStore } from '@/stores/clientStore'
 import { T } from '@/lib/theme'
@@ -42,13 +42,14 @@ function SortIcon({
 
 export default function ItinerariesPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const client = useClientStore((s) => s.client)
   const { itineraries, loading, error, fetchItineraries, createItinerary, deleteItinerary, duplicateItinerary } =
     useItineraryStore()
 
   const [activeTab, setActiveTab] = useState<StatusTab>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
-  const [showCreate, setShowCreate] = useState(false)
+  const [showCreate, setShowCreate] = useState(() => searchParams.get('create') === '1')
   const [sortField, setSortField] = useState<'proposalTitle' | 'createdAt' | 'travelDates'>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)

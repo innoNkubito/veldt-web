@@ -66,7 +66,7 @@ export default function TopNav({ activePath }: TopNavProps) {
       <S.RightControls>
         <S.OperatorChip>{operatorName}</S.OperatorChip>
 
-        <S.NewBtn onClick={() => router.push("/itineraries/new")}>
+        <S.NewBtn onClick={() => router.push("/itineraries?create=1")}>
           <S.PlusIcon>+</S.PlusIcon>
           New Itinerary
         </S.NewBtn>

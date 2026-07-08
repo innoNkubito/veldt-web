@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import Icon from "@/components/ui/Icon";
 import { T } from "@/lib/theme";
+import { useProfileStore } from "@/stores/profileStore";
 import * as S from "./Sidebar.styled";
 import { NAV_SECTIONS } from "./constants";
 
@@ -13,11 +13,11 @@ interface SidebarProps {
 
 export default function Sidebar({ activePath }: SidebarProps) {
   const router = useRouter();
-  const { user } = useUser();
+  const profile = useProfileStore((s) => s.profile);
 
-  const orgInitial = "V"; // TODO: pull from operator store
-  const orgName = "Veldt DMC";
-  const orgCity = "Nairobi, Kenya";
+  const orgInitial = profile?.operator.name?.[0]?.toUpperCase() ?? "·";
+  const orgName = profile?.operator.name ?? "···";
+  const orgSlug = profile?.operator.slug ?? "";
 
   return (
     <S.Aside>
@@ -49,7 +49,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
 
           <div>
             <S.OrgName>{orgName}</S.OrgName>
-            <S.OrgCity>{orgCity}</S.OrgCity>
+            <S.OrgCity>{orgSlug}</S.OrgCity>
           </div>
 
           <S.Chevron
