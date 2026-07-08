@@ -55,11 +55,25 @@ export interface RowAccommodation {
   areaPage: { id: string; name: string } | null
 }
 
+export interface InfoPageRoom {
+  id: string
+  roomType: string
+  description: string | null
+  photos: string[]
+}
+
 export interface ItineraryInfoPageSlot {
   id: string
   slot: string
   position: number
-  contentPage: { id: string; name: string; type: string }
+  contentPage: {
+    id: string
+    name: string
+    type: string
+    coverImageUrl: string | null
+    pageContent: unknown
+    rooms: InfoPageRoom[]
+  }
 }
 
 export interface ItineraryCosts {
@@ -116,7 +130,12 @@ const GET_ITINERARY = gql`
       }
       infoPageSlots {
         id slot position
-        contentPage { id name type }
+        contentPage {
+          id name type
+          coverImageUrl
+          pageContent
+          rooms { id roomType description photos }
+        }
       }
       costs {
         id pricePerPerson numGuests accommodationType currency
@@ -249,7 +268,12 @@ const ADD_INFO_PAGE_SLOT = gql`
   mutation AddInfoPageSlot($itineraryId: ID!, $input: InfoPageSlotInput!) {
     addInfoPageSlot(itineraryId: $itineraryId, input: $input) {
       id slot position
-      contentPage { id name type }
+      contentPage {
+        id name type
+        coverImageUrl
+        pageContent
+        rooms { id roomType description photos }
+      }
     }
   }
 `
