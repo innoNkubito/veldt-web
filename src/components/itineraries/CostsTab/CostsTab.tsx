@@ -8,10 +8,10 @@ import {
   Field,
   FieldLabel,
   FieldInput,
-  FieldTextarea,
   FieldSelect,
   CheckboxRow,
 } from '@/components/itineraries/shared/FieldPrimitives'
+import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import * as S from './CostsTab.styled'
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'ZAR', 'KES', 'TZS']
@@ -150,29 +150,26 @@ export default function CostsTab() {
         <S.Grid>
           <Field>
             <FieldLabel>Cost Includes</FieldLabel>
-            <FieldTextarea
-              value={form.costIncludes}
-              onChange={(e) => setF('costIncludes', e.target.value)}
+            <HtmlRichTextEditor
+              content={form.costIncludes}
+              onChange={(html) => setF('costIncludes', html)}
               placeholder="All accommodation, internal flights, activities…"
-              rows={4}
             />
           </Field>
           <Field>
             <FieldLabel>Cost Excludes</FieldLabel>
-            <FieldTextarea
-              value={form.costExcludes}
-              onChange={(e) => setF('costExcludes', e.target.value)}
+            <HtmlRichTextEditor
+              content={form.costExcludes}
+              onChange={(html) => setF('costExcludes', html)}
               placeholder="International airfare, travel insurance, visas…"
-              rows={4}
             />
           </Field>
           <S.FullRow>
             <FieldLabel>Cost Notes</FieldLabel>
-            <FieldTextarea
-              value={form.costNotes}
-              onChange={(e) => setF('costNotes', e.target.value)}
+            <HtmlRichTextEditor
+              content={form.costNotes}
+              onChange={(html) => setF('costNotes', html)}
               placeholder="Validity period, payment schedule, cancellation policy…"
-              rows={3}
             />
             <CheckboxRow style={{ marginTop: 6 }}>
               <input
@@ -185,11 +182,10 @@ export default function CostsTab() {
           </S.FullRow>
           <S.FullRow>
             <FieldLabel>Miscellaneous Text</FieldLabel>
-            <FieldTextarea
-              value={form.miscText}
-              onChange={(e) => setF('miscText', e.target.value)}
+            <HtmlRichTextEditor
+              content={form.miscText}
+              onChange={(html) => setF('miscText', html)}
               placeholder="Any additional pricing information…"
-              rows={2}
             />
             <CheckboxRow style={{ marginTop: 6 }}>
               <input

@@ -337,6 +337,34 @@ function DayRichText({ json }: { json: Record<string, unknown> | null }) {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Costs (Investment) helpers
+// ─────────────────────────────────────────────────────────────────
+
+function formatPrice(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount)
+  } catch {
+    return `${currency} ${amount.toLocaleString()}`
+  }
+}
+
+/** Renders a costs text field — rich HTML from the editor, or legacy plain text. */
+function CostsRich({
+  text,
+  Comp,
+  style,
+}: {
+  text: string
+  Comp: React.ComponentType<React.HTMLAttributes<HTMLDivElement>>
+  style?: React.CSSProperties
+}) {
+  if (text.trimStart().startsWith('<')) {
+    return <Comp style={style} dangerouslySetInnerHTML={{ __html: text }} />
+  }
+  return <Comp style={style}>{text}</Comp>
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Day label helper
 // ─────────────────────────────────────────────────────────────────
 
@@ -413,6 +441,11 @@ export default function PreviewTab() {
 
     // Build cover lookup from current slots
     const coverMap = new Map<string, CoverInfo>()
+    coverMap.set('cover-page', {
+      url: null, // itinerary cover image — provided by user later
+      label: 'Itinerary',
+      title: itinerary?.proposalTitle ?? '',
+    })
     for (const slot of infoPageSlots) {
       const typeCfg = CONTENT_TYPE_CONFIG[slot.contentPage.type as ContentType]
       coverMap.set(`infoslot-${slot.id}`, {
@@ -425,6 +458,11 @@ export default function PreviewTab() {
       url: null,
       label: 'Day by Day',
       title: 'Day-by-Day Itinerary',
+    })
+    coverMap.set('costs', {
+      url: null,
+      label: 'Investment',
+      title: itinerary?.proposalTitle ?? '',
     })
     // Tagged content pages from day rows
     for (const row of (itinerary?.rows ?? [])) {
@@ -566,6 +604,22 @@ export default function PreviewTab() {
     )
   }
 
+  // ── Trip at a glance (for the default cover page) ─────────────
+  const glanceDestinations = [...new Set(rows.map((r) => r.areaPage?.name).filter(Boolean))] as string[]
+  const glanceStays = [...new Set(rows.flatMap((r) => r.accommodations.map((a) => a.contentPage.name)))]
+  const glanceExperiences = [...new Set(
+    rows.flatMap((r) => r.activities.filter((a) => a.contentPage.type === 'ACTIVITY').map((a) => a.contentPage.name))
+  )]
+
+  // ── Costs visibility ───────────────────────────────────────────
+  const costs = itinerary.costs
+  const hasCosts = !!costs && (
+    costs.costsToBeDetetermined ||
+    costs.pricePerPerson != null ||
+    !!costs.costIncludes ||
+    !!costs.costExcludes
+  )
+
   // ── ToC entries ───────────────────────────────────────────────
   const tocSlots = SLOT_ORDER.flatMap((slotKey) => slotMap(slotKey))
   const hasDays = rows.length > 0
@@ -575,6 +629,19 @@ export default function PreviewTab() {
       {/* ── Table of Contents ──────────────────────────── */}
       <S.PreviewToC>
         <S.ToCTitle>Contents</S.ToCTitle>
+
+        {/* Cover page */}
+        <S.ToCGroup>
+          <S.ToCItem
+            href="#cover-page"
+            onClick={(e) => {
+              e.preventDefault()
+              document.getElementById('cover-page')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >
+            Cover
+          </S.ToCItem>
+        </S.ToCGroup>
 
         {/* Slots before day-by-day */}
         {(['AFTER_COVER', 'BEFORE_DAY_BY_DAY'] as SlotKey[]).map((slotKey) => {
@@ -638,6 +705,22 @@ export default function PreviewTab() {
           </S.ToCGroup>
         )}
 
+        {/* Investment */}
+        {hasCosts && (
+          <S.ToCGroup>
+            <S.ToCGroupLabel>Investment</S.ToCGroupLabel>
+            <S.ToCItem
+              href="#costs"
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('costs')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              Investment
+            </S.ToCItem>
+          </S.ToCGroup>
+        )}
+
         {/* End slots */}
         {endSlots.length > 0 && (
           <S.ToCGroup>
@@ -691,6 +774,63 @@ export default function PreviewTab() {
 
       {/* ── Scrollable content (col 3) ───────────────── */}
       <S.PreviewContent ref={contentRef}>
+
+        {/* ── Default cover page ─ */}
+        <S.CoverPageBlock id="cover-page" data-cover-id="cover-page">
+          <S.CoverPagePretitle>Safari Proposal</S.CoverPagePretitle>
+          <S.CoverPageTitle>{itinerary.proposalTitle}</S.CoverPageTitle>
+          <S.CoverPageDivider />
+
+          <S.CoverPageMetaList>
+            {itinerary.preparedFor && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Prepared for</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{itinerary.preparedFor}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+            {itinerary.travelDates && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Travel dates</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{itinerary.travelDates}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+            {rows.length > 0 && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Duration</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{rows.length} {rows.length === 1 ? 'day' : 'days'}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+          </S.CoverPageMetaList>
+
+          <S.CoverPageIntro>
+            Welcome to your bespoke safari proposal. Within these pages you&rsquo;ll find a
+            day-by-day journey crafted around the wild places, hand-picked stays and
+            unforgettable experiences selected especially for you.
+          </S.CoverPageIntro>
+
+          {(glanceDestinations.length > 0 || glanceStays.length > 0 || glanceExperiences.length > 0) && (
+            <S.GlanceGrid>
+              {glanceDestinations.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Destinations</S.GlanceLabel>
+                  <S.GlanceValue>{glanceDestinations.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+              {glanceStays.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Stays</S.GlanceLabel>
+                  <S.GlanceValue>{glanceStays.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+              {glanceExperiences.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Experiences</S.GlanceLabel>
+                  <S.GlanceValue>{glanceExperiences.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+            </S.GlanceGrid>
+          )}
+        </S.CoverPageBlock>
 
         {/* ── AFTER_COVER info pages ─ */}
         {afterCover.map((slot) => <InfoPage key={slot.id} slot={slot} />)}
@@ -768,6 +908,61 @@ export default function PreviewTab() {
 
         {/* ── Tagged content pages (from day-by-day, in order of first appearance) ─ */}
         {taggedPages.map((cp) => <TaggedPage key={cp.id} cp={cp} />)}
+
+        {/* ── Costs (Investment) ─ */}
+        {hasCosts && costs && (
+          <S.CostsBlock id="costs" data-cover-id="costs">
+            <S.CostsHeading>Investment</S.CostsHeading>
+            {costs.costsToBeDetetermined ? (
+              <S.CostsCard>
+                <S.CostsTBD>
+                  Pricing information will be provided shortly — please contact your advisor.
+                </S.CostsTBD>
+              </S.CostsCard>
+            ) : (
+              <S.CostsCard>
+                {costs.priceVisible && costs.pricePerPerson != null && (
+                  <S.CostsHeader>
+                    <S.CostsPriceRow>
+                      <S.CostsPrice>{formatPrice(costs.pricePerPerson, costs.currency)}</S.CostsPrice>
+                      <S.CostsPriceSub>per person</S.CostsPriceSub>
+                    </S.CostsPriceRow>
+                    <S.CostsMeta>
+                      {costs.numGuests} guest{costs.numGuests !== 1 ? 's' : ''}
+                      {costs.accommodationType && ` · ${costs.accommodationType}`}
+                    </S.CostsMeta>
+                  </S.CostsHeader>
+                )}
+                {(costs.costIncludes || costs.costExcludes) && (
+                  <S.CostsBody>
+                    {costs.costIncludes && (
+                      <S.CostsColumn>
+                        <S.CostsColumnLabel>Included</S.CostsColumnLabel>
+                        <CostsRich text={costs.costIncludes} Comp={S.CostsText} />
+                      </S.CostsColumn>
+                    )}
+                    {costs.costExcludes && (
+                      <S.CostsColumn>
+                        <S.CostsColumnLabel>Excludes</S.CostsColumnLabel>
+                        <CostsRich text={costs.costExcludes} Comp={S.CostsText} />
+                      </S.CostsColumn>
+                    )}
+                  </S.CostsBody>
+                )}
+                {costs.notesVisible && costs.costNotes && (
+                  <CostsRich text={costs.costNotes} Comp={S.CostsNotes} />
+                )}
+                {costs.miscVisible && costs.miscText && (
+                  <CostsRich
+                    text={costs.miscText}
+                    Comp={S.CostsNotes}
+                    style={{ fontStyle: 'italic' }}
+                  />
+                )}
+              </S.CostsCard>
+            )}
+          </S.CostsBlock>
+        )}
 
         {/* ── END info pages ─ */}
         {endSlots.map((slot) => <InfoPage key={slot.id} slot={slot} />)}

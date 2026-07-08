@@ -461,6 +461,22 @@ function formatPrice(amount: number, currency: string) {
   }
 }
 
+/** Renders a costs text field — rich HTML from the editor, or legacy plain text. */
+function CostsRich({
+  text,
+  Comp,
+  style,
+}: {
+  text: string
+  Comp: React.ComponentType<React.HTMLAttributes<HTMLDivElement>>
+  style?: React.CSSProperties
+}) {
+  if (text.trimStart().startsWith('<')) {
+    return <Comp style={style} dangerouslySetInnerHTML={{ __html: text }} />
+  }
+  return <Comp style={style}>{text}</Comp>
+}
+
 // ── Costs section ───────────────────────────────────────────────
 
 function CostsSection({ costs }: { costs: NonNullable<PublicItinerary['costs']> }) {
@@ -493,22 +509,22 @@ function CostsSection({ costs }: { costs: NonNullable<PublicItinerary['costs']> 
           {costs.costIncludes && (
             <S.CostsColumn>
               <S.CostsColumnLabel>Included</S.CostsColumnLabel>
-              <S.CostsText>{costs.costIncludes}</S.CostsText>
+              <CostsRich text={costs.costIncludes} Comp={S.CostsText} />
             </S.CostsColumn>
           )}
           {costs.costExcludes && (
             <S.CostsColumn>
               <S.CostsColumnLabel>Excludes</S.CostsColumnLabel>
-              <S.CostsText>{costs.costExcludes}</S.CostsText>
+              <CostsRich text={costs.costExcludes} Comp={S.CostsText} />
             </S.CostsColumn>
           )}
         </S.CostsBody>
       )}
-      {costs.notesVisible && costs.costNotes && <S.CostsNotes>{costs.costNotes}</S.CostsNotes>}
+      {costs.notesVisible && costs.costNotes && (
+        <CostsRich text={costs.costNotes} Comp={S.CostsNotes} />
+      )}
       {costs.miscVisible && costs.miscText && (
-        <S.CostsNotes style={{ borderTop: '1px solid #EDE6D6', fontStyle: 'italic' }}>
-          {costs.miscText}
-        </S.CostsNotes>
+        <CostsRich text={costs.miscText} Comp={S.CostsNotes} style={{ fontStyle: 'italic' }} />
       )}
     </S.CostsCard>
   )
@@ -580,6 +596,11 @@ export default function SharePage() {
     if (!container || !itinerary) return
 
     const coverMap = new Map<string, CoverInfo>()
+    coverMap.set('cover-page', {
+      url: null, // itinerary cover image — provided by user later
+      label: 'Itinerary',
+      title: itinerary.proposalTitle,
+    })
     for (const slot of itinerary.infoPageSlots) {
       const typeCfg = CONTENT_TYPE_CONFIG[slot.contentPage.type as ContentType]
       coverMap.set(`infoslot-${slot.id}`, {
@@ -701,6 +722,13 @@ export default function SharePage() {
   // Current cover text (whichever layer is on top)
   const coverText = showA ? layerA : layerB
 
+  // ── Trip at a glance (for the default cover page) ─────────────
+  const glanceDestinations = [...new Set(rows.map((r) => r.areaPage?.name).filter(Boolean))] as string[]
+  const glanceStays = [...new Set(rows.flatMap((r) => r.accommodations.map((a) => a.contentPage.name)))]
+  const glanceExperiences = [...new Set(
+    rows.flatMap((r) => r.activities.filter((a) => a.contentPage.type === 'ACTIVITY').map((a) => a.contentPage.name))
+  )]
+
   const hasCosts = itinerary.costs && (
     itinerary.costs.costsToBeDetetermined ||
     itinerary.costs.pricePerPerson != null ||
@@ -765,6 +793,63 @@ export default function SharePage() {
 
       {/* ── Scrollable content ───────────────────────── */}
       <S.ViewContent ref={contentRef}>
+
+        {/* ── Default cover page ─ */}
+        <S.CoverPageBlock id="cover-page" data-cover-id="cover-page">
+          <S.CoverPagePretitle>Safari Proposal</S.CoverPagePretitle>
+          <S.CoverPageTitle>{itinerary.proposalTitle}</S.CoverPageTitle>
+          <S.CoverPageDivider />
+
+          <S.CoverPageMetaList>
+            {itinerary.preparedFor && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Prepared for</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{itinerary.preparedFor}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+            {itinerary.travelDates && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Travel dates</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{itinerary.travelDates}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+            {rows.length > 0 && (
+              <S.CoverPageMetaRow>
+                <S.CoverPageMetaLabel>Duration</S.CoverPageMetaLabel>
+                <S.CoverPageMetaValue>{rows.length} {rows.length === 1 ? 'day' : 'days'}</S.CoverPageMetaValue>
+              </S.CoverPageMetaRow>
+            )}
+          </S.CoverPageMetaList>
+
+          <S.CoverPageIntro>
+            Welcome to your bespoke safari proposal. Within these pages you&rsquo;ll find a
+            day-by-day journey crafted around the wild places, hand-picked stays and
+            unforgettable experiences selected especially for you.
+          </S.CoverPageIntro>
+
+          {(glanceDestinations.length > 0 || glanceStays.length > 0 || glanceExperiences.length > 0) && (
+            <S.GlanceGrid>
+              {glanceDestinations.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Destinations</S.GlanceLabel>
+                  <S.GlanceValue>{glanceDestinations.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+              {glanceStays.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Stays</S.GlanceLabel>
+                  <S.GlanceValue>{glanceStays.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+              {glanceExperiences.length > 0 && (
+                <S.GlanceItem>
+                  <S.GlanceLabel>Experiences</S.GlanceLabel>
+                  <S.GlanceValue>{glanceExperiences.join(' · ')}</S.GlanceValue>
+                </S.GlanceItem>
+              )}
+            </S.GlanceGrid>
+          )}
+        </S.CoverPageBlock>
 
         {/* ── AFTER_COVER info pages ─ */}
         {afterCover.map((slot) => (

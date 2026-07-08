@@ -136,6 +136,114 @@ export const ViewContent = styled.div`
   }
 `
 
+// ── Cover page block ────────────────────────────────────────────
+
+export const CoverPageBlock = styled.div`
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px;
+  border-bottom: 1px solid ${T.border};
+
+  @media (max-width: 900px) {
+    min-height: auto;
+    padding: 40px 24px;
+  }
+`
+
+export const CoverPagePretitle = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: ${T.terra};
+  margin-bottom: 16px;
+`
+
+export const CoverPageTitle = styled.h1`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 44px;
+  font-weight: 500;
+  color: ${T.text};
+  line-height: 1.15;
+  margin: 0 0 24px;
+
+  @media (max-width: 900px) {
+    font-size: 32px;
+  }
+`
+
+export const CoverPageDivider = styled.div`
+  width: 56px;
+  height: 2px;
+  background: ${T.terra};
+  margin-bottom: 32px;
+`
+
+export const CoverPageMetaList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+`
+
+export const CoverPageMetaRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+`
+
+export const CoverPageMetaLabel = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: ${T.muted};
+  min-width: 96px;
+`
+
+export const CoverPageMetaValue = styled.div`
+  font-size: 14px;
+  color: ${T.text};
+`
+
+export const CoverPageIntro = styled.p`
+  font-size: 14px;
+  line-height: 1.8;
+  color: ${T.sub};
+  max-width: 480px;
+  margin: 0 0 40px;
+`
+
+export const GlanceGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+`
+
+export const GlanceItem = styled.div`
+  background: ${T.bg};
+  border: 1px solid ${T.border};
+  border-radius: 8px;
+  padding: 16px;
+`
+
+export const GlanceLabel = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: ${T.muted};
+  margin-bottom: 6px;
+`
+
+export const GlanceValue = styled.div`
+  font-size: 13px;
+  color: ${T.text};
+  line-height: 1.5;
+`
+
 // ── Info page block ─────────────────────────────────────────────
 
 export const InfoPageBlock = styled.div`
@@ -610,6 +718,13 @@ export const CostsText = styled.div`
   color: ${T.sub};
   line-height: 1.7;
   white-space: pre-wrap;
+
+  p { margin: 0 0 8px; white-space: normal; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { padding-left: 20px; margin: 0 0 8px; white-space: normal; }
+  li { margin-bottom: 2px; }
+  strong { font-weight: 600; color: ${T.text}; }
+  em { font-style: italic; }
 `
 
 export const CostsNotes = styled.div`
@@ -619,6 +734,13 @@ export const CostsNotes = styled.div`
   color: ${T.muted};
   line-height: 1.6;
   white-space: pre-wrap;
+
+  p { margin: 0 0 8px; white-space: normal; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { padding-left: 20px; margin: 0 0 8px; white-space: normal; }
+  li { margin-bottom: 2px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
 `
 
 export const CostsTBD = styled.div`
