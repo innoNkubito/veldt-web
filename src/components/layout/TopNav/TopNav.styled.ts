@@ -14,7 +14,6 @@ export const Nav = styled.nav`
 export const LogoWrap = styled.div`
   display: flex;
   flex-direction: column;
-  margin-right: 48px;
   user-select: none;
 `;
 
@@ -61,6 +60,7 @@ export const RightControls = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-left: auto;
 `;
 
 export const OperatorChip = styled.div`

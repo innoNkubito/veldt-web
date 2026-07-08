@@ -177,7 +177,7 @@ export const TagChip = styled.span`
 `
 
 export const RowArrow = styled.span`
-  font-size: 14px;
+  font-size: 24px;
   color: #ccc;
   flex-shrink: 0;
 `

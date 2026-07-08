@@ -6,16 +6,11 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import { useProfileStore } from "@/stores/profileStore";
 import * as S from "./TopNav.styled";
 
-const NAV_LINKS = [
-  { label: "Itineraries", href: "/itineraries" },
-  { label: "Content", href: "/library" },
-];
-
 interface TopNavProps {
   activePath: string;
 }
 
-export default function TopNav({ activePath }: TopNavProps) {
+export default function TopNav({ activePath: _activePath }: TopNavProps) {
   const router = useRouter();
   const { signOut } = useClerk();
   const { user } = useUser();
@@ -51,25 +46,8 @@ export default function TopNav({ activePath }: TopNavProps) {
         <S.LogoSub>Travel Operations</S.LogoSub>
       </S.LogoWrap>
 
-      <S.Links>
-        {NAV_LINKS.map((item) => (
-          <S.NavLink
-            key={item.label}
-            $active={activePath.startsWith(item.href)}
-            onClick={() => router.push(item.href)}
-          >
-            {item.label}
-          </S.NavLink>
-        ))}
-      </S.Links>
-
       <S.RightControls>
         <S.OperatorChip>{operatorName}</S.OperatorChip>
-
-        <S.NewBtn onClick={() => router.push("/itineraries?create=1")}>
-          <S.PlusIcon>+</S.PlusIcon>
-          New Itinerary
-        </S.NewBtn>
 
         <S.AvatarWrap>
           <S.Avatar ref={avatarRef} onClick={handleAvatarClick}>
