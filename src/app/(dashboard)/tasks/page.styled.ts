@@ -24,20 +24,6 @@ export const HeaderControls = styled.div`
   align-items: center;
 `
 
-export const MoreOptionsButton = styled.button`
-  padding: 9px 18px;
-  border-radius: 20px;
-  border: 1px solid ${T.border};
-  background: ${T.card};
-  font-size: 13px;
-  color: ${T.text};
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`
-
 export const CreateButton = styled.button`
   padding: 9px 18px;
   border-radius: 20px;

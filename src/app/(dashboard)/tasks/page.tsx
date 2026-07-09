@@ -170,12 +170,6 @@ export default function TasksPage() {
       <S.PageHeaderRow>
         <S.PageTitle>Task Manager</S.PageTitle>
         <S.HeaderControls>
-          <S.MoreOptionsButton>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-            More Options
-          </S.MoreOptionsButton>
           <S.CreateButton onClick={() => { setEditing(null); setShowModal(true) }}>
             <S.CreateButtonPlus>+</S.CreateButtonPlus>
             Create New
