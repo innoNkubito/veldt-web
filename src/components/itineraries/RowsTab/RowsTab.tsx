@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useBuilderStore, type ItineraryRow, type PropertyOption } from '@/stores/builderStore'
+import { confirmDialog } from '@/stores/confirmStore'
 import RichTextEditor from '@/components/itineraries/RichTextEditor'
 import * as S from './RowsTab.styled'
 
@@ -455,7 +456,13 @@ export default function RowsTab() {
   }
 
   async function handleDeleteRow(id: string) {
-    if (!confirm('Delete this row?')) return
+    const ok = await confirmDialog({
+      title: 'Delete this day?',
+      message: 'The row and its content will be removed from the itinerary.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
     await deleteRow(id)
   }
 

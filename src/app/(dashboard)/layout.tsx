@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import TopNav from "@/components/layout/TopNav";
 import Sidebar from "@/components/layout/Sidebar";
+import ConfirmModal from "@/components/shared/ConfirmModal";
 import * as S from "./layout.styled";
 
 // Routes that get a full-width, sidebar-free layout (no TopNav either)
@@ -27,6 +28,7 @@ export default function DashboardGroupLayout({
         {!hideSidebar && <Sidebar activePath={pathname} />}
         <S.Main>{children}</S.Main>
       </S.Body>
+      <ConfirmModal />
     </S.Shell>
   );
 }

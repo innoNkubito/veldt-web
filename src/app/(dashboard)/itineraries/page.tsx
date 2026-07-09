@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useItineraryStore, ItineraryListItem } from '@/stores/itineraryStore'
 import { useClientStore } from '@/stores/clientStore'
+import { confirmDialog } from '@/stores/confirmStore'
 import { T } from '@/lib/theme'
 import { STATUS_TABS, StatusTab } from '@/lib/itinerary-constants'
 import ItineraryStatusBadge from '@/components/itineraries/ItineraryStatusBadge'
@@ -94,7 +95,13 @@ function ItinerariesPageInner() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this itinerary? This cannot be undone.')) return
+    const ok = await confirmDialog({
+      title: 'Delete itinerary?',
+      message: 'This itinerary and all of its content will be permanently deleted. This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
     await deleteItinerary(id)
   }
 

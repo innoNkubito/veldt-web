@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Box } from '@mui/material'
 import { useClientStore } from '@/stores/clientStore'
+import { confirmDialog } from '@/stores/confirmStore'
 import {
   useTaskStore,
   TASK_TYPE_CONFIG,
@@ -131,8 +132,26 @@ export default function TasksPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this task? This cannot be undone.')) return
+    const ok = await confirmDialog({
+      title: 'Delete task?',
+      message: 'This task will be permanently deleted. This cannot be undone.',
+      confirmLabel: 'Delete',
+      danger: true,
+    })
+    if (!ok) return
     await deleteTask(id)
+  }
+
+  async function handleToggleCompleted(task: TaskItem, completed: boolean) {
+    if (completed) {
+      const ok = await confirmDialog({
+        title: 'Mark task as complete?',
+        message: `"${task.name}" will be moved to Completed.`,
+        confirmLabel: 'Mark Complete',
+      })
+      if (!ok) return
+    }
+    await setTaskCompleted(task.id, completed)
   }
 
   const cols: { label: string; field: SortField | null; align?: 'right' }[] = [
@@ -226,7 +245,7 @@ export default function TasksPage() {
                 <S.RowCheckbox
                   type="checkbox"
                   checked={task.completed}
-                  onChange={(e) => setTaskCompleted(task.id, e.target.checked)}
+                  onChange={(e) => handleToggleCompleted(task, e.target.checked)}
                 />
 
                 <S.RowNameCell>
