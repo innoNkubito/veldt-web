@@ -52,7 +52,7 @@ export default function SettingsPage() {
       {/* Operator info — read only */}
       {profile && (
         <S.Section>
-          <S.SectionLabel>Your Organisation</S.SectionLabel>
+          <S.SectionLabel>Your Tour Operator</S.SectionLabel>
           <S.Card>
             <S.CardRow>
               <div>

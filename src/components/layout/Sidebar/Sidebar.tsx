@@ -127,7 +127,7 @@ export default function Sidebar({ activePath }: SidebarProps) {
       ))}
 
       <S.OrgFooter>
-        <S.OrgLabel>Organisation</S.OrgLabel>
+        <S.OrgLabel>Tour Operator</S.OrgLabel>
         <S.OrgCard>
           <S.OrgLogo>{orgInitial}</S.OrgLogo>
           <div>

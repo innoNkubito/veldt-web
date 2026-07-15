@@ -18,7 +18,7 @@ export interface NavSectionConfig {
 
 export const NAV_SECTIONS: NavSectionConfig[] = [
   {
-    section: "Operations",
+    section: "Admin",
     items: [
       {
         label: "Itineraries",
@@ -33,7 +33,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
     ],
   },
   {
-    section: "Library",
+    section: "Archive",
     items: [
       {
         label: "Home",
