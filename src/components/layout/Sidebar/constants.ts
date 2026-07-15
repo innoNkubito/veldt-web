@@ -41,7 +41,7 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z",
       },
       {
-        label: "Content",
+        label: "Page Content",
         href: "/library",
         icon: "M4 6h16M4 10h16M4 14h10",
         subItems: [
@@ -52,6 +52,11 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
           { label: "Introductory Notes", href: "/library/introductory-notes" },
           { label: "Terms & Conditions", href: "/library/terms-and-conditions" },
         ],
+      },
+      {
+        label: "Visuals",
+        href: "/library/visuals",
+        icon: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21",
       },
     ],
   },
