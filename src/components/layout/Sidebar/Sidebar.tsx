@@ -134,16 +134,6 @@ export default function Sidebar({ activePath }: SidebarProps) {
             <S.OrgName>{orgName}</S.OrgName>
             <S.OrgCity>{orgSlug}</S.OrgCity>
           </div>
-          <S.Chevron
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={T.muted}
-            strokeWidth="2"
-          >
-            <path d="M6 9l6 6 6-6" />
-          </S.Chevron>
         </S.OrgCard>
       </S.OrgFooter>
     </S.Aside>

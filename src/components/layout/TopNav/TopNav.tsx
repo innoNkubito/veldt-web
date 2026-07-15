@@ -20,9 +20,16 @@ export default function TopNav({ activePath: _activePath }: TopNavProps) {
   const [pos, setPos] = useState({ top: 0, right: 0 });
   const avatarRef = useRef<HTMLDivElement>(null);
 
-  const initials = user
-    ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase()
-    : "··";
+  // Initials — operator profile names first, then Clerk names,
+  // falling back to the username / email's first letter
+  const first = profile?.firstName || user?.firstName || "";
+  const last = profile?.lastName || user?.lastName || "";
+  const fallback =
+    user?.username?.[0] ??
+    user?.primaryEmailAddress?.emailAddress?.[0] ??
+    "";
+  const initials =
+    (`${first[0] ?? ""}${last[0] ?? ""}` || fallback || "·").toUpperCase();
 
   const fullName =
     [profile?.firstName, profile?.lastName].filter(Boolean).join(" ") ||

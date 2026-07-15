@@ -2,17 +2,18 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useClerk, useUser } from '@clerk/nextjs'
+import { useUser } from '@clerk/nextjs'
 import { useClientStore } from '@/stores/clientStore'
 import { useItineraryStore } from '@/stores/itineraryStore'
+import { useProfileStore } from '@/stores/profileStore'
 import { T } from '@/lib/theme'
 import { STATUS_META } from '@/lib/itinerary-constants'
 import * as S from './page.styled'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { signOut } = useClerk()
   const { user } = useUser()
+  const profile = useProfileStore((s) => s.profile)
   const client = useClientStore((s) => s.client)
   const { itineraries, loading, fetchItineraries } = useItineraryStore()
 
@@ -20,7 +21,9 @@ export default function DashboardPage() {
     if (client) fetchItineraries()
   }, [client])
 
-  const firstName = user?.firstName ?? user?.username ?? ''
+  // First name from the operator profile, then Clerk; fall back to username
+  const firstName =
+    profile?.firstName || user?.firstName || user?.username || ''
   const hour = new Date().getHours()
   const greeting =
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
@@ -51,9 +54,6 @@ export default function DashboardPage() {
         <S.QuickActions>
           <S.QuickBtn onClick={() => router.push('/itineraries')}>
             + New Itinerary
-          </S.QuickBtn>
-          <S.QuickBtn onClick={() => signOut({ redirectUrl: '/sign-in' })}>
-            Sign out
           </S.QuickBtn>
         </S.QuickActions>
       </S.PageHeader>

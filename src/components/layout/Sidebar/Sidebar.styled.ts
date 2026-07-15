@@ -125,7 +125,6 @@ export const OrgCard = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
 `;
 
 export const OrgLogo = styled.div`
@@ -154,6 +153,3 @@ export const OrgCity = styled.div`
   color: ${T.muted};
 `;
 
-export const Chevron = styled.svg`
-  margin-left: auto;
-`;
