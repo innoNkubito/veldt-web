@@ -324,6 +324,94 @@ export const ModalActions = styled.div`
   gap: 10px;
 `
 
+// ── Upload modal ──────────────────────────────────────────────
+
+export const UploadModalCard = styled.div`
+  width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: ${T.card};
+  border-radius: 12px;
+  border: 1px solid ${T.border};
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
+
+export const UploadModalTitle = styled.div`
+  font-family: var(--font-playfair);
+  font-size: 20px;
+  font-weight: 500;
+  color: ${T.text};
+`
+
+export const UploadZone = styled.div<{ $dragOver?: boolean }>`
+  border: 1.5px dashed ${({ $dragOver }) => ($dragOver ? T.terra : T.border)};
+  background: ${({ $dragOver }) => ($dragOver ? T.terraLt : T.bg)};
+  border-radius: 10px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+
+  &:hover { border-color: ${T.terra}; }
+`
+
+export const UploadZoneTitle = styled.div`
+  font-size: 13.5px;
+  font-weight: 600;
+  color: ${T.text};
+`
+
+export const UploadZoneNote = styled.div`
+  font-size: 12px;
+  color: ${T.muted};
+  margin-top: 6px;
+`
+
+export const UploadFileList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
+export const UploadFileRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`
+
+export const UploadFileThumb = styled.div<{ $url: string }>`
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  border: 1px solid ${T.border};
+  background: url(${({ $url }) => $url}) center/cover no-repeat, ${T.dim};
+`
+
+export const UploadFileMeta = styled.div`
+  font-size: 11px;
+  color: ${T.muted};
+  flex-shrink: 0;
+  width: 56px;
+  text-align: right;
+`
+
+export const UploadFileRemove = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${T.muted};
+  font-size: 13px;
+  padding: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  &:hover { color: #dc2626; }
+`
+
 export const CopyButton = styled.button`
   padding: 8px 16px;
   border-radius: 7px;

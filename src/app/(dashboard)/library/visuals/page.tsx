@@ -27,6 +27,163 @@ function formatSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+// ── Upload modal ────────────────────────────────────────────────
+
+const ACCEPTED_EXTENSIONS = ['JPG', 'JPEG', 'PNG', 'AVIF', 'WEBP']
+const ACCEPT_ATTR = 'image/jpeg,image/png,image/avif,image/webp,.jpg,.jpeg,.png,.avif,.webp'
+
+interface UploadEntry {
+  file: File
+  name: string
+  preview: string
+}
+
+function UploadModal({ onClose }: { onClose: () => void }) {
+  const { getToken } = useAuth()
+  const { registerAsset } = useMediaStore()
+  const [entries, setEntries] = useState<UploadEntry[]>([])
+  const [errors, setErrors] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => {
+      entries.forEach((e) => URL.revokeObjectURL(e.preview))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function addFiles(files: FileList | null) {
+    if (!files || files.length === 0) return
+    const errs: string[] = []
+    const added: UploadEntry[] = []
+    for (const file of Array.from(files)) {
+      const err = validateImageFile(file)
+      if (err) {
+        errs.push(err)
+      } else {
+        added.push({
+          file,
+          name: file.name.replace(/\.[^.]+$/, ''),
+          preview: URL.createObjectURL(file),
+        })
+      }
+    }
+    setErrors(errs)
+    if (added.length > 0) setEntries((prev) => [...prev, ...added])
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  function removeEntry(index: number) {
+    setEntries((prev) => {
+      URL.revokeObjectURL(prev[index].preview)
+      return prev.filter((_, i) => i !== index)
+    })
+  }
+
+  function renameEntry(index: number, name: string) {
+    setEntries((prev) => prev.map((e, i) => (i === index ? { ...e, name } : e)))
+  }
+
+  async function handleUpload() {
+    if (entries.length === 0 || uploading) return
+    setUploading(true)
+    const errs: string[] = []
+    const failed: UploadEntry[] = []
+    for (const entry of entries) {
+      try {
+        const url = await uploadFile(entry.file, getToken)
+        const fallback = entry.file.name.replace(/\.[^.]+$/, '')
+        const asset = await registerAsset({
+          name: entry.name.trim() || fallback,
+          url,
+          contentType: entry.file.type.toLowerCase(),
+          sizeBytes: entry.file.size,
+        })
+        if (!asset) {
+          errs.push(`${entry.file.name}: failed to save`)
+          failed.push(entry)
+        } else {
+          URL.revokeObjectURL(entry.preview)
+        }
+      } catch {
+        errs.push(`${entry.file.name}: upload failed`)
+        failed.push(entry)
+      }
+    }
+    setUploading(false)
+    if (errs.length > 0) {
+      setErrors(errs)
+      setEntries(failed)
+    } else {
+      onClose()
+    }
+  }
+
+  return (
+    <S.Overlay onMouseDown={(e) => { if (e.target === e.currentTarget && !uploading) onClose() }}>
+      <S.UploadModalCard>
+        <S.UploadModalTitle>Upload Media</S.UploadModalTitle>
+
+        {errors.length > 0 && <S.ErrorBanner>{errors.join('\n')}</S.ErrorBanner>}
+
+        <S.UploadZone
+          $dragOver={dragOver}
+          onClick={() => fileRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => { e.preventDefault(); setDragOver(false); addFiles(e.dataTransfer.files) }}
+        >
+          <S.UploadZoneTitle>Click here or drag images to upload</S.UploadZoneTitle>
+          <S.UploadZoneNote>Accepted formats: {ACCEPTED_EXTENSIONS.join(', ')}</S.UploadZoneNote>
+          <S.UploadZoneNote>Max 50 MB per image</S.UploadZoneNote>
+        </S.UploadZone>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={ACCEPT_ATTR}
+          multiple
+          style={{ display: 'none' }}
+          onChange={(e) => addFiles(e.target.files)}
+        />
+
+        {entries.length > 0 && (
+          <S.UploadFileList>
+            {entries.map((entry, i) => (
+              <S.UploadFileRow key={`${entry.file.name}-${i}`}>
+                <S.UploadFileThumb $url={entry.preview} />
+                <S.NameInput
+                  value={entry.name}
+                  onChange={(e) => renameEntry(i, e.target.value)}
+                  placeholder="Image name"
+                  disabled={uploading}
+                />
+                <S.UploadFileMeta>{formatSize(entry.file.size)}</S.UploadFileMeta>
+                <S.UploadFileRemove type="button" disabled={uploading} onClick={() => removeEntry(i)}>
+                  ✕
+                </S.UploadFileRemove>
+              </S.UploadFileRow>
+            ))}
+          </S.UploadFileList>
+        )}
+
+        <S.ModalActions>
+          <S.CopyButton type="button" onClick={() => !uploading && onClose()}>Cancel</S.CopyButton>
+          <S.SaveButton
+            $disabled={uploading || entries.length === 0}
+            onClick={handleUpload}
+          >
+            {uploading
+              ? 'Uploading…'
+              : `Upload${entries.length > 0 ? ` ${entries.length} image${entries.length !== 1 ? 's' : ''}` : ''}`}
+          </S.SaveButton>
+        </S.ModalActions>
+      </S.UploadModalCard>
+    </S.Overlay>
+  )
+}
+
 // ── Detail modal ────────────────────────────────────────────────
 
 function AssetModal({ asset, onClose }: { asset: MediaAsset; onClose: () => void }) {
@@ -144,18 +301,14 @@ function AssetModal({ asset, onClose }: { asset: MediaAsset; onClose: () => void
 // ── Page ────────────────────────────────────────────────────────
 
 export default function VisualsPage() {
-  const { getToken } = useAuth()
   const client = useClientStore((s) => s.client)
-  const {
-    assets, loading, uploading, error,
-    fetchAssets, registerAsset, setUploading, setError,
-  } = useMediaStore()
+  const { assets, loading, error, fetchAssets } = useMediaStore()
 
   const [sourceTab, setSourceTab] = useState<SourceTab>('ALL')
   const [search, setSearch] = useState('')
   const [activeTags, setActiveTags] = useState<string[]>([])
   const [selected, setSelected] = useState<MediaAsset | null>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploadOpen, setUploadOpen] = useState(false)
 
   useEffect(() => {
     if (client) fetchAssets()
@@ -189,41 +342,6 @@ export default function VisualsPage() {
     return list
   }, [assets, sourceTab, search, activeTags])
 
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return
-    const errors: string[] = []
-    const valid: File[] = []
-    for (const file of Array.from(files)) {
-      const err = validateImageFile(file)
-      if (err) errors.push(err)
-      else valid.push(file)
-    }
-    setError(errors.length > 0 ? errors.join('\n') : null)
-    if (valid.length === 0) return
-
-    setUploading(true)
-    try {
-      for (const file of valid) {
-        try {
-          const url = await uploadFile(file, getToken)
-          const baseName = file.name.replace(/\.[^.]+$/, '')
-          await registerAsset({
-            name: baseName,
-            url,
-            contentType: file.type.toLowerCase(),
-            sizeBytes: file.size,
-          })
-        } catch {
-          errors.push(`${file.name}: upload failed`)
-          setError(errors.join('\n'))
-        }
-      }
-    } finally {
-      setUploading(false)
-      if (fileRef.current) fileRef.current.value = ''
-    }
-  }
-
   function toggleTag(tag: string) {
     setActiveTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
   }
@@ -244,17 +362,9 @@ export default function VisualsPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or tag..."
           />
-          <S.UploadButton $disabled={uploading} onClick={() => !uploading && fileRef.current?.click()}>
-            {uploading ? 'Uploading…' : '↑ Upload'}
+          <S.UploadButton onClick={() => setUploadOpen(true)}>
+            ↑ Upload Media
           </S.UploadButton>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/jpeg,image/png,image/avif,image/webp,.jpg,.jpeg,.png,.avif,.webp"
-            multiple
-            style={{ display: 'none' }}
-            onChange={(e) => handleFiles(e.target.files)}
-          />
         </S.HeaderControls>
       </S.PageHeaderRow>
 
@@ -311,7 +421,8 @@ export default function VisualsPage() {
         </S.Grid>
       )}
 
-      {/* ── Detail modal ───────────────────────────────────── */}
+      {/* ── Modals ─────────────────────────────────────────── */}
+      {uploadOpen && <UploadModal onClose={() => setUploadOpen(false)} />}
       {selected && <AssetModal asset={selected} onClose={() => setSelected(null)} />}
     </Box>
   )
