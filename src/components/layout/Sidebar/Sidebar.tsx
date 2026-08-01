@@ -63,7 +63,9 @@ export default function Sidebar({ activePath }: SidebarProps) {
         <S.Section key={section}>
           <S.SectionLabel>{section}</S.SectionLabel>
 
-          {items.map((item) => {
+          {items
+            .filter((item) => !item.ownerOnly || profile?.role === "OWNER")
+            .map((item) => {
             const hasSubItems = !!item.subItems?.length;
             const isOpen = expanded[item.label] ?? false;
             const subActive = isSubItemActive(item);

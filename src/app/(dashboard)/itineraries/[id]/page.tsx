@@ -10,17 +10,19 @@ import ItineraryStatusBadge from '@/components/itineraries/ItineraryStatusBadge'
 import OverviewTab from '@/components/itineraries/OverviewTab'
 import RowsTab from '@/components/itineraries/RowsTab'
 import CostsTab from '@/components/itineraries/CostsTab'
+import BookingTab from '@/components/itineraries/BookingTab'
 import PreviewTab from '@/components/itineraries/PreviewTab'
 import PublishModal from '@/components/itineraries/PublishModal'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import * as S from './page.styled'
 
-type BuilderTab = 'overview' | 'rows' | 'costs' | 'preview'
+type BuilderTab = 'overview' | 'rows' | 'costs' | 'booking' | 'preview'
 
 const TABS: { key: BuilderTab; label: string }[] = [
   { key: 'overview', label: 'Overview' },
   { key: 'rows', label: 'Day-by-Day' },
   { key: 'costs', label: 'Costs' },
+  { key: 'booking', label: 'Booking' },
   { key: 'preview', label: 'Preview' },
 ]
 
@@ -151,6 +153,7 @@ export default function ItineraryBuilderPage() {
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'rows' && <RowsTab />}
       {activeTab === 'costs' && <CostsTab />}
+      {activeTab === 'booking' && <BookingTab />}
       {activeTab === 'preview' && <PreviewTab />}
 
       {/* ── Publish modal ────────────────────────────────────── */}
