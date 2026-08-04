@@ -9,6 +9,7 @@ import {
   PROCESSOR_META,
   type PaymentProcessorType,
   type ProcessorConnection,
+  type ProcessorEnvironment,
 } from '@/stores/integrationsStore'
 import * as S from './page.styled'
 
@@ -26,6 +27,9 @@ function ConnectionModal({
   const meta = PROCESSOR_META[type]
 
   const [label, setLabel] = useState(existing?.label ?? meta.name)
+  const [environment, setEnvironment] = useState<ProcessorEnvironment>(
+    existing?.environment ?? 'TEST',
+  )
   const [credentials, setCredentials] = useState<Record<string, string>>({})
   const [supportsCards, setSupportsCards] = useState(existing?.supportsCards ?? true)
   const [supportsAch, setSupportsAch] = useState(existing?.supportsAch ?? meta.defaultSupportsAch)
@@ -54,6 +58,7 @@ function ConnectionModal({
     const result = existing
       ? await updateConnection(existing.id, {
           label: label.trim(),
+          environment,
           supportsCards,
           supportsAch,
           ...(credentialsTouched ? { credentials } : {}),
@@ -61,6 +66,7 @@ function ConnectionModal({
       : await createConnection({
           type,
           label: label.trim(),
+          environment,
           credentials,
           supportsCards,
           supportsAch,
@@ -85,22 +91,52 @@ function ConnectionModal({
           />
         </S.FieldGroup>
 
+        <S.FieldGroup>
+          <S.FieldLabel>Environment</S.FieldLabel>
+          <S.EnvRow>
+            {(['TEST', 'LIVE'] as ProcessorEnvironment[]).map((env) => (
+              <S.EnvOption
+                key={env}
+                type="button"
+                $active={environment === env}
+                $live={env === 'LIVE'}
+                onClick={() => setEnvironment(env)}
+              >
+                {env === 'TEST' ? 'Test / Sandbox' : 'Live'}
+              </S.EnvOption>
+            ))}
+          </S.EnvRow>
+          {environment === 'TEST' && meta.sandboxHint && (
+            <S.FieldNote>{meta.sandboxHint}</S.FieldNote>
+          )}
+          {environment === 'LIVE' && (
+            <S.FieldNote>
+              Live mode processes real payments. Double-check these credentials are your production
+              ones.
+            </S.FieldNote>
+          )}
+        </S.FieldGroup>
+
         {meta.credentialFields.map((field) => (
           <S.FieldGroup key={field.key}>
             <S.FieldLabel>{field.label}</S.FieldLabel>
             <S.FieldInput
-              type="password"
+              type={field.secret ? 'password' : 'text'}
               autoComplete="off"
               value={credentials[field.key] ?? ''}
               onChange={(e) =>
                 setCredentials((prev) => ({ ...prev, [field.key]: e.target.value }))
               }
-              placeholder={existing ? 'Unchanged — enter to replace' : field.placeholder}
+              placeholder={
+                existing && field.secret ? 'Unchanged — enter to replace' : field.placeholder
+              }
             />
+            {field.hint && <S.FieldNote>{field.hint}</S.FieldNote>}
           </S.FieldGroup>
         ))}
         <S.FieldNote>
           Credentials are encrypted before storage and can never be viewed again — only replaced.
+          {existing && ' Leave blank to keep the existing values.'}
         </S.FieldNote>
 
         <S.CheckRow>
@@ -224,7 +260,12 @@ export default function IntegrationsPage() {
                   <S.CardName>{connection.label}</S.CardName>
                   <S.CardType>{PROCESSOR_META[connection.type]?.name ?? connection.type}</S.CardType>
                 </div>
-                <S.StatusChip $status={connection.status}>{connection.status}</S.StatusChip>
+                <S.ChipStack>
+                  <S.StatusChip $status={connection.status}>{connection.status}</S.StatusChip>
+                  <S.EnvChip $live={connection.environment === 'LIVE'}>
+                    {connection.environment === 'LIVE' ? 'Live' : 'Test'}
+                  </S.EnvChip>
+                </S.ChipStack>
               </S.CardTopRow>
 
               <S.Capabilities>

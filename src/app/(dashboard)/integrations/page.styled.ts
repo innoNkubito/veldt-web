@@ -128,6 +128,47 @@ export const StatusChip = styled.span<{ $status: string }>`
     $status === 'ACTIVE' ? '#3d6b39' : $status === 'DISABLED' ? T.muted : '#8a6d1d'};
 `
 
+export const ChipStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+`
+
+export const EnvChip = styled.span<{ $live: boolean }>`
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: ${({ $live }) => ($live ? '#e8eef5' : '#f7edd8')};
+  color: ${({ $live }) => ($live ? '#2f5479' : '#8a6d1d')};
+  border: 1px solid ${({ $live }) => ($live ? '#c8d8e8' : '#e5d3a6')};
+`
+
+export const EnvRow = styled.div`
+  display: flex;
+  gap: 8px;
+`
+
+export const EnvOption = styled.button<{ $active: boolean; $live: boolean }>`
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  border: 1.5px solid
+    ${({ $active, $live }) => ($active ? ($live ? '#2f5479' : T.terra) : T.border)};
+  background: ${({ $active, $live }) =>
+    $active ? ($live ? '#e8eef5' : T.terraLt) : T.card};
+  color: ${({ $active, $live }) => ($active ? ($live ? '#2f5479' : T.terra) : T.sub)};
+`
+
 export const Capabilities = styled.div`
   display: flex;
   gap: 6px;

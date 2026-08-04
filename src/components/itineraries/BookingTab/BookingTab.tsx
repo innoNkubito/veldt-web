@@ -477,6 +477,14 @@ export default function BookingTab() {
             <S.CardTitle>Invoice Settings</S.CardTitle>
           </S.CardTitleRow>
 
+          {selectedConnection?.environment === 'TEST' && (
+            <S.Callout $tone="warn">
+              <strong>{selectedConnection.label}</strong> is a test/sandbox connection — no real
+              money moves and payments always succeed. Switch to a live connection before sending
+              this itinerary to a client.
+            </S.Callout>
+          )}
+
           <S.Grid>
             <Field>
               <FieldLabel>Payment Processor</FieldLabel>
@@ -488,6 +496,7 @@ export default function BookingTab() {
                 {activeConnections.map((connection) => (
                   <option key={connection.id} value={connection.id}>
                     {connection.label}
+                    {connection.environment === 'TEST' ? ' (Test)' : ''}
                   </option>
                 ))}
               </FieldSelect>

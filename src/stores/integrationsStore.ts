@@ -6,12 +6,14 @@ import { useClientStore } from './clientStore'
 
 export type PaymentProcessorType = 'DPO'
 export type ProcessorStatus = 'PENDING' | 'ACTIVE' | 'DISABLED'
+export type ProcessorEnvironment = 'TEST' | 'LIVE'
 
 export interface ProcessorConnection {
   id: string
   type: PaymentProcessorType
   label: string
   status: ProcessorStatus
+  environment: ProcessorEnvironment
   supportsCards: boolean
   supportsAch: boolean
   createdAt: string
@@ -22,27 +24,50 @@ export interface CredentialField {
   key: string
   label: string
   placeholder?: string
+  /** Masked on entry and never displayed again */
+  secret?: boolean
+  hint?: string
 }
 
 // Metadata for each supported processor — drives the connect form.
 export const PROCESSOR_META: Record<
   PaymentProcessorType,
-  { name: string; description: string; credentialFields: CredentialField[]; defaultSupportsAch: boolean }
+  {
+    name: string
+    description: string
+    credentialFields: CredentialField[]
+    defaultSupportsAch: boolean
+    /** Shown under the environment toggle when TEST is selected */
+    sandboxHint?: string
+  }
 > = {
   DPO: {
     name: 'DPO Pay',
     description: 'Card, mobile money and bank payments across Africa.',
     credentialFields: [
-      { key: 'companyToken', label: 'Company Token', placeholder: 'Your DPO company token' },
+      {
+        key: 'companyToken',
+        label: 'Company Token',
+        placeholder: 'e.g. B3F59BE7-0756-420E-BB88-1D98E7A6B040',
+        secret: true,
+      },
+      {
+        key: 'serviceType',
+        label: 'Service Type ID',
+        placeholder: 'e.g. 54841',
+        hint: 'The service/product ID issued with your DPO account.',
+      },
     ],
     defaultSupportsAch: false,
+    sandboxHint:
+      'DPO uses the same API endpoint for sandbox and live — only the credentials differ. Use the published test company tokens here.',
   },
 }
 
 // ── GQL ─────────────────────────────────────────────────────────
 
 const CONNECTION_FIELDS = `
-  id type label status supportsCards supportsAch createdAt updatedAt
+  id type label status environment supportsCards supportsAch createdAt updatedAt
 `
 
 const GET_CONNECTIONS = gql`
@@ -81,6 +106,7 @@ interface IntegrationsState {
   createConnection: (input: {
     type: PaymentProcessorType
     label: string
+    environment: ProcessorEnvironment
     credentials: Record<string, string>
     supportsCards?: boolean
     supportsAch?: boolean
@@ -90,6 +116,7 @@ interface IntegrationsState {
     input: {
       label?: string
       status?: ProcessorStatus
+      environment?: ProcessorEnvironment
       credentials?: Record<string, string>
       supportsCards?: boolean
       supportsAch?: boolean
