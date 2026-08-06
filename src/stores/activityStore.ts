@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -142,8 +143,8 @@ export const useActivityStore = create<ActivityState>((set) => ({
     try {
       const data = await client.request<{ contentPages: ActivityListItem[] }>(LIST_ACTIVITIES)
       set({ activities: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load activities' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load activities') })
     }
   },
 
@@ -154,8 +155,8 @@ export const useActivityStore = create<ActivityState>((set) => ({
     try {
       const data = await client.request<{ contentPage: ActivityFull }>(GET_ACTIVITY, { id })
       set({ activity: data.contentPage, activityLoading: false })
-    } catch (e: any) {
-      set({ activityLoading: false, error: e.message ?? 'Failed to load activity' })
+    } catch (e) {
+      set({ activityLoading: false, error: gqlErrorMessage(e, 'Failed to load activity') })
     }
   },
 
@@ -170,8 +171,8 @@ export const useActivityStore = create<ActivityState>((set) => ({
       const created = data.createContentPage
       set((s) => ({ activities: [created, ...s.activities], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create activity' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create activity') })
       return null
     }
   },
@@ -188,8 +189,8 @@ export const useActivityStore = create<ActivityState>((set) => ({
         activity: s.activity?.id === id ? { ...s.activity, ...updated } : s.activity,
         activities: s.activities.map((a) => (a.id === id ? { ...a, ...updated } : a)),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update activity' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update activity') })
     }
   },
 
@@ -204,8 +205,8 @@ export const useActivityStore = create<ActivityState>((set) => ({
         activities: s.activities.filter((a) => a.id !== id),
         activity: s.activity?.id === id ? null : s.activity,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete activity' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete activity') })
     }
   },
 }))

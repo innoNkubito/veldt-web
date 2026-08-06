@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -141,9 +142,9 @@ export const useIntegrationsStore = create<IntegrationsState>((set) => ({
         GET_CONNECTIONS,
       )
       set({ connections: data.processorConnections, loading: false })
-    } catch (err: any) {
+    } catch (err) {
       set({
-        error: err?.response?.errors?.[0]?.message ?? 'Failed to load integrations',
+        error: gqlErrorMessage(err, 'Failed to load integrations'),
         loading: false,
       })
     }
@@ -163,9 +164,9 @@ export const useIntegrationsStore = create<IntegrationsState>((set) => ({
         saving: false,
       }))
       return data.createProcessorConnection
-    } catch (err: any) {
+    } catch (err) {
       set({
-        error: err?.response?.errors?.[0]?.message ?? 'Failed to connect processor',
+        error: gqlErrorMessage(err, 'Failed to connect processor'),
         saving: false,
       })
       return null
@@ -186,9 +187,9 @@ export const useIntegrationsStore = create<IntegrationsState>((set) => ({
         saving: false,
       }))
       return data.updateProcessorConnection
-    } catch (err: any) {
+    } catch (err) {
       set({
-        error: err?.response?.errors?.[0]?.message ?? 'Failed to update connection',
+        error: gqlErrorMessage(err, 'Failed to update connection'),
         saving: false,
       })
       return null
@@ -202,8 +203,8 @@ export const useIntegrationsStore = create<IntegrationsState>((set) => ({
     try {
       await client.request(DELETE_CONNECTION, { id })
       set((s) => ({ connections: s.connections.filter((c) => c.id !== id) }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove connection' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to remove connection') })
     }
   },
 

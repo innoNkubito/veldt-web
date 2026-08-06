@@ -8,6 +8,7 @@ import {
 import { useBuilderStore, type ItineraryRow, type InfoPageRoom } from '@/stores/builderStore'
 import { CONTENT_TYPE_CONFIG, type ContentType } from '@/lib/contentTypes'
 import * as S from './PreviewTab.styled'
+import { toPMNode, type PMNode } from '@/lib/prosemirror'
 
 // ─────────────────────────────────────────────────────────────────
 // pageContent types (mirrors PageContentTab's pageContent.types.ts)
@@ -271,14 +272,6 @@ function ContentSections({
 // ProseMirror JSON → React renderer (for day rich text)
 // ─────────────────────────────────────────────────────────────────
 
-interface PMNode {
-  type: string
-  content?: PMNode[]
-  text?: string
-  marks?: { type: string; attrs?: Record<string, unknown> }[]
-  attrs?: Record<string, unknown>
-}
-
 function renderNode(node: PMNode, key: number): React.ReactNode {
   if (node.type === 'text') {
     let el: React.ReactNode = node.text ?? ''
@@ -318,9 +311,8 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
 }
 
 function DayRichText({ json }: { json: Record<string, unknown> | null }) {
-  if (!json) return null
-  const node = json as unknown as PMNode
-  if (!node.content?.length) return null
+  const node = toPMNode(json)
+  if (!node?.content?.length) return null
   const hasContent = node.content.some(
     (n) =>
       n.type !== 'paragraph' ||

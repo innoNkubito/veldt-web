@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import type { ProcessorConnection } from './integrationsStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -186,10 +187,6 @@ const SET_SCHEDULE = gql`
   }
 `
 
-function gqlError(err: any, fallback: string): string {
-  const message: string = err?.response?.errors?.[0]?.message ?? fallback
-  return message.replace(/^(VALIDATION|FORBIDDEN|NOT_FOUND): /, '')
-}
 
 // ── Store ───────────────────────────────────────────────────────
 
@@ -232,8 +229,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         { itineraryId },
       )
       set({ config: data.bookingConfig, loading: false })
-    } catch (err: any) {
-      set({ error: gqlError(err, 'Failed to load booking settings'), loading: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to load booking settings'), loading: false })
     }
   },
 
@@ -248,8 +245,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       )
       set({ config: data.upsertBookingConfig, saving: false })
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to save booking settings')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to save booking settings')
       set({ error: message, saving: false })
       return message
     }
@@ -272,8 +269,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           : s.config,
       }))
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to add package')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to add package')
       set({ error: message, saving: false })
       return message
     }
@@ -300,8 +297,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           : s.config,
       }))
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to update package')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to update package')
       set({ error: message, saving: false })
       return message
     }
@@ -317,8 +314,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           ? { ...s.config, packages: s.config.packages.filter((p) => p.id !== id) }
           : s.config,
       }))
-    } catch (err: any) {
-      set({ error: gqlError(err, 'Failed to remove package') })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to remove package') })
     }
   },
 
@@ -339,8 +336,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           : s.config,
       }))
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to add addon')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to add addon')
       set({ error: message, saving: false })
       return message
     }
@@ -365,8 +362,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           : s.config,
       }))
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to update addon')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to update addon')
       set({ error: message, saving: false })
       return message
     }
@@ -382,8 +379,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
           ? { ...s.config, addons: s.config.addons.filter((a) => a.id !== id) }
           : s.config,
       }))
-    } catch (err: any) {
-      set({ error: gqlError(err, 'Failed to remove addon') })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to remove addon') })
     }
   },
 
@@ -402,8 +399,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         config: s.config ? { ...s.config, scheduleItems: data.setPaymentSchedule } : s.config,
       }))
       return null
-    } catch (err: any) {
-      const message = gqlError(err, 'Failed to save payment schedule')
+    } catch (err) {
+      const message = gqlErrorMessage(err, 'Failed to save payment schedule')
       set({ error: message, saving: false })
       return message
     }

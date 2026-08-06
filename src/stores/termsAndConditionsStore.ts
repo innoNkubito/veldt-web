@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -101,8 +102,8 @@ export const useTermsAndConditionsStore = create<TermsState>((set) => ({
     try {
       const data = await client.request<{ contentPages: TermsListItem[] }>(LIST_TERMS)
       set({ termsList: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load terms pages' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load terms pages') })
     }
   },
 
@@ -113,8 +114,8 @@ export const useTermsAndConditionsStore = create<TermsState>((set) => ({
     try {
       const data = await client.request<{ contentPage: TermsFull }>(GET_TERMS, { id })
       set({ terms: data.contentPage, termsLoading: false })
-    } catch (e: any) {
-      set({ termsLoading: false, error: e.message ?? 'Failed to load terms page' })
+    } catch (e) {
+      set({ termsLoading: false, error: gqlErrorMessage(e, 'Failed to load terms page') })
     }
   },
 
@@ -129,8 +130,8 @@ export const useTermsAndConditionsStore = create<TermsState>((set) => ({
       const created = data.createContentPage
       set((s) => ({ termsList: [created, ...s.termsList], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create terms page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create terms page') })
       return null
     }
   },
@@ -147,8 +148,8 @@ export const useTermsAndConditionsStore = create<TermsState>((set) => ({
         terms: s.terms?.id === id ? { ...s.terms, ...updated } : s.terms,
         termsList: s.termsList.map((t) => (t.id === id ? { ...t, ...updated } : t)),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update terms page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update terms page') })
     }
   },
 
@@ -163,8 +164,8 @@ export const useTermsAndConditionsStore = create<TermsState>((set) => ({
         termsList: s.termsList.filter((t) => t.id !== id),
         terms: s.terms?.id === id ? null : s.terms,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete terms page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete terms page') })
     }
   },
 }))

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 export interface ItineraryListItem {
   id: string
@@ -101,9 +102,9 @@ export const useItineraryStore = create<ItineraryState>((set, get) => ({
         { status: status ?? null },
       )
       set({ itineraries: data.itineraries, loading: false })
-    } catch (err: any) {
+    } catch (err) {
       set({
-        error: err?.response?.errors?.[0]?.message ?? 'Failed to fetch',
+        error: gqlErrorMessage(err, 'Failed to fetch'),
         loading: false,
       })
     }
@@ -121,8 +122,8 @@ export const useItineraryStore = create<ItineraryState>((set, get) => ({
         itineraries: [data.createItinerary, ...state.itineraries],
       }))
       return data.createItinerary
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to create' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to create') })
       return null
     }
   },

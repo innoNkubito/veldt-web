@@ -1,14 +1,16 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { GraphQLClient, gql } from 'graphql-request'
+import { usePublicBookingStore } from '@/stores/publicBookingStore'
 import {
   MapPin, Binoculars, Star, Sun, BedDouble, Plane, Thermometer,
   CalendarDays, Users, Leaf, Camera, Info,
 } from 'lucide-react'
 import { CONTENT_TYPE_CONFIG, type ContentType } from '@/lib/contentTypes'
 import * as S from './page.styled'
+import { toPMNode, type PMNode } from '@/lib/prosemirror'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -359,13 +361,6 @@ function ContentSections({
 
 // ── ProseMirror JSON → React renderer (for day rich text) ───────
 
-interface PMNode {
-  type: string
-  content?: PMNode[]
-  text?: string
-  marks?: { type: string; attrs?: Record<string, unknown> }[]
-  attrs?: Record<string, unknown>
-}
 
 function renderNode(node: PMNode, key: number): React.ReactNode {
   if (node.type === 'text') {
@@ -406,9 +401,8 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
 }
 
 function DayRichText({ json }: { json: Record<string, unknown> | null }) {
-  if (!json) return null
-  const node = json as unknown as PMNode
-  if (!node.content?.length) return null
+  const node = toPMNode(json)
+  if (!node?.content?.length) return null
   const hasContent = node.content.some(
     (n) =>
       n.type !== 'paragraph' ||
@@ -536,9 +530,15 @@ export default function SharePage() {
   const params = useParams()
   const slug = params?.slug as string
 
+  const router = useRouter()
   const [itinerary, setItinerary] = useState<PublicItinerary | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  // Booking options load independently — a non-bookable itinerary simply
+  // resolves to null and the booking block is skipped.
+  const bookingOptions = usePublicBookingStore((s) => s.options)
+  const fetchBookingOptions = usePublicBookingStore((s) => s.fetchOptions)
 
   // ── Cover crossfade state (double-buffer pattern, mirrors PreviewTab)
   const [layerA, setLayerA] = useState<CoverInfo>({ url: null, label: 'Itinerary', title: '' })
@@ -580,6 +580,8 @@ export default function SharePage() {
     }
 
     load()
+    fetchBookingOptions(slug)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug])
 
   // Seed the cover title once the itinerary arrives
@@ -633,6 +635,11 @@ export default function SharePage() {
     coverMap.set('costs', {
       url: null,
       label: 'Investment',
+      title: itinerary.proposalTitle,
+    })
+    coverMap.set('book', {
+      url: null, // itinerary cover image — provided by user later
+      label: 'Booking',
       title: itinerary.proposalTitle,
     })
 
@@ -735,6 +742,12 @@ export default function SharePage() {
     itinerary.costs.costIncludes ||
     itinerary.costs.costExcludes
   )
+
+  // Cheapest live package, used as a "from" price on the booking block
+  const availablePackages = (bookingOptions?.packages ?? []).filter((p) => p.remaining > 0)
+  const lowestPackagePrice = availablePackages.length > 0
+    ? Math.min(...availablePackages.map((p) => p.price))
+    : null
 
   // ── Render a full content page block ──────────────────────────
   function ContentPageBlock({ page, blockId }: { page: FullContentPage; blockId: string }) {
@@ -937,6 +950,47 @@ export default function SharePage() {
         {endSlots.map((slot) => (
           <ContentPageBlock key={slot.id} page={slot.contentPage} blockId={`infoslot-${slot.id}`} />
         ))}
+
+        {/* ── Booking ─ */}
+        {bookingOptions && bookingOptions.bookingMode !== 'OFF' && (
+          <S.BookBlock id="book" data-cover-id="book">
+            <S.BookHeading>Ready to travel?</S.BookHeading>
+
+            {bookingOptions.bookingMode === 'VELDT' ? (
+              <>
+                <S.BookIntro>
+                  {bookingOptions.flowType === 'REQUEST'
+                    ? 'Send a booking request and your travel advisor will confirm availability.'
+                    : 'Secure your place — reserve online and pay the first installment.'}
+                  {lowestPackagePrice != null && (
+                    <> Packages from {formatPrice(lowestPackagePrice, bookingOptions.currency)}.</>
+                  )}
+                </S.BookIntro>
+                <S.BookButton onClick={() => router.push(`/view/${slug}/book`)}>
+                  {bookingOptions.flowType === 'REQUEST' ? 'Request to book' : 'Book this trip'}
+                </S.BookButton>
+              </>
+            ) : (
+              <>
+                <S.BookIntro>
+                  Get in touch to secure your place on this journey.
+                </S.BookIntro>
+                {bookingOptions.externalUrl && (
+                  <S.BookLink
+                    href={bookingOptions.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Book this trip
+                  </S.BookLink>
+                )}
+                {bookingOptions.externalContact && (
+                  <S.BookContact>{bookingOptions.externalContact}</S.BookContact>
+                )}
+              </>
+            )}
+          </S.BookBlock>
+        )}
 
         {/* ── Footer ─ */}
         {!itinerary.whiteLabel && (

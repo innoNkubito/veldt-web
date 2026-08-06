@@ -645,6 +645,77 @@ export const CostsBlock = styled.div`
   }
 `
 
+// ── Booking block ─────────────────────────────────────────────
+
+export const BookBlock = styled.div`
+  padding: 48px 64px 56px;
+  border-bottom: 1px solid ${T.border};
+  text-align: center;
+
+  @media (max-width: 900px) {
+    padding: 36px 24px 44px;
+  }
+`
+
+export const BookHeading = styled.h2`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 500;
+  font-style: italic;
+  color: ${T.text};
+  margin: 0 0 14px;
+`
+
+export const BookIntro = styled.p`
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: ${T.sub};
+  max-width: 480px;
+  margin: 0 auto 26px;
+`
+
+export const BookButton = styled.button`
+  display: inline-block;
+  padding: 14px 34px;
+  border-radius: 8px;
+  border: none;
+  background: ${T.terra};
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover { background: #AE6341; }
+`
+
+/** Same treatment as BookButton, for external booking links. */
+export const BookLink = styled.a`
+  display: inline-block;
+  padding: 14px 34px;
+  border-radius: 8px;
+  background: ${T.terra};
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover { background: #AE6341; }
+`
+
+export const BookContact = styled.div`
+  margin-top: 18px;
+  font-size: 13.5px;
+  color: ${T.sub};
+  white-space: pre-line;
+  line-height: 1.6;
+`
+
 export const CostsHeading = styled.h2`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 28px;

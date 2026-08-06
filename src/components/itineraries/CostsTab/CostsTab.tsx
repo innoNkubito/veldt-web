@@ -79,7 +79,7 @@ export default function CostsTab() {
       miscVisible: form.miscVisible,
       priceVisible: form.priceVisible,
       accuracyConfirmed: form.accuracyConfirmed,
-    } as any)
+    })
     setDirty(false)
   }
 

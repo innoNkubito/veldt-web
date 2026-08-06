@@ -16,7 +16,7 @@ interface Props {
 
 function parseOverview(raw: unknown): TextImageSection | null {
   if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const sections = (raw as any).sections
+    const sections: unknown = raw.sections
     if (Array.isArray(sections) && sections[0]?.type === 'overview') {
       const s = sections[0] as TextImageSection
       if (s.text1 || s.text2 || s.images.length > 0) return s

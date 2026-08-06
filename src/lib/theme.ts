@@ -1,4 +1,19 @@
-import { createTheme } from "@mui/material/styles";
+import { createTheme, type Shadows } from "@mui/material/styles";
+
+// MUI expects exactly 25 shadow levels. Declared as Shadows so the tuple
+// length is checked at compile time rather than asserted away.
+const SHADOWS: Shadows = [
+  "none",
+  "0 1px 3px rgba(0,0,0,0.06)", // 1 — card
+  "0 2px 8px rgba(0,0,0,0.08)", // 2 — elevated card
+  "0 4px 16px rgba(0,0,0,0.10)", // 3 — dropdown
+  "0 8px 32px rgba(0,0,0,0.12)", // 4 — modal
+  // 5–24 unused
+  "none", "none", "none", "none", "none",
+  "none", "none", "none", "none", "none",
+  "none", "none", "none", "none", "none",
+  "none", "none", "none", "none", "none",
+];
 
 // Veldt design tokens — extracted from Veldt_Dashboard_v2.html
 const T = {
@@ -117,14 +132,7 @@ export const theme = createTheme({
   },
 
   // ── Shadows — MUI uses an array of 25 ────────────────────
-  shadows: [
-    "none",
-    "0 1px 3px rgba(0,0,0,0.06)", // 1 — card
-    "0 2px 8px rgba(0,0,0,0.08)", // 2 — elevated card
-    "0 4px 16px rgba(0,0,0,0.10)", // 3 — dropdown
-    "0 8px 32px rgba(0,0,0,0.12)", // 4 — modal
-    ...Array(20).fill("none"), // 5-24 unused
-  ] as any,
+  shadows: SHADOWS,
 
   // ── Component overrides ───────────────────────────────────
   components: {

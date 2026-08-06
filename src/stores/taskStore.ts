@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -132,8 +133,8 @@ export const useTaskStore = create<TaskState>((set) => ({
     try {
       const data = await client.request<{ tasks: TaskItem[] }>(GET_TASKS)
       set({ tasks: data.tasks, loading: false })
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to load tasks', loading: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to load tasks'), loading: false })
     }
   },
 
@@ -159,8 +160,8 @@ export const useTaskStore = create<TaskState>((set) => ({
       const data = await client.request<{ createTask: TaskItem }>(CREATE_TASK, { input })
       set((s) => ({ tasks: [...s.tasks, data.createTask], saving: false }))
       return data.createTask
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to create task', saving: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to create task'), saving: false })
       return null
     }
   },
@@ -176,8 +177,8 @@ export const useTaskStore = create<TaskState>((set) => ({
         saving: false,
       }))
       return data.updateTask
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to update task', saving: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to update task'), saving: false })
       return null
     }
   },
@@ -195,11 +196,11 @@ export const useTaskStore = create<TaskState>((set) => ({
         completed,
       })
       set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? data.setTaskCompleted : t)) }))
-    } catch (err: any) {
+    } catch (err) {
       // Revert on failure
       set((s) => ({
         tasks: s.tasks.map((t) => (t.id === id ? { ...t, completed: !completed } : t)),
-        error: err?.response?.errors?.[0]?.message ?? 'Failed to update task',
+        error: gqlErrorMessage(err, 'Failed to update task'),
       }))
     }
   },
@@ -210,8 +211,8 @@ export const useTaskStore = create<TaskState>((set) => ({
     try {
       await client.request(DELETE_TASK, { id })
       set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to delete task' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to delete task') })
     }
   },
 }))

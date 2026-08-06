@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -439,8 +440,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     try {
       const data = await client.request<{ itinerary: ItineraryFull }>(GET_ITINERARY, { id })
       set({ itinerary: data.itinerary, loading: false })
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to load', loading: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to load'), loading: false })
     }
   },
 
@@ -469,8 +470,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         itinerary: s.itinerary ? { ...s.itinerary, ...data.updateItinerary } : null,
         saving: false,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to save', saving: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to save'), saving: false })
     }
   },
 
@@ -487,8 +488,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         saving: false,
       }))
       return null
-    } catch (err: any) {
-      const msg = err?.response?.errors?.[0]?.message ?? 'Failed to publish'
+    } catch (err) {
+      const msg = gqlErrorMessage(err, 'Failed to publish')
       set({ saving: false })
       return msg
     }
@@ -505,8 +506,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           : null,
       }))
       return data.addRow
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add row' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to add row') })
       return null
     }
   },
@@ -531,8 +532,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             }
           : null,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to update row' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to update row') })
     }
   },
 
@@ -546,8 +547,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           ? { ...s.itinerary, rows: s.itinerary.rows.filter((r) => r.id !== id) }
           : null,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to delete row' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to delete row') })
     }
   },
 
@@ -567,7 +568,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     })
     try {
       await client.request(REORDER_ROWS, { itineraryId, rowIds })
-    } catch (err: any) {
+    } catch {
       // Refetch on failure
       get().fetchItinerary(itineraryId)
     }
@@ -586,8 +587,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         itinerary: s.itinerary ? { ...s.itinerary, costs: data.upsertCosts } : null,
         saving: false,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to save costs', saving: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to save costs'), saving: false })
     }
   },
 
@@ -615,8 +616,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       // non-property types) — silently refetch to fill in complete data.
       const itinId = get().itinerary?.id
       if (itinId) void get().refreshItinerary(itinId)
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add accommodation' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to add accommodation') })
     }
   },
 
@@ -638,8 +639,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           },
         }
       })
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove accommodation' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to remove accommodation') })
     }
   },
 
@@ -663,8 +664,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             }
           : null,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to set area page' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to set area page') })
     }
   },
 
@@ -688,8 +689,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       // Silently refetch for complete contentPage data (rooms, etc.)
       const itinId = get().itinerary?.id
       if (itinId) void get().refreshItinerary(itinId)
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to add activity' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to add activity') })
     }
   },
 
@@ -708,8 +709,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
             }
           : null,
       }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to remove activity' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to remove activity') })
     }
   },
 
@@ -732,8 +733,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           },
         }
       })
-    } catch (err: any) {
-      set({ saving: false, error: err?.response?.errors?.[0]?.message ?? 'Failed to add info page' })
+    } catch (err) {
+      set({ saving: false, error: gqlErrorMessage(err, 'Failed to add info page') })
     }
   },
 
@@ -753,8 +754,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           },
         }
       })
-    } catch (err: any) {
-      set({ saving: false, error: err?.response?.errors?.[0]?.message ?? 'Failed to remove info page' })
+    } catch (err) {
+      set({ saving: false, error: gqlErrorMessage(err, 'Failed to remove info page') })
     }
   },
 
@@ -775,8 +776,8 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
           },
         }
       })
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to reorder' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to reorder') })
     }
   },
 }))

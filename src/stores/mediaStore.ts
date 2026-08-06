@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -104,8 +105,8 @@ export const useMediaStore = create<MediaState>((set) => ({
     try {
       const data = await client.request<{ mediaAssets: MediaAsset[] }>(GET_MEDIA_ASSETS)
       set({ assets: data.mediaAssets, loading: false })
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to load visuals', loading: false })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to load visuals'), loading: false })
     }
   },
 
@@ -118,8 +119,8 @@ export const useMediaStore = create<MediaState>((set) => ({
       })
       set((s) => ({ assets: [data.createMediaAsset, ...s.assets] }))
       return data.createMediaAsset
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to save image' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to save image') })
       return null
     }
   },
@@ -134,8 +135,8 @@ export const useMediaStore = create<MediaState>((set) => ({
       })
       set((s) => ({ assets: s.assets.map((a) => (a.id === id ? data.updateMediaAsset : a)) }))
       return data.updateMediaAsset
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to update image' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to update image') })
       return null
     }
   },
@@ -146,8 +147,8 @@ export const useMediaStore = create<MediaState>((set) => ({
     try {
       await client.request(DELETE_MEDIA_ASSET, { id })
       set((s) => ({ assets: s.assets.filter((a) => a.id !== id) }))
-    } catch (err: any) {
-      set({ error: err?.response?.errors?.[0]?.message ?? 'Failed to delete image' })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Failed to delete image') })
     }
   },
 

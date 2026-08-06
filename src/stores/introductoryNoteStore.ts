@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -120,8 +121,8 @@ export const useIntroductoryNoteStore = create<IntroductoryNoteState>((set) => (
     try {
       const data = await client.request<{ contentPages: IntroductoryNoteListItem[] }>(LIST_INTRO_NOTES)
       set({ introductoryNotes: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load introductory notes' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load introductory notes') })
     }
   },
 
@@ -132,8 +133,8 @@ export const useIntroductoryNoteStore = create<IntroductoryNoteState>((set) => (
     try {
       const data = await client.request<{ contentPage: IntroductoryNoteFull }>(GET_INTRO_NOTE, { id })
       set({ introductoryNote: data.contentPage, introductoryNoteLoading: false })
-    } catch (e: any) {
-      set({ introductoryNoteLoading: false, error: e.message ?? 'Failed to load introductory note' })
+    } catch (e) {
+      set({ introductoryNoteLoading: false, error: gqlErrorMessage(e, 'Failed to load introductory note') })
     }
   },
 
@@ -148,8 +149,8 @@ export const useIntroductoryNoteStore = create<IntroductoryNoteState>((set) => (
       const created = data.createContentPage
       set((s) => ({ introductoryNotes: [created, ...s.introductoryNotes], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create introductory note' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create introductory note') })
       return null
     }
   },
@@ -166,8 +167,8 @@ export const useIntroductoryNoteStore = create<IntroductoryNoteState>((set) => (
         introductoryNote: s.introductoryNote?.id === id ? { ...s.introductoryNote, ...updated } : s.introductoryNote,
         introductoryNotes: s.introductoryNotes.map((n) => (n.id === id ? { ...n, ...updated } : n)),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update introductory note' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update introductory note') })
     }
   },
 
@@ -182,8 +183,8 @@ export const useIntroductoryNoteStore = create<IntroductoryNoteState>((set) => (
         introductoryNotes: s.introductoryNotes.filter((n) => n.id !== id),
         introductoryNote: s.introductoryNote?.id === id ? null : s.introductoryNote,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete introductory note' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete introductory note') })
     }
   },
 }))

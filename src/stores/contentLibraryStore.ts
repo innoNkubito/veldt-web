@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -232,8 +233,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
     try {
       const data = await client.request<{ contentPages: PropertyListItem[] }>(LIST_PROPERTIES)
       set({ properties: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load properties' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load properties') })
     }
   },
 
@@ -244,8 +245,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
     try {
       const data = await client.request<{ contentPage: PropertyFull }>(GET_PROPERTY, { id })
       set({ property: data.contentPage, propertyLoading: false })
-    } catch (e: any) {
-      set({ propertyLoading: false, error: e.message ?? 'Failed to load property' })
+    } catch (e) {
+      set({ propertyLoading: false, error: gqlErrorMessage(e, 'Failed to load property') })
     }
   },
 
@@ -271,8 +272,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
       const created = data.createContentPage
       set((s) => ({ properties: [created, ...s.properties], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create property' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create property') })
       return null
     }
   },
@@ -294,8 +295,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
           p.id === id ? { ...p, ...updated } : p,
         ),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update property' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update property') })
     }
   },
 
@@ -310,8 +311,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
         properties: s.properties.filter((p) => p.id !== id),
         property: s.property?.id === id ? null : s.property,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete property' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete property') })
     }
   },
 
@@ -331,8 +332,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
           ? { ...s.property, rooms: [...s.property.rooms, room] }
           : s.property,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to add room' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to add room') })
     }
   },
 
@@ -355,8 +356,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
             }
           : s.property,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update room' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update room') })
     }
   },
 
@@ -372,8 +373,8 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
           ? { ...s.property, rooms: s.property.rooms.filter((r) => r.id !== id) }
           : s.property,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete room' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete room') })
     }
   },
 }))

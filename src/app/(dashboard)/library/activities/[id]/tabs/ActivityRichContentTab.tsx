@@ -18,7 +18,7 @@ interface Props {
 function parseOverview(activity: ActivityFull): TextImageSection {
   const raw = activity.pageContent
   if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const sections = (raw as any).sections
+    const sections: unknown = raw.sections
     if (Array.isArray(sections) && sections[0]?.type === 'overview') {
       return sections[0] as TextImageSection
     }

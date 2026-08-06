@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -120,8 +121,8 @@ export const useAboutUsStore = create<AboutUsState>((set) => ({
     try {
       const data = await client.request<{ contentPages: AboutUsListItem[] }>(LIST_ABOUT_US)
       set({ aboutUsList: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load about us pages' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load about us pages') })
     }
   },
 
@@ -132,8 +133,8 @@ export const useAboutUsStore = create<AboutUsState>((set) => ({
     try {
       const data = await client.request<{ contentPage: AboutUsFull }>(GET_ABOUT_US, { id })
       set({ aboutUs: data.contentPage, aboutUsLoading: false })
-    } catch (e: any) {
-      set({ aboutUsLoading: false, error: e.message ?? 'Failed to load about us page' })
+    } catch (e) {
+      set({ aboutUsLoading: false, error: gqlErrorMessage(e, 'Failed to load about us page') })
     }
   },
 
@@ -148,8 +149,8 @@ export const useAboutUsStore = create<AboutUsState>((set) => ({
       const created = data.createContentPage
       set((s) => ({ aboutUsList: [created, ...s.aboutUsList], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create about us page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create about us page') })
       return null
     }
   },
@@ -166,8 +167,8 @@ export const useAboutUsStore = create<AboutUsState>((set) => ({
         aboutUs: s.aboutUs?.id === id ? { ...s.aboutUs, ...updated } : s.aboutUs,
         aboutUsList: s.aboutUsList.map((a) => (a.id === id ? { ...a, ...updated } : a)),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update about us page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update about us page') })
     }
   },
 
@@ -182,8 +183,8 @@ export const useAboutUsStore = create<AboutUsState>((set) => ({
         aboutUsList: s.aboutUsList.filter((a) => a.id !== id),
         aboutUs: s.aboutUs?.id === id ? null : s.aboutUs,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete about us page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete about us page') })
     }
   },
 }))

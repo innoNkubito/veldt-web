@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -139,8 +140,8 @@ export const useAreaStore = create<AreaState>((set, get) => ({
     try {
       const data = await client.request<{ contentPages: AreaListItem[] }>(LIST_AREAS)
       set({ areas: data.contentPages, loading: false })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load areas' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load areas') })
     }
   },
 
@@ -151,8 +152,8 @@ export const useAreaStore = create<AreaState>((set, get) => ({
     try {
       const data = await client.request<{ contentPage: AreaFull }>(GET_AREA, { id })
       set({ area: data.contentPage, areaLoading: false })
-    } catch (e: any) {
-      set({ areaLoading: false, error: e.message ?? 'Failed to load area' })
+    } catch (e) {
+      set({ areaLoading: false, error: gqlErrorMessage(e, 'Failed to load area') })
     }
   },
 
@@ -167,8 +168,8 @@ export const useAreaStore = create<AreaState>((set, get) => ({
       const created = data.createContentPage
       set((s) => ({ areas: [created, ...s.areas], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create area' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create area') })
       return null
     }
   },
@@ -185,8 +186,8 @@ export const useAreaStore = create<AreaState>((set, get) => ({
         area: s.area?.id === id ? { ...s.area, ...updated } : s.area,
         areas: s.areas.map((a) => (a.id === id ? { ...a, ...updated } : a)),
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to update area' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to update area') })
     }
   },
 
@@ -201,8 +202,8 @@ export const useAreaStore = create<AreaState>((set, get) => ({
         areas: s.areas.filter((a) => a.id !== id),
         area: s.area?.id === id ? null : s.area,
       }))
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to delete area' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to delete area') })
     }
   },
 }))

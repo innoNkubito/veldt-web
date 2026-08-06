@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import type { ContentType } from '@/lib/contentTypes'
+import { gqlErrorMessage } from '@/lib/gql-error'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -78,8 +79,8 @@ export const useContentHubStore = create<ContentHubState>((set) => ({
         pages: data.contentPages.filter((p) => known.has(p.type)),
         loading: false,
       })
-    } catch (e: any) {
-      set({ loading: false, error: e.message ?? 'Failed to load content' })
+    } catch (e) {
+      set({ loading: false, error: gqlErrorMessage(e, 'Failed to load content') })
     }
   },
 
@@ -94,8 +95,8 @@ export const useContentHubStore = create<ContentHubState>((set) => ({
       const created = data.createContentPage
       set((s) => ({ pages: [created, ...s.pages], saving: false }))
       return created
-    } catch (e: any) {
-      set({ saving: false, error: e.message ?? 'Failed to create content page' })
+    } catch (e) {
+      set({ saving: false, error: gqlErrorMessage(e, 'Failed to create content page') })
       return null
     }
   },
