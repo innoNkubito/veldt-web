@@ -85,6 +85,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 7a4 4 0 1 0 0 .1M20 8v6M23 11h-6",
         staffOnly: true,
       },
+      {
+        label: "Operators",
+        href: "/admin/operators",
+        icon: "M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 11h.01M15 11h.01",
+        staffOnly: true,
+      },
     ],
   },
 ]

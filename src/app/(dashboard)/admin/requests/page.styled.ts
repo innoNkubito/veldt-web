@@ -416,3 +416,60 @@ export const DangerLink = styled.button`
   padding: 8px 4px;
   &:hover { text-decoration: underline; }
 `
+
+// ── Invoice rows (operators page) ─────────────────────────────
+
+export const InvoiceRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid ${T.border};
+
+  &:last-of-type { border-bottom: none; }
+`
+
+export const InvoiceMain = styled.div`
+  flex: 1;
+  min-width: 0;
+`
+
+export const InvoiceNumber = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: ${T.text};
+`
+
+export const InvoiceMeta = styled.div`
+  font-size: 11.5px;
+  color: ${T.muted};
+  margin-top: 3px;
+  line-height: 1.45;
+`
+
+export const InvoiceAmount = styled.div`
+  font-size: 13.5px;
+  font-weight: 600;
+  color: ${T.text};
+  white-space: nowrap;
+`
+
+export const InvoiceActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+`
+
+export const LinkAction = styled.button<{ $danger?: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+  color: ${({ $danger }) => ($danger ? '#dc2626' : T.teal)};
+  white-space: nowrap;
+  &:hover { text-decoration: underline; }
+`
