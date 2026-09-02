@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Icon from "@/components/ui/Icon";
 import { T } from "@/lib/theme";
 import { useProfileStore } from "@/stores/profileStore";
+import { useAdminStore } from "@/stores/adminStore";
+import { useClientStore } from "@/stores/clientStore";
 import * as S from "./Sidebar.styled";
 import { NAV_SECTIONS, type NavItemConfig } from "./constants";
 
@@ -15,6 +17,14 @@ interface SidebarProps {
 export default function Sidebar({ activePath }: SidebarProps) {
   const router = useRouter();
   const profile = useProfileStore((s) => s.profile);
+  const client = useClientStore((s) => s.client);
+  const isStaff = useAdminStore((s) => s.isAdmin);
+  const checkAdmin = useAdminStore((s) => s.checkAdmin);
+
+  useEffect(() => {
+    if (client && isStaff === null) checkAdmin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, isStaff]);
 
   const orgInitial = profile?.operator.name?.[0]?.toUpperCase() ?? "·";
   const orgName = profile?.operator.name ?? "···";
@@ -59,12 +69,21 @@ export default function Sidebar({ activePath }: SidebarProps) {
 
   return (
     <S.Aside>
-      {NAV_SECTIONS.map(({ section, items }) => (
+      {NAV_SECTIONS.map(({ section, items }) => {
+        const visible = items.filter(
+          (item) =>
+            (!item.ownerOnly || profile?.role === "OWNER") &&
+            (!item.staffOnly || isStaff === true),
+        );
+        // Hide the whole section when nothing in it is visible — otherwise
+        // operators would see an empty "Veldt Staff" heading.
+        if (visible.length === 0) return null;
+
+        return (
         <S.Section key={section}>
           <S.SectionLabel>{section}</S.SectionLabel>
 
-          {items
-            .filter((item) => !item.ownerOnly || profile?.role === "OWNER")
+          {visible
             .map((item) => {
             const hasSubItems = !!item.subItems?.length;
             const isOpen = expanded[item.label] ?? false;
@@ -126,7 +145,8 @@ export default function Sidebar({ activePath }: SidebarProps) {
             );
           })}
         </S.Section>
-      ))}
+        );
+      })}
 
       <S.OrgFooter>
         <S.OrgLabel>Tour Operator</S.OrgLabel>

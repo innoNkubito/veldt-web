@@ -11,6 +11,8 @@ export interface NavItemConfig {
   subItems?: NavSubItem[]
   /** Only rendered for users with the OWNER role */
   ownerOnly?: boolean
+  /** Only rendered for Veldt staff (PlatformAdmin) — not operator users */
+  staffOnly?: boolean
 }
 
 export interface NavSectionConfig {
@@ -70,6 +72,18 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         label: "Visuals",
         href: "/library/visuals",
         icon: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21",
+      },
+    ],
+  },
+  {
+    // Veldt staff only — hidden entirely from operator users
+    section: "Veldt Staff",
+    items: [
+      {
+        label: "Onboarding Requests",
+        href: "/admin/requests",
+        icon: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 7a4 4 0 1 0 0 .1M20 8v6M23 11h-6",
+        staffOnly: true,
       },
     ],
   },
