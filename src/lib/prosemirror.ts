@@ -1,3 +1,5 @@
+import { isRecord } from './guards'
+
 /**
  * ProseMirror document parsing.
  *
@@ -24,9 +26,7 @@ export interface PMNode {
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined
+  return isRecord(value) ? value : undefined
 }
 
 function toPMMark(value: unknown): PMMark | null {
@@ -61,4 +61,23 @@ export function toPMNode(value: unknown): PMNode | null {
     marks,
     attrs: asRecord(record.attrs),
   }
+}
+
+/** Reads a string attribute off a node, or undefined if it isn't one. */
+export function attrString(node: PMNode, key: string): string | undefined {
+  const value = node.attrs?.[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+/** Reads a numeric attribute off a node, or undefined if it isn't one. */
+export function attrNumber(node: PMNode, key: string): number | undefined {
+  const value = node.attrs?.[key]
+  return typeof value === 'number' ? value : undefined
+}
+
+export const HEADING_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const
+
+/** Clamps a ProseMirror heading level to a real tag name. */
+export function headingTag(level: number): (typeof HEADING_TAGS)[number] {
+  return HEADING_TAGS[Math.min(Math.max(Math.trunc(level), 1), 6) - 1]
 }

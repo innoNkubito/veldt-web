@@ -257,7 +257,10 @@ export function previewInstallments(
   const remainderIndex = amounts.findIndex((a) => a === null)
   if (remainderIndex > -1) amounts[remainderIndex] = Math.max(0, totalMinor - known)
 
-  const resolved = amounts as number[]
+  // Only the first REMAINING_BALANCE row absorbs the balance above; a second
+  // one would stay null, so fold any left over to zero rather than asserting
+  // the array is all numbers.
+  const resolved = amounts.map((amount) => amount ?? 0)
   const drift = totalMinor - resolved.reduce((sum, a) => sum + a, 0)
   if (drift !== 0) resolved[resolved.length - 1] += drift
 

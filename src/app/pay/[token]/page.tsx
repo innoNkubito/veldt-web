@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { usePublicBookingStore } from '@/stores/publicBookingStore'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 function money(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, {
@@ -15,7 +16,7 @@ function money(amount: number, currency: string): string {
 function PayPageInner() {
   const params = useParams()
   const searchParams = useSearchParams()
-  const token = params?.token as string
+  const token = routeParam(params?.token)
 
   const returned = searchParams.get('returned') === '1'
   const cancelled = searchParams.get('cancelled') === '1'

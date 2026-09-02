@@ -10,6 +10,7 @@ import {
   type PublicBookingResult,
 } from '@/stores/publicBookingStore'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type Step = 'packages' | 'addons' | 'details' | 'review'
 
@@ -110,7 +111,7 @@ function Confirmation({
 export default function BookingCheckoutPage() {
   const params = useParams()
   const router = useRouter()
-  const slug = params?.slug as string
+  const slug = routeParam(params?.slug)
 
   const { options, loading, submitting, error, result, fetchOptions, submitBooking, setError } =
     usePublicBookingStore()

@@ -1,38 +1,22 @@
 // ── pageContent schema for PROPERTY ───────────────────────────
+//
+// The section shapes themselves are shared with the itinerary preview and the
+// public view route, so they live in src/lib/pageContent.ts. What stays here
+// is the property editor's own vocabulary: the pickable section list and the
+// starting templates.
 
-export interface TextImageSection {
-  type: 'overview' | 'experience'
-  text1: string
-  images: string[]
-  text2: string
-}
+import type { ContentSection, PageContent } from '@/lib/pageContent'
 
-export interface FastFactsGroup {
-  label: string
-  items: string[]
-}
+export type {
+  TextImageSection,
+  FastFactsGroup,
+  FastFactsSection,
+  AccommodationSection,
+  GallerySection,
+} from '@/lib/pageContent'
 
-export interface FastFactsSection {
-  type: 'fastFacts'
-  groups: FastFactsGroup[]
-}
-
-/** Rooms are rendered live from property.rooms; only intro text is stored. */
-export interface AccommodationSection {
-  type: 'accommodation'
-  intro: string
-}
-
-export interface GallerySection {
-  type: 'gallery'
-  images: string[]
-}
-
-export type PropertySection = TextImageSection | FastFactsSection | AccommodationSection | GallerySection
-
-export interface PropertyPageContent {
-  sections: PropertySection[]
-}
+export type PropertySection = ContentSection
+export type PropertyPageContent = PageContent
 
 export const SECTION_TYPES = [
   { value: 'overview', label: 'Overview' },
@@ -45,16 +29,17 @@ export const SECTION_TYPES = [
 export type SectionType = (typeof SECTION_TYPES)[number]['value']
 
 export function emptySection(type: SectionType): PropertySection {
-  if (type === 'fastFacts') {
-    return { type: 'fastFacts', groups: [{ label: '', items: [''] }] }
+  switch (type) {
+    case 'fastFacts':
+      return { type: 'fastFacts', groups: [{ label: '', items: [''] }] }
+    case 'accommodation':
+      return { type: 'accommodation', intro: '' }
+    case 'gallery':
+      return { type: 'gallery', images: [] }
+    default:
+      // 'overview' | 'experience' — narrowed by the cases above.
+      return { type, text1: '', images: [], text2: '' }
   }
-  if (type === 'accommodation') {
-    return { type: 'accommodation', intro: '' }
-  }
-  if (type === 'gallery') {
-    return { type: 'gallery', images: [] }
-  }
-  return { type: type as 'overview' | 'experience', text1: '', images: [], text2: '' }
 }
 
 /** Default template for a new property page.

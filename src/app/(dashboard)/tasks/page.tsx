@@ -12,6 +12,7 @@ import {
 } from '@/stores/taskStore'
 import TaskModal from '@/components/tasks/TaskModal'
 import * as S from './page.styled'
+import { recordFrom } from '@/lib/guards'
 
 // ── Date bucketing ──────────────────────────────────────────────
 
@@ -108,11 +109,10 @@ export default function TasksPage() {
   }, [client])
 
   const counts = useMemo(() => {
-    const c = {} as Record<FilterTab, number>
-    for (const { key } of FILTER_TABS) {
-      c[key] = tasks.filter((t) => matchesTab(t, key)).length
-    }
-    return c
+    return recordFrom(
+      FILTER_TABS.map((t) => t.key),
+      (key) => tasks.filter((t) => matchesTab(t, key)).length,
+    )
   }, [tasks])
 
   const displayed = useMemo(() => {

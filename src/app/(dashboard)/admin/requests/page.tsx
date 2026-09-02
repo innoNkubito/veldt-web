@@ -12,6 +12,7 @@ import {
 } from '@/stores/adminStore'
 import type { BillingInterval, SubscriptionTier } from '@/stores/onboardingStore'
 import * as S from './page.styled'
+import { recordFrom, parseOption } from '@/lib/guards'
 
 type TabKey = 'OPEN' | 'SUBMITTED' | 'PROVISIONED' | 'REJECTED' | 'ALL'
 
@@ -225,7 +226,7 @@ function RequestDrawer({
                   <S.Label>Tier</S.Label>
                   <S.Select
                     value={tier}
-                    onChange={(e) => setTier(e.target.value as SubscriptionTier)}
+                    onChange={(e) => setTier(parseOption(TIERS, e.target.value) ?? tier)}
                   >
                     {TIERS.map((t) => (
                       <option key={t} value={t}>{t}</option>
@@ -236,7 +237,7 @@ function RequestDrawer({
                   <S.Label>Billing interval</S.Label>
                   <S.Select
                     value={interval}
-                    onChange={(e) => setIntervalChoice(e.target.value as BillingInterval)}
+                    onChange={(e) => setIntervalChoice(parseOption(INTERVALS, e.target.value) ?? interval)}
                   >
                     {INTERVALS.map((i) => (
                       <option key={i} value={i}>{i}</option>
@@ -307,9 +308,9 @@ export default function AdminRequestsPage() {
 
   const counts = useMemo(
     () =>
-      TABS.reduce(
-        (acc, t) => ({ ...acc, [t.key]: requests.filter((r) => matchesTab(r, t.key)).length }),
-        {} as Record<TabKey, number>,
+      recordFrom(
+        TABS.map((t) => t.key),
+        (key) => requests.filter((r) => matchesTab(r, key)).length,
       ),
     [requests],
   )

@@ -7,6 +7,7 @@ import { useClientStore } from '@/stores/clientStore'
 import AboutUsDetailsTab from './tabs/DetailsTab'
 import AboutUsPageContentTab from './tabs/AboutUsPageContentTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type AboutUsTab = 'details' | 'content'
 
@@ -18,7 +19,7 @@ const TABS: { key: AboutUsTab; label: string }[] = [
 export default function AboutUsDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { aboutUs, aboutUsLoading, saving, fetchAboutUs, deleteAboutUs } = useAboutUsStore()

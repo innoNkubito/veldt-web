@@ -22,7 +22,9 @@ import {
   emptySection,
   defaultTemplate,
 } from './pageContent.types'
+import { parsePageContent } from '@/lib/pageContent'
 import * as S from '../page.styled'
+import { parseOption } from '@/lib/guards'
 
 interface Props {
   property: PropertyFull
@@ -36,12 +38,10 @@ function sectionLabel(type: string) {
 }
 
 function parseContent(property: PropertyFull): PropertyPageContent {
-  const raw = property.pageContent
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const pc = raw as PropertyPageContent
-    if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
-  }
-  return defaultTemplate(property.rooms.length > 0)
+  return (
+    parsePageContent(property.pageContent) ??
+    defaultTemplate(property.rooms.length > 0)
+  )
 }
 
 // ── Rich text editor ───────────────────────────────────────────
@@ -559,13 +559,13 @@ export default function RichContentTab({ property, onSaved }: Props) {
                 />
               ) : section.type === 'gallery' ? (
                 <GalleryEditor
-                  section={section as GallerySection}
+                  section={section}
                   onChange={(updated) => updateSection(idx, updated)}
                   getToken={getToken}
                 />
               ) : (
                 <TextImageEditor
-                  section={section as TextImageSection}
+                  section={section}
                   onChange={(updated) => updateSection(idx, updated)}
                   getToken={getToken}
                 />
@@ -578,7 +578,14 @@ export default function RichContentTab({ property, onSaved }: Props) {
       <S.AddSectionBar>
         <S.SectionTypeSelect
           value={newSectionType}
-          onChange={(e) => setNewSectionType(e.target.value as SectionType)}
+          onChange={(e) =>
+            setNewSectionType(
+              parseOption(
+                SECTION_TYPES.map((s) => s.value),
+                e.target.value,
+              ) ?? newSectionType,
+            )
+          }
         >
           {SECTION_TYPES.map((t) => (
             <option key={t.value} value={t.value}>

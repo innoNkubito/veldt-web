@@ -14,6 +14,7 @@ import {
 } from '@/stores/adminStore'
 import type { BillingInterval, SubscriptionTier } from '@/stores/onboardingStore'
 import * as S from '../requests/page.styled'
+import { parseOption } from '@/lib/guards'
 
 const TIERS: SubscriptionTier[] = ['SOLO', 'STUDIO', 'AGENCY', 'ENTERPRISE']
 const INTERVALS: BillingInterval[] = ['MONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL']
@@ -195,7 +196,7 @@ function SubscriptionDrawer({
           <S.FieldGrid>
             <S.Field>
               <S.Label>Tier</S.Label>
-              <S.Select value={tier} onChange={(e) => setTier(e.target.value as SubscriptionTier)}>
+              <S.Select value={tier} onChange={(e) => setTier(parseOption(TIERS, e.target.value) ?? tier)}>
                 {TIERS.map((t) => <option key={t} value={t}>{t}</option>)}
               </S.Select>
             </S.Field>
@@ -203,7 +204,7 @@ function SubscriptionDrawer({
               <S.Label>Interval</S.Label>
               <S.Select
                 value={interval}
-                onChange={(e) => setIntervalChoice(e.target.value as BillingInterval)}
+                onChange={(e) => setIntervalChoice(parseOption(INTERVALS, e.target.value) ?? interval)}
               >
                 {INTERVALS.map((i) => <option key={i} value={i}>{i}</option>)}
               </S.Select>
@@ -222,7 +223,7 @@ function SubscriptionDrawer({
               <S.Label>Status</S.Label>
               <S.Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as SubscriptionStatus)}
+                onChange={(e) => setStatus(parseOption(STATUSES, e.target.value) ?? status)}
               >
                 {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
               </S.Select>

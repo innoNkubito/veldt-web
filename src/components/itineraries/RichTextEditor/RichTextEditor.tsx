@@ -9,6 +9,7 @@ import type { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion
 import type { MentionNodeAttrs } from '@tiptap/extension-mention'
 import type { ContentPageOption } from '@/stores/builderStore'
 import * as S from './RichTextEditor.styled'
+import { asString } from '@/lib/guards'
 
 // ── Suggestion state ─────────────────────────────────────────────
 
@@ -51,7 +52,7 @@ export default function RichTextEditor({
       Mention.configure({
         HTMLAttributes: { class: 'mention' },
         renderText: ({ node }) =>
-          `@${(node.attrs.label as string | undefined) ?? (node.attrs.id as string)}`,
+          `@${asString(node.attrs.label) ?? asString(node.attrs.id) ?? ''}`,
         suggestion: {
           items: ({ query }: { query: string }) =>
             optionsRef.current
@@ -103,7 +104,7 @@ export default function RichTextEditor({
               }
               if (event.key === 'Enter') {
                 const item = s.items[s.selectedIndex]
-                if (item) s.command({ id: item.id, label: item.name } as MentionNodeAttrs)
+                if (item) s.command({ id: item.id, label: item.name })
                 setSuggestion(null)
                 return true
               }
@@ -128,9 +129,9 @@ export default function RichTextEditor({
       Placeholder.configure({ placeholder }),
       mentionExtension,
     ],
-    content: (content as JSONContent) ?? null,
+    content: content ?? null,
     onUpdate: ({ editor: ed }) => {
-      onChange(ed.getJSON() as Record<string, unknown>)
+      onChange(ed.getJSON())
     },
   })
 
@@ -153,7 +154,7 @@ export default function RichTextEditor({
                 $active={i === suggestion.selectedIndex}
                 onMouseDown={(e) => {
                   e.preventDefault()
-                  suggestion.command({ id: item.id, label: item.name } as MentionNodeAttrs)
+                  suggestion.command({ id: item.id, label: item.name })
                   setSuggestion(null)
                 }}
               >

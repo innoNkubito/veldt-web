@@ -7,6 +7,7 @@ import { useClientStore } from '@/stores/clientStore'
 import IntroNoteDetailsTab from './tabs/DetailsTab'
 import IntroNotePageContentTab from './tabs/IntroNotePageContentTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type IntroNoteTab = 'details' | 'content'
 
@@ -18,7 +19,7 @@ const TABS: { key: IntroNoteTab; label: string }[] = [
 export default function IntroductoryNoteDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { introductoryNote, introductoryNoteLoading, saving, fetchIntroductoryNote, deleteIntroductoryNote } = useIntroductoryNoteStore()

@@ -13,6 +13,7 @@ import {
   type Installment,
 } from '@/stores/bookingsStore'
 import * as S from './page.styled'
+import { recordFrom } from '@/lib/guards'
 
 type TabKey = 'ALL' | 'REQUESTS' | 'AWAITING' | 'CONFIRMED' | 'OVERDUE' | 'CANCELLED'
 type SortKey = 'createdAt' | 'clientName' | 'total' | 'balanceDue' | 'nextDue'
@@ -268,9 +269,9 @@ export default function BookingsPage() {
 
   const counts = useMemo(
     () =>
-      TABS.reduce(
-        (acc, t) => ({ ...acc, [t.key]: bookings.filter((b) => matchesTab(b, t.key)).length }),
-        {} as Record<TabKey, number>,
+      recordFrom(
+        TABS.map((t) => t.key),
+        (key) => bookings.filter((b) => matchesTab(b, key)).length,
       ),
     [bookings],
   )

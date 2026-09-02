@@ -7,7 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { useAuth } from '@clerk/nextjs'
 import { useTermsAndConditionsStore, type TermsFull } from '@/stores/termsAndConditionsStore'
 import { uploadFile } from '@/lib/upload'
-import type { TextImageSection } from '../../../properties/[id]/tabs/pageContent.types'
+import { parsePageContent, type TextImageSection } from '@/lib/pageContent'
 import * as S from '../page.styled'
 
 interface Props {
@@ -17,12 +17,8 @@ interface Props {
 
 function parseOverview(terms: TermsFull): TextImageSection {
   const raw = terms.pageContent
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const sections: unknown = raw.sections
-    if (Array.isArray(sections) && sections[0]?.type === 'overview') {
-      return sections[0] as TextImageSection
-    }
-  }
+  const first = parsePageContent(raw)?.sections[0]
+  if (first?.type === 'overview') return first
   return { type: 'overview', text1: '', images: [], text2: '' }
 }
 

@@ -15,6 +15,7 @@ import PreviewTab from '@/components/itineraries/PreviewTab'
 import PublishModal from '@/components/itineraries/PublishModal'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type BuilderTab = 'overview' | 'rows' | 'costs' | 'booking' | 'preview'
 
@@ -29,7 +30,7 @@ const TABS: { key: BuilderTab; label: string }[] = [
 export default function ItineraryBuilderPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { itinerary, loading, error, saving, fetchItinerary, publishItinerary } = useBuilderStore()

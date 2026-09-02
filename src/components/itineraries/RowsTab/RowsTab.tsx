@@ -213,7 +213,7 @@ function ActivityTagger({ row }: { row: ItineraryRow }) {
   useEffect(() => {
     if (!open) return
     function handle(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target instanceof Node ? e.target : null)) {
         setOpen(false)
       }
     }
@@ -311,7 +311,7 @@ function AccommodationTagger({ row }: { row: ItineraryRow }) {
   useEffect(() => {
     if (!open) return
     function handle(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target instanceof Node ? e.target : null)) {
         setOpen(false)
       }
     }

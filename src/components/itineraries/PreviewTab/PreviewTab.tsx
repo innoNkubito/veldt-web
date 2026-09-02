@@ -6,34 +6,22 @@ import {
   Users, CalendarDays, Leaf, Camera, Star, Info,
 } from 'lucide-react'
 import { useBuilderStore, type ItineraryRow, type InfoPageRoom } from '@/stores/builderStore'
-import { CONTENT_TYPE_CONFIG, type ContentType } from '@/lib/contentTypes'
+import { contentTypeConfig } from '@/lib/contentTypes'
 import * as S from './PreviewTab.styled'
-import { toPMNode, type PMNode } from '@/lib/prosemirror'
-
-// ─────────────────────────────────────────────────────────────────
-// pageContent types (mirrors PageContentTab's pageContent.types.ts)
-// ─────────────────────────────────────────────────────────────────
-
-interface TextImageSection {
-  type: 'overview' | 'experience'
-  text1: string
-  images: string[]
-  text2: string
-}
-interface FastFactsGroup { label: string; items: string[] }
-interface FastFactsSection { type: 'fastFacts'; groups: FastFactsGroup[] }
-interface AccommodationSection { type: 'accommodation'; intro: string }
-interface GallerySection { type: 'gallery'; images: string[] }
-type ContentSection = TextImageSection | FastFactsSection | AccommodationSection | GallerySection
-interface PageContent { sections: ContentSection[] }
-
-function parsePageContent(raw: unknown): PageContent | null {
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const pc = raw as PageContent
-    if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
-  }
-  return null
-}
+import {
+  toPMNode,
+  attrString,
+  attrNumber,
+  headingTag,
+  type PMNode,
+} from '@/lib/prosemirror'
+import {
+  parsePageContent,
+  type PageContent,
+  type TextImageSection,
+  type FastFactsSection,
+  type AccommodationSection,
+} from '@/lib/pageContent'
 
 // ─────────────────────────────────────────────────────────────────
 // Section title / icon helpers
@@ -244,16 +232,16 @@ function ContentSections({
     <>
       {content.sections.map((section, i) => {
         if (section.type === 'fastFacts') {
-          return <FastFactsView key={i} section={section as FastFactsSection} pageId={pageId} />
+          return <FastFactsView key={i} section={section} pageId={pageId} />
         }
         if (section.type === 'accommodation') {
           return (
-            <AccommodationView key={i} section={section as AccommodationSection} rooms={rooms} pageId={pageId} />
+            <AccommodationView key={i} section={section} rooms={rooms} pageId={pageId} />
           )
         }
         if (section.type === 'gallery') {
           // Gallery: render as a simple photo grid in preview (no download UI)
-          const gs = section as GallerySection
+          const gs = section
           if (gs.images.length === 0) return null
           return (
             <S.ContentSection key={i} id={`${pageId}-gallery`}>
@@ -262,7 +250,7 @@ function ContentSections({
             </S.ContentSection>
           )
         }
-        return <TextImageView key={i} section={section as TextImageSection} pageId={pageId} contentType={contentType} />
+        return <TextImageView key={i} section={section} pageId={pageId} contentType={contentType} />
       })}
     </>
   )
@@ -284,7 +272,7 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
     return el
   }
   if (node.type === 'mention') {
-    const label = (node.attrs?.label as string | undefined) ?? (node.attrs?.id as string | undefined) ?? ''
+    const label = attrString(node, 'label') ?? attrString(node, 'id') ?? ''
     return <span key={key} className="mention">@{label}</span>
   }
   if (node.type === 'hardBreak') return <br key={key} />
@@ -302,8 +290,7 @@ function renderNode(node: PMNode, key: number): React.ReactNode {
     case 'blockquote': return <blockquote key={key}>{children}</blockquote>
     case 'codeBlock':  return <pre key={key}><code>{children}</code></pre>
     case 'heading': {
-      const level = (node.attrs?.level as number | undefined) ?? 2
-      const Tag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+      const Tag = headingTag(attrNumber(node, 'level') ?? 2)
       return <Tag key={key}>{children}</Tag>
     }
     default: return <React.Fragment key={key}>{children}</React.Fragment>
@@ -379,6 +366,8 @@ function dayLabel(row: ItineraryRow, index: number): string {
 const SLOT_ORDER = ['AFTER_COVER', 'BEFORE_DAY_BY_DAY', 'END'] as const
 type SlotKey = typeof SLOT_ORDER[number]
 
+const PRE_DAY_SLOTS: readonly SlotKey[] = ['AFTER_COVER', 'BEFORE_DAY_BY_DAY']
+
 const SLOT_LABELS: Record<SlotKey, string> = {
   AFTER_COVER:       'After Cover',
   BEFORE_DAY_BY_DAY: 'Before Day-by-Day',
@@ -439,7 +428,7 @@ export default function PreviewTab() {
       title: itinerary?.proposalTitle ?? '',
     })
     for (const slot of infoPageSlots) {
-      const typeCfg = CONTENT_TYPE_CONFIG[slot.contentPage.type as ContentType]
+      const typeCfg = contentTypeConfig(slot.contentPage.type)
       coverMap.set(`infoslot-${slot.id}`, {
         url: slot.contentPage.coverImageUrl ?? null,
         label: typeCfg?.label ?? slot.contentPage.type,
@@ -464,7 +453,7 @@ export default function PreviewTab() {
       ]
       for (const cp of allTagged) {
         if (!coverMap.has(`tagged-${cp.id}`) && cp.type) {
-          const typeCfg = CONTENT_TYPE_CONFIG[cp.type as ContentType]
+          const typeCfg = contentTypeConfig(cp.type)
           coverMap.set(`tagged-${cp.id}`, {
             url: cp.coverImageUrl ?? null,
             label: typeCfg?.label ?? cp.type,
@@ -485,8 +474,8 @@ export default function PreviewTab() {
       const detectionY = containerRect.top + containerRect.height * 0.25
 
       const sentinels = Array.from(
-        container.querySelectorAll('[data-cover-id]')
-      ) as HTMLElement[]
+        container.querySelectorAll<HTMLElement>('[data-cover-id]')
+      )
 
       let active: HTMLElement | null = null
       for (const el of sentinels) {
@@ -541,7 +530,15 @@ export default function PreviewTab() {
     for (const cp of allTagged) {
       if (!seenIds.has(cp.id) && cp.type) {
         seenIds.add(cp.id)
-        taggedPages.push(cp as TaggedPage)
+        // TaggedPage requires these; the source fields are optional, so the
+        // old cast was asserting a shape the data need not have.
+        taggedPages.push({
+          ...cp,
+          type: cp.type,
+          coverImageUrl: cp.coverImageUrl ?? null,
+          pageContent: cp.pageContent ?? null,
+          rooms: cp.rooms ?? [],
+        })
       }
     }
   }
@@ -597,7 +594,11 @@ export default function PreviewTab() {
   }
 
   // ── Trip at a glance (for the default cover page) ─────────────
-  const glanceDestinations = [...new Set(rows.map((r) => r.areaPage?.name).filter(Boolean))] as string[]
+  const glanceDestinations = [
+    ...new Set(
+      rows.flatMap((r) => (r.areaPage?.name ? [r.areaPage.name] : [])),
+    ),
+  ]
   const glanceStays = [...new Set(rows.flatMap((r) => r.accommodations.map((a) => a.contentPage.name)))]
   const glanceExperiences = [...new Set(
     rows.flatMap((r) => r.activities.filter((a) => a.contentPage.type === 'ACTIVITY').map((a) => a.contentPage.name))
@@ -636,7 +637,7 @@ export default function PreviewTab() {
         </S.ToCGroup>
 
         {/* Slots before day-by-day */}
-        {(['AFTER_COVER', 'BEFORE_DAY_BY_DAY'] as SlotKey[]).map((slotKey) => {
+        {PRE_DAY_SLOTS.map((slotKey) => {
           const items = slotMap(slotKey)
           if (items.length === 0) return null
           return (

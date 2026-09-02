@@ -9,6 +9,7 @@ import DetailsTab from './tabs/DetailsTab'
 import PageContentTab from './tabs/PageContentTab'
 import RoomsTab from './tabs/RoomsTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type DetailTab = 'details' | 'rooms' | 'content'
 
@@ -21,7 +22,7 @@ const TABS: { key: DetailTab; label: string }[] = [
 export default function PropertyDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
   const { getToken } = useAuth()
 
   const client = useClientStore((s) => s.client)

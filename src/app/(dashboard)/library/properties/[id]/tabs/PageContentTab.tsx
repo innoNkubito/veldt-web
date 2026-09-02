@@ -16,6 +16,7 @@ import {
   type GallerySection,
 } from './pageContent.types'
 import RichContentTab from './RichContentTab'
+import { parsePageContent } from '@/lib/pageContent'
 import * as S from '../page.styled'
 
 interface Props {
@@ -25,19 +26,11 @@ interface Props {
 // ── Helpers ─────────────────────────────────────────────────────
 
 function hasContent(raw: unknown): boolean {
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const pc = raw as PropertyPageContent
-    return Array.isArray(pc.sections) && pc.sections.length > 0
-  }
-  return false
+  return parsePageContent(raw) !== null
 }
 
 function parseContent(raw: unknown): PropertyPageContent | null {
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const pc = raw as PropertyPageContent
-    if (Array.isArray(pc.sections) && pc.sections.length > 0) return pc
-  }
-  return null
+  return parsePageContent(raw)
 }
 
 function sectionTitle(type: string) {
@@ -335,21 +328,21 @@ function SectionList({
     <>
       {content.sections.map((section, i) => {
         if (section.type === 'fastFacts') {
-          return <FastFactsView key={i} section={section as FastFactsSection} />
+          return <FastFactsView key={i} section={section} />
         }
         if (section.type === 'accommodation') {
           return (
             <AccommodationView
               key={i}
-              section={section as AccommodationSection}
+              section={section}
               property={property}
             />
           )
         }
         if (section.type === 'gallery') {
-          return <GalleryView key={i} section={section as GallerySection} />
+          return <GalleryView key={i} section={section} />
         }
-        return <TextImageView key={i} section={section as TextImageSection} />
+        return <TextImageView key={i} section={section} />
       })}
     </>
   )

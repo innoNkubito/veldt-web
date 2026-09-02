@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useAuth } from '@clerk/nextjs'
 import { useAreaStore, type AreaFull } from '@/stores/areaStore'
 import { uploadFile } from '@/lib/upload'
-import type { TextImageSection } from '../../../properties/[id]/tabs/pageContent.types'
+import { parsePageContent, type TextImageSection } from '@/lib/pageContent'
 import AreaRichContentTab from './AreaRichContentTab'
 import * as S from '../page.styled'
 
@@ -15,12 +15,9 @@ interface Props {
 // ── Helpers ──────────────────────────────────────────────────────
 
 function parseOverview(raw: unknown): TextImageSection | null {
-  if (raw && typeof raw === 'object' && 'sections' in raw) {
-    const sections: unknown = raw.sections
-    if (Array.isArray(sections) && sections[0]?.type === 'overview') {
-      const s = sections[0] as TextImageSection
-      if (s.text1 || s.text2 || s.images.length > 0) return s
-    }
+  const first = parsePageContent(raw)?.sections[0]
+  if (first?.type === 'overview') {
+    if (first.text1 || first.text2 || first.images.length > 0) return first
   }
   return null
 }

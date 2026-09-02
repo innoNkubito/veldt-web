@@ -13,6 +13,8 @@ import {
 } from '@/stores/integrationsStore'
 import * as S from './page.styled'
 
+const ENVIRONMENTS: readonly ProcessorEnvironment[] = ['TEST', 'LIVE']
+
 // ── Connect / edit credentials modal ────────────────────────────
 
 function ConnectionModal({
@@ -94,7 +96,7 @@ function ConnectionModal({
         <S.FieldGroup>
           <S.FieldLabel>Environment</S.FieldLabel>
           <S.EnvRow>
-            {(['TEST', 'LIVE'] as ProcessorEnvironment[]).map((env) => (
+            {ENVIRONMENTS.map((env) => (
               <S.EnvOption
                 key={env}
                 type="button"

@@ -7,6 +7,7 @@ import { useClientStore } from '@/stores/clientStore'
 import ActivityDetailsTab from './tabs/DetailsTab'
 import ActivityPageContentTab from './tabs/ActivityPageContentTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type ActivityTab = 'details' | 'content'
 
@@ -18,7 +19,7 @@ const TABS: { key: ActivityTab; label: string }[] = [
 export default function ActivityDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { activity, activityLoading, saving, fetchActivity, deleteActivity } = useActivityStore()

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useBuilderStore, type ItineraryInfoPageSlot } from '@/stores/builderStore'
 import { useContentHubStore, type HubContentItem } from '@/stores/contentHubStore'
 import { useClientStore } from '@/stores/clientStore'
-import { CONTENT_TYPE_CONFIG, type ContentType } from '@/lib/contentTypes'
+import { contentTypeConfig, type ContentType } from '@/lib/contentTypes'
 import * as S from './InfoPagesCard.styled'
 
 // ── Config ──────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ function SlotPicker({
   // Close on outside click
   useEffect(() => {
     function handle(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (ref.current && !ref.current.contains(e.target instanceof Node ? e.target : null)) {
         setOpen(false)
         setSearch('')
       }
@@ -77,7 +77,7 @@ function SlotPicker({
       {selected.length > 0 && (
         <S.SelectedPages>
           {selected.map((s, i) => {
-            const cfg = CONTENT_TYPE_CONFIG[s.contentPage.type as ContentType]
+            const cfg = contentTypeConfig(s.contentPage.type)
             return (
               <S.PagePill key={s.id}>
                 <S.PillMoveBtn type="button" onClick={() => onMove(i, -1)} disabled={i === 0} title="Move up">▲</S.PillMoveBtn>
@@ -117,7 +117,7 @@ function SlotPicker({
                 </S.DropdownEmpty>
               ) : (
                 filtered.map((page) => {
-                  const cfg = CONTENT_TYPE_CONFIG[page.type as ContentType]
+                  const cfg = contentTypeConfig(page.type)
                   return (
                     <S.DropdownItem
                       key={page.id}
@@ -160,7 +160,7 @@ export default function InfoPagesCard() {
   if (!itinerary) return null
 
   // Pages available for info slots — exclude Property and Area
-  const available = pages.filter((p) => ALLOWED_TYPES.includes(p.type as ContentType))
+  const available = pages.filter((p) => ALLOWED_TYPES.some((t) => t === p.type))
 
   async function handleAdd(slotKey: string, page: HubContentItem) {
     const existing = itinerary!.infoPageSlots.filter((s) => s.slot === slotKey)

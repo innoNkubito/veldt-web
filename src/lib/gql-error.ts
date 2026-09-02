@@ -9,13 +9,7 @@
  *   { response: { errors: [{ message: string }] }, message: string }
  */
 
-interface GraphQLErrorEntry {
-  message?: unknown
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
+import { isRecord } from './guards'
 
 /** First GraphQL error message on the error, if there is one. */
 function firstGraphQLMessage(err: unknown): string | null {
@@ -27,7 +21,9 @@ function firstGraphQLMessage(err: unknown): string | null {
   const errors = response.errors
   if (!Array.isArray(errors) || errors.length === 0) return null
 
-  const message = (errors[0] as GraphQLErrorEntry)?.message
+  const first = errors[0]
+  if (!isRecord(first)) return null
+  const message = first.message
   return typeof message === 'string' && message.trim() ? message : null
 }
 

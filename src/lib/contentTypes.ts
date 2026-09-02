@@ -116,3 +116,15 @@ export const CREATABLE_TYPES: ContentType[] = [
   'INTRODUCTORY_NOTES',
   'TERMS_CONDITIONS',
 ]
+
+export function isContentType(value: string): value is ContentType {
+  return value in CONTENT_TYPE_CONFIG
+}
+
+// ContentPage.type arrives from GraphQL as a plain string. Callers already
+// treat a miss as "no config", so returning undefined is the honest shape.
+export function contentTypeConfig(
+  type: string,
+): ContentTypeConfig | undefined {
+  return isContentType(type) ? CONTENT_TYPE_CONFIG[type] : undefined
+}

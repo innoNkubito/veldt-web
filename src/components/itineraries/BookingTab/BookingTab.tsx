@@ -31,6 +31,28 @@ import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import PackageModal from './PackageModal'
 import AddonModal from './AddonModal'
 import * as S from './BookingTab.styled'
+import { parseOption, keysOf } from '@/lib/guards'
+
+interface BookingForm {
+  bookingMode: BookingMode
+  externalUrl: string
+  externalContact: string
+  flowType: BookingFlowType
+  currency: string
+  processorConnectionId: string
+  companyInfo: string
+  invoiceNotes: string
+  termsAndConditions: string
+  allowCardPayments: boolean
+  surchargePayer: SurchargePayer
+  surchargePercent: string
+  achEnabled: boolean
+  reminderDaysBefore: number[]
+}
+
+const FLOW_TYPES: readonly BookingFlowType[] = ['INSTANT', 'REQUEST']
+const SURCHARGE_PAYERS: readonly SurchargePayer[] = ['CLIENT', 'OPERATOR']
+
 
 const MODES: { key: BookingMode; name: string; desc: string }[] = [
   { key: 'OFF', name: 'Not bookable', desc: 'No booking button on the client view.' },
@@ -88,21 +110,21 @@ export default function BookingTab() {
   const isOwner = profile?.role === 'OWNER'
 
   // ── Settings form ──────────────────────────────────────────
-  const [form, setForm] = useState({
-    bookingMode: 'OFF' as BookingMode,
+  const [form, setForm] = useState<BookingForm>({
+    bookingMode: 'OFF',
     externalUrl: '',
     externalContact: '',
-    flowType: 'INSTANT' as BookingFlowType,
+    flowType: 'INSTANT',
     currency: 'USD',
     processorConnectionId: '',
     companyInfo: '',
     invoiceNotes: '',
     termsAndConditions: '',
     allowCardPayments: false,
-    surchargePayer: 'CLIENT' as SurchargePayer,
+    surchargePayer: 'CLIENT',
     surchargePercent: '',
     achEnabled: false,
-    reminderDaysBefore: [] as number[],
+    reminderDaysBefore: [],
   })
   const [dirty, setDirty] = useState(false)
   const [reminderDraft, setReminderDraft] = useState('')
@@ -514,7 +536,9 @@ export default function BookingTab() {
                 <FieldLabel>Booking Flow</FieldLabel>
                 <FieldSelect
                   value={form.flowType}
-                  onChange={(e) => setF('flowType', e.target.value as BookingFlowType)}
+                  onChange={(e) =>
+                    setF('flowType', parseOption(FLOW_TYPES, e.target.value) ?? form.flowType)
+                  }
                 >
                   <option value="INSTANT">Instant — client pays the first payment at booking</option>
                   <option value="REQUEST">Request — you review, then send an invoice</option>
@@ -611,12 +635,14 @@ export default function BookingTab() {
                     value={row.amountType}
                     onChange={(e) =>
                       updateScheduleRow(index, {
-                        amountType: e.target.value as ScheduleAmountType,
+                        amountType:
+                          parseOption(keysOf(AMOUNT_TYPE_LABELS), e.target.value) ??
+                          row.amountType,
                         ...(e.target.value === 'REMAINING_BALANCE' ? { amountValue: '' } : {}),
                       })
                     }
                   >
-                    {(Object.keys(AMOUNT_TYPE_LABELS) as ScheduleAmountType[]).map((key) => (
+                    {keysOf(AMOUNT_TYPE_LABELS).map((key) => (
                       <option key={key} value={key}>
                         {AMOUNT_TYPE_LABELS[key]}
                       </option>
@@ -688,7 +714,12 @@ export default function BookingTab() {
                   <FieldLabel>Who Covers the Surcharge</FieldLabel>
                   <FieldSelect
                     value={form.surchargePayer}
-                    onChange={(e) => setF('surchargePayer', e.target.value as SurchargePayer)}
+                    onChange={(e) =>
+                      setF(
+                        'surchargePayer',
+                        parseOption(SURCHARGE_PAYERS, e.target.value) ?? form.surchargePayer,
+                      )
+                    }
                   >
                     <option value="CLIENT">Client covers the surcharge</option>
                     <option value="OPERATOR">We cover the surcharge</option>

@@ -7,10 +7,10 @@ import {
   TASK_TYPE_CONFIG,
   memberName,
   type TaskItem,
-  type TaskType,
 } from '@/stores/taskStore'
 import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import * as S from './TaskModal.styled'
+import { parseOption } from '@/lib/guards'
 
 // ── Generic dropdown ────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ function Dropdown({
   useEffect(() => {
     if (!open) return
     function handle(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+      if (wrapRef.current && !wrapRef.current.contains(e.target instanceof Node ? e.target : null)) setOpen(false)
     }
     document.addEventListener('mousedown', handle)
     return () => document.removeEventListener('mousedown', handle)
@@ -202,7 +202,7 @@ export default function TaskModal({
   useEffect(() => {
     if (!calendarOpen) return
     function handle(e: MouseEvent) {
-      if (calendarWrapRef.current && !calendarWrapRef.current.contains(e.target as Node)) {
+      if (calendarWrapRef.current && !calendarWrapRef.current.contains(e.target instanceof Node ? e.target : null)) {
         setCalendarOpen(false)
       }
     }
@@ -237,7 +237,7 @@ export default function TaskModal({
       name: name.trim(),
       itineraryId: hasFile ? fileId : null,
       assignedToId,
-      type: (type as TaskType) ?? null,
+      type: parseOption(TASK_TYPES, type ?? '') ?? null,
       tags,
       dueDate: manualDate ? new Date(`${manualDate}T12:00:00`).toISOString() : null,
       relativeDays: useRelative ? days : null,

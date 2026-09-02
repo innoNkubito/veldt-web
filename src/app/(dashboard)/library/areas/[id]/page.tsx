@@ -7,6 +7,7 @@ import { useClientStore } from '@/stores/clientStore'
 import AreaDetailsTab from './tabs/DetailsTab'
 import AreaPageContentTab from './tabs/AreaPageContentTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type AreaTab = 'details' | 'content'
 
@@ -18,7 +19,7 @@ const TABS: { key: AreaTab; label: string }[] = [
 export default function AreaDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { area, areaLoading, saving, fetchArea, deleteArea } = useAreaStore()

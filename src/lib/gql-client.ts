@@ -14,7 +14,7 @@ function headersToObject(headers: RequestInit["headers"]): Record<string, string
   if (Array.isArray(headers)) {
     return Object.fromEntries(headers);
   }
-  return headers as Record<string, string>;
+  return headers;
 }
 
 // Accepts an async getToken so Clerk refreshes the token on every request

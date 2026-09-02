@@ -7,6 +7,7 @@ import { useClientStore } from '@/stores/clientStore'
 import TermsDetailsTab from './tabs/DetailsTab'
 import TermsRichContentTab from './tabs/TermsRichContentTab'
 import * as S from './page.styled'
+import { routeParam } from '@/lib/guards'
 
 type TermsTab = 'details' | 'content'
 
@@ -18,7 +19,7 @@ const TABS: { key: TermsTab; label: string }[] = [
 export default function TermsDetailPage() {
   const router = useRouter()
   const params = useParams()
-  const id = params?.id as string
+  const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
   const { terms, termsLoading, saving, fetchTerms, deleteTerms } = useTermsAndConditionsStore()
