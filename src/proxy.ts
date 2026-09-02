@@ -17,11 +17,16 @@ const isProtectedRoute = createRouteMatcher([
 
 const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
+// "/" is the public landing page. Signed-in users have no use for it, and
+// redirecting here rather than inside the page avoids rendering the marketing
+// shell for a moment before bouncing.
+const isLandingRoute = createRouteMatcher(["/"]);
+
 export const proxy = clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  // Signed-in users don't need to see sign-in/sign-up
-  if (userId && isAuthRoute(req)) {
+  // Signed-in users don't need the landing page or sign-in/sign-up
+  if (userId && (isAuthRoute(req) || isLandingRoute(req))) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
