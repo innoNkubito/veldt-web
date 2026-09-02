@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import TopNav from "@/components/layout/TopNav";
 import Sidebar from "@/components/layout/Sidebar";
 import ConfirmModal from "@/components/shared/ConfirmModal";
+import SubscriptionBanner from "@/components/shared/SubscriptionBanner";
 import * as S from "./layout.styled";
 
 // Routes that get a full-width, sidebar-free layout (no TopNav either)
@@ -24,6 +25,8 @@ export default function DashboardGroupLayout({
   return (
     <S.Shell>
       {!fullWidth && <TopNav activePath={pathname} />}
+      {/* Renders nothing when the subscription is healthy */}
+      {!fullWidth && <SubscriptionBanner />}
       <S.Body>
         {!hideSidebar && <Sidebar activePath={pathname} />}
         <S.Main>{children}</S.Main>
