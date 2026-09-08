@@ -43,7 +43,7 @@ export default function ItineraryRowMenu({ itinerary, onDuplicate, onDelete }: P
       },
       color: T.sub,
     },
-    { label: 'Delete', action: onDelete, color: '#DC2626' },
+    { label: 'Delete', action: onDelete, color: T.danger },
   ]
 
   return (

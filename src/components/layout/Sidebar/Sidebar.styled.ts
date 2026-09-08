@@ -98,7 +98,7 @@ export const Badge = styled.span`
   font-size: 10px;
   font-weight: 700;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   border-radius: 10px;
   padding: 1px 6px;
 `;
@@ -137,7 +137,7 @@ export const OrgLogo = styled.div`
   justify-content: center;
   font-size: 10px;
   font-weight: 700;
-  color: #fff;
+  color: ${T.onBrand};
   flex-shrink: 0;
 `;
 

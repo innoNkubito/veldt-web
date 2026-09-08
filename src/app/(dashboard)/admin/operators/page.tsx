@@ -15,6 +15,7 @@ import {
 import type { BillingInterval, SubscriptionTier } from '@/stores/onboardingStore'
 import * as S from '../requests/page.styled'
 import { parseOption } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 const TIERS: SubscriptionTier[] = ['SOLO', 'STUDIO', 'AGENCY', 'ENTERPRISE']
 const INTERVALS: BillingInterval[] = ['MONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL']
@@ -151,7 +152,7 @@ function SubscriptionDrawer({
         <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <S.StatusChip $color={meta.color} $bg={meta.bg}>{meta.label}</S.StatusChip>
           {!subscription.autoRenew && (
-            <S.StatusChip $color="#8a6d1d" $bg="#f7edd8">Auto-renew off</S.StatusChip>
+            <S.StatusChip $color={T.gold} $bg={T.goldLt}>Auto-renew off</S.StatusChip>
           )}
         </div>
 
@@ -184,7 +185,7 @@ function SubscriptionDrawer({
 
         {overSeats && (
           <S.Section>
-            <S.Callout style={{ background: '#fbe9e9', borderColor: '#f3c6c6', color: '#b91c1c' }}>
+            <S.Callout style={{ background: T.dangerLt, borderColor: T.dangerBd, color: T.dangerDk }}>
               This operator has more members than their plan allows. They cannot add anyone
               new, but existing members keep working.
             </S.Callout>

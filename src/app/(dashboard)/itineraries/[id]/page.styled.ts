@@ -128,9 +128,9 @@ export const CenteredState = styled.div`
 `
 
 export const ErrorBanner = styled.div`
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: ${T.dangerLt};
+  color: ${T.danger};
+  border: 1px solid ${T.dangerBd};
   border-radius: 8px;
   padding: 12px 16px;
   font-size: 13px;

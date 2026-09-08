@@ -189,13 +189,13 @@ export const SubmitButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 8px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 14.5px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 
-  &:hover:not(:disabled) { background: #AE6341; }
+  &:hover:not(:disabled) { background: ${T.terraDk}; }
 `
 
 export const FinePrint = styled.div`
@@ -208,9 +208,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 12px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 13px;
   line-height: 1.5;
 `
@@ -220,7 +220,7 @@ export const SuccessMark = styled.div`
   height: 56px;
   border-radius: 50%;
   background: ${T.sage};
-  color: #fff;
+  color: ${T.onBrand};
   display: flex;
   align-items: center;
   justify-content: center;

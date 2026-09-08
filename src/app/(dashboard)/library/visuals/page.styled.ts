@@ -49,7 +49,7 @@ export const UploadButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 7px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'wait' : 'pointer')};
@@ -148,7 +148,7 @@ export const AppBadge = styled.span`
   text-transform: uppercase;
   letter-spacing: 0.06em;
   background: rgba(42, 31, 20, 0.65);
-  color: #fff;
+  color: ${T.onBrand};
 `
 
 export const CardBody = styled.div`
@@ -194,9 +194,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 12.5px;
   white-space: pre-line;
 `
@@ -235,7 +235,7 @@ export const ModalCard = styled.div`
 
 export const ModalImage = styled.div<{ $url: string }>`
   aspect-ratio: 16/10;
-  background: url(${({ $url }) => $url}) center/contain no-repeat, #f4efe6;
+  background: url(${({ $url }) => $url}) center/contain no-repeat, ${T.cardAlt};
   border-bottom: 1px solid ${T.border};
 `
 
@@ -301,7 +301,7 @@ export const TagRemove = styled.button`
   font-size: 12px;
   padding: 0;
   line-height: 1;
-  &:hover { color: #dc2626; }
+  &:hover { color: ${T.danger}; }
 `
 
 export const TagInput = styled.input`
@@ -409,7 +409,7 @@ export const UploadFileRemove = styled.button`
   padding: 4px;
   line-height: 1;
   flex-shrink: 0;
-  &:hover { color: #dc2626; }
+  &:hover { color: ${T.danger}; }
 `
 
 export const CopyButton = styled.button`
@@ -429,7 +429,7 @@ export const DeleteLink = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #dc2626;
+  color: ${T.danger};
   font-size: 12.5px;
   font-family: 'DM Sans', sans-serif;
   padding: 8px 4px;
@@ -444,7 +444,7 @@ export const SaveButton = styled.button<{ $disabled?: boolean }>`
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 `

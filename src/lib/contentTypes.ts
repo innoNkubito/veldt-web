@@ -1,3 +1,5 @@
+import { ACCENT, type AccentName } from './theme'
+
 // Shared configuration for all ContentPage types.
 // Used by the hub page, individual list/detail pages, and stores.
 
@@ -17,6 +19,7 @@ export interface ContentTypeConfig {
   listRoute: string       // "/library/properties"
   detailRoute: (id: string) => string
   category: 'Destinations' | 'Trip Materials'
+  accent: AccentName      // categorical hue — badge colours derive from this
   badgeColor: string      // background
   badgeText: string       // foreground
 }
@@ -30,8 +33,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/properties',
     detailRoute: (id) => `/library/properties/${id}`,
     category: 'Destinations',
-    badgeColor: '#f0ebe4',
-    badgeText: '#7c5a2e',
+    accent: 'clay',
+    badgeColor: ACCENT.clay.bg,
+    badgeText: ACCENT.clay.fg,
   },
   AREA: {
     type: 'AREA',
@@ -41,8 +45,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/areas',
     detailRoute: (id) => `/library/areas/${id}`,
     category: 'Destinations',
-    badgeColor: '#e4f0ea',
-    badgeText: '#2e7c5a',
+    accent: 'moss',
+    badgeColor: ACCENT.moss.bg,
+    badgeText: ACCENT.moss.fg,
   },
   ACTIVITY: {
     type: 'ACTIVITY',
@@ -52,8 +57,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/activities',
     detailRoute: (id) => `/library/activities/${id}`,
     category: 'Destinations',
-    badgeColor: '#ede4f0',
-    badgeText: '#5a2e7c',
+    accent: 'plum',
+    badgeColor: ACCENT.plum.bg,
+    badgeText: ACCENT.plum.fg,
   },
   ABOUT_US: {
     type: 'ABOUT_US',
@@ -63,8 +69,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/about-us',
     detailRoute: (id) => `/library/about-us/${id}`,
     category: 'Trip Materials',
-    badgeColor: '#e4eaf0',
-    badgeText: '#2e5a7c',
+    accent: 'indigo',
+    badgeColor: ACCENT.indigo.bg,
+    badgeText: ACCENT.indigo.fg,
   },
   INTRODUCTORY_NOTES: {
     type: 'INTRODUCTORY_NOTES',
@@ -74,8 +81,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/introductory-notes',
     detailRoute: (id) => `/library/introductory-notes/${id}`,
     category: 'Trip Materials',
-    badgeColor: '#f0e4ea',
-    badgeText: '#7c2e5a',
+    accent: 'rose',
+    badgeColor: ACCENT.rose.bg,
+    badgeText: ACCENT.rose.fg,
   },
   TERMS_CONDITIONS: {
     type: 'TERMS_CONDITIONS',
@@ -85,8 +93,9 @@ export const CONTENT_TYPE_CONFIG: Record<ContentType, ContentTypeConfig> = {
     listRoute: '/library/terms-and-conditions',
     detailRoute: (id) => `/library/terms-and-conditions/${id}`,
     category: 'Trip Materials',
-    badgeColor: '#e8f0e4',
-    badgeText: '#3a6b2e',
+    accent: 'leaf',
+    badgeColor: ACCENT.leaf.bg,
+    badgeText: ACCENT.leaf.fg,
   },
 }
 

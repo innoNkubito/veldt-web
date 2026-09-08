@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+import { T } from '@/lib/theme'
 
 // ── Page shell ──────────────────────────────────────────────────
 
@@ -15,7 +16,7 @@ export const Header = styled.div`
   justify-content: space-between;
   padding-bottom: 40px;
   margin-bottom: 64px;
-  border-bottom: 2px solid #e8e3de;
+  border-bottom: 2px solid ${T.border};
 `
 
 export const TitleGroup = styled.div`
@@ -29,13 +30,13 @@ export const PageTitle = styled.h1`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 24px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: ${T.text};
   margin: 0 0 4px;
 `
 
 export const PageSubtitle = styled.p`
   font-size: 14px;
-  color: #888;
+  color: ${T.muted};
   margin: 0;
   line-height: 1.5;
 `
@@ -50,23 +51,23 @@ export const HeaderRight = styled.div`
 export const SearchInput = styled.input`
   height: 36px;
   padding: 0 12px;
-  border: 1px solid #e0dbd4;
+  border: 1px solid ${T.border};
   border-radius: 8px;
   font-size: 13px;
-  color: #1a1a1a;
-  background: #fff;
+  color: ${T.text};
+  background: ${T.card};
   width: 220px;
   outline: none;
 
-  &::placeholder { color: #aaa; }
-  &:focus { border-color: #b8a898; }
+  &::placeholder { color: ${T.muted}; }
+  &:focus { border-color: ${T.muted}; }
 `
 
 export const CreateButton = styled.button<{ disabled?: boolean }>`
   height: 36px;
   padding: 0 16px;
-  background: #3d2b1f;
-  color: #fff;
+  background: ${T.text};
+  color: ${T.onBrand};
   border: none;
   border-radius: 8px;
   font-size: 13px;
@@ -76,7 +77,7 @@ export const CreateButton = styled.button<{ disabled?: boolean }>`
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
 
-  &:hover { background: #5a3d2b; }
+  &:hover { background: ${T.text}; }
 `
 
 // ── Category section ────────────────────────────────────────────
@@ -90,7 +91,7 @@ export const CategoryHeader = styled.div`
   align-items: baseline;
   justify-content: space-between;
   padding-bottom: 10px;
-  border-bottom: 2px solid #e8e3de;
+  border-bottom: 2px solid ${T.border};
   margin-bottom: 2px;
 `
 
@@ -99,13 +100,13 @@ export const CategoryLabel = styled.h2`
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #888;
+  color: ${T.muted};
   margin: 0;
 `
 
 export const CategoryCount = styled.span`
   font-size: 11px;
-  color: #aaa;
+  color: ${T.muted};
 `
 
 // ── Content rows ────────────────────────────────────────────────
@@ -115,13 +116,13 @@ export const ContentRow = styled.div`
   align-items: center;
   gap: 14px;
   padding: 14px 12px;
-  border-bottom: 1px solid #f2ede8;
+  border-bottom: 1px solid ${T.dim};
   cursor: pointer;
   border-radius: 6px;
   transition: background 0.1s;
 
   &:hover {
-    background: #faf7f4;
+    background: ${T.bg};
   }
 `
 
@@ -143,7 +144,7 @@ export const TypeBadge = styled.span<{ $bg: string; $fg: string }>`
 export const RowName = styled.span`
   font-size: 14px;
   font-weight: 500;
-  color: #1a1a1a;
+  color: ${T.text};
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -153,7 +154,7 @@ export const RowName = styled.span`
 
 export const RowMeta = styled.span`
   font-size: 12.5px;
-  color: #888;
+  color: ${T.muted};
   flex-shrink: 0;
   width: 140px;
   overflow: hidden;
@@ -170,22 +171,22 @@ export const RowTags = styled.div`
 export const TagChip = styled.span`
   font-size: 10.5px;
   padding: 2px 7px;
-  background: #f0ebe4;
-  color: #6b5744;
+  background: ${T.dim};
+  color: ${T.sub};
   border-radius: 12px;
   white-space: nowrap;
 `
 
 export const RowArrow = styled.span`
   font-size: 24px;
-  color: #ccc;
+  color: ${T.border};
   flex-shrink: 0;
 `
 
 export const EmptyCategory = styled.div`
   padding: 18px 10px;
   font-size: 13px;
-  color: #aaa;
+  color: ${T.muted};
   font-style: italic;
 `
 
@@ -202,7 +203,7 @@ export const Overlay = styled.div`
 `
 
 export const ModalCard = styled.div`
-  background: #fff;
+  background: ${T.card};
   border-radius: 14px;
   padding: 28px 28px 24px;
   width: 480px;
@@ -213,7 +214,7 @@ export const ModalCard = styled.div`
 export const ModalTitle = styled.h2`
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: ${T.text};
   margin: 0 0 20px;
 `
 
@@ -222,7 +223,7 @@ export const ModalLabel = styled.p`
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #888;
+  color: ${T.muted};
   margin: 0 0 10px;
 `
 
@@ -237,9 +238,9 @@ export const TypeGrid = styled.div`
 export const TypeOption = styled.button<{ $selected: boolean }>`
   padding: 10px 8px;
   border-radius: 8px;
-  border: 1.5px solid ${({ $selected }) => ($selected ? '#3d2b1f' : '#e0dbd4')};
-  background: ${({ $selected }) => ($selected ? '#faf5f0' : '#fff')};
-  color: ${({ $selected }) => ($selected ? '#3d2b1f' : '#555')};
+  border: 1.5px solid ${({ $selected }) => ($selected ? T.text : T.border)};
+  background: ${({ $selected }) => ($selected ? T.bg : T.card)};
+  color: ${({ $selected }) => ($selected ? T.text : T.sub)};
   font-size: 12.5px;
   font-weight: ${({ $selected }) => ($selected ? 600 : 400)};
   cursor: pointer;
@@ -247,8 +248,8 @@ export const TypeOption = styled.button<{ $selected: boolean }>`
   transition: border-color 0.1s, background 0.1s;
 
   &:hover {
-    border-color: #b8a898;
-    background: #faf7f4;
+    border-color: ${T.muted};
+    background: ${T.bg};
   }
 `
 
@@ -256,16 +257,16 @@ export const ModalNameInput = styled.input`
   width: 100%;
   height: 40px;
   padding: 0 12px;
-  border: 1.5px solid #e0dbd4;
+  border: 1.5px solid ${T.border};
   border-radius: 8px;
   font-size: 13.5px;
-  color: #1a1a1a;
+  color: ${T.text};
   outline: none;
   box-sizing: border-box;
   margin-bottom: 20px;
 
-  &::placeholder { color: #bbb; }
-  &:focus { border-color: #b8a898; }
+  &::placeholder { color: ${T.muted}; }
+  &:focus { border-color: ${T.muted}; }
 `
 
 export const ModalActions = styled.div`
@@ -278,13 +279,13 @@ export const CancelButton = styled.button`
   height: 36px;
   padding: 0 16px;
   background: none;
-  border: 1px solid #e0dbd4;
+  border: 1px solid ${T.border};
   border-radius: 8px;
   font-size: 13px;
-  color: #666;
+  color: ${T.sub};
   cursor: pointer;
 
-  &:hover { background: #faf7f4; }
+  &:hover { background: ${T.bg}; }
 `
 
 // ── Empty / loading states ──────────────────────────────────────
@@ -292,7 +293,7 @@ export const CancelButton = styled.button`
 export const EmptyState = styled.div`
   padding: 60px 0;
   text-align: center;
-  color: #aaa;
+  color: ${T.muted};
   font-size: 14px;
   display: flex;
   flex-direction: column;

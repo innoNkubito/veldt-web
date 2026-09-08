@@ -11,6 +11,7 @@ import {
 } from '@/stores/contentLibraryStore'
 import { uploadFile } from '@/lib/upload'
 import * as S from '../page.styled'
+import { T } from '@/lib/theme'
 
 interface Props {
   property: PropertyFull
@@ -103,7 +104,7 @@ function RoomModal({ title, form, saving, onFormChange, onSave, onClose }: RoomM
           {/* Room type */}
           <S.FieldGroup>
             <S.FieldLabel>
-              Room Type <span style={{ color: '#dc2626' }}>*</span>{' '}
+              Room Type <span style={{ color: T.danger }}>*</span>{' '}
               <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(e.g. Standard Tent)</span>
             </S.FieldLabel>
             <S.FieldInput
@@ -281,7 +282,7 @@ export default function RoomsTab({ property }: Props) {
                 <S.RoomActions>
                   {confirmDeleteId === room.id ? (
                     <>
-                      <span style={{ fontSize: 12, color: '#dc2626' }}>Delete?</span>
+                      <span style={{ fontSize: 12, color: T.danger }}>Delete?</span>
                       <S.RoomDeleteBtn onClick={() => handleDelete(room.id)}>Yes</S.RoomDeleteBtn>
                       <S.RoomActionBtn onClick={() => setConfirmDeleteId(null)}>No</S.RoomActionBtn>
                     </>

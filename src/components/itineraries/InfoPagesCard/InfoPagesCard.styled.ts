@@ -69,17 +69,17 @@ export const PagePill = styled.div`
   align-items: center;
   gap: 6px;
   padding: 4px 8px 4px 10px;
-  background: #f0ebe4;
+  background: ${T.dim};
   border-radius: 20px;
   font-size: 12px;
-  color: #3d2b1f;
+  color: ${T.text};
   font-weight: 500;
 `
 
 export const PillType = styled.span`
   font-size: 10px;
   font-weight: 600;
-  color: #8a6a50;
+  color: ${T.sub};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `
@@ -92,15 +92,15 @@ export const PillRemove = styled.button`
   height: 16px;
   border-radius: 50%;
   border: none;
-  background: #c5b09a;
-  color: #fff;
+  background: ${T.borderStrong};
+  color: ${T.onBrand};
   font-size: 10px;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
 
-  &:hover { background: #a0826a; }
+  &:hover { background: ${T.muted}; }
 `
 
 export const PillMoveBtn = styled.button`
@@ -112,14 +112,14 @@ export const PillMoveBtn = styled.button`
   border-radius: 3px;
   border: none;
   background: none;
-  color: #8a6a50;
+  color: ${T.sub};
   font-size: 10px;
   line-height: 1;
   cursor: pointer;
   flex-shrink: 0;
   padding: 0;
 
-  &:hover { background: #c5b09a; color: #fff; }
+  &:hover { background: ${T.borderStrong}; color: ${T.card}; }
   &:disabled { opacity: 0.3; cursor: default; }
 `
 
@@ -145,7 +145,7 @@ export const AddButton = styled.button`
   transition: border-color 0.15s, color 0.15s;
 
   &:hover {
-    border-color: #b8a898;
+    border-color: ${T.muted};
     color: ${T.text};
   }
 `
@@ -155,7 +155,7 @@ export const Dropdown = styled.div`
   top: calc(100% + 4px);
   left: 0;
   min-width: 280px;
-  background: #fff;
+  background: ${T.card};
   border: 1px solid ${T.border};
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -174,7 +174,7 @@ export const DropdownSearch = styled.input`
   outline: none;
   box-sizing: border-box;
 
-  &::placeholder { color: #bbb; }
+  &::placeholder { color: ${T.muted}; }
 `
 
 export const DropdownList = styled.div`
@@ -195,7 +195,7 @@ export const DropdownItem = styled.button`
   color: ${T.text};
   cursor: pointer;
 
-  &:hover { background: #faf7f4; }
+  &:hover { background: ${T.bg}; }
 `
 
 export const DropdownItemThumb = styled.div<{ $url: string }>`

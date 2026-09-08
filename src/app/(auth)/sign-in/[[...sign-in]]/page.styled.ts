@@ -30,7 +30,7 @@ export const signInAppearance = {
       fontSize: 13,
       textTransform: "none",
       "&:hover": {
-        backgroundColor: "#AE6341",
+        backgroundColor: T.terraDk,
       },
     },
     footerActionLink: {

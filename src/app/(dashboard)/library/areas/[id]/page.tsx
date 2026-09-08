@@ -8,6 +8,7 @@ import AreaDetailsTab from './tabs/DetailsTab'
 import AreaPageContentTab from './tabs/AreaPageContentTab'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 type AreaTab = 'details' | 'content'
 
@@ -72,7 +73,7 @@ export default function AreaDetailPage() {
           {saving && <S.SavingBadge>Saving…</S.SavingBadge>}
           {confirmDelete ? (
             <>
-              <span style={{ fontSize: 12, color: '#dc2626' }}>Delete this area?</span>
+              <span style={{ fontSize: 12, color: T.danger }}>Delete this area?</span>
               <S.TopBarBtn $danger onClick={handleDelete}>Yes, delete</S.TopBarBtn>
               <S.TopBarBtn onClick={() => setConfirmDelete(false)}>Cancel</S.TopBarBtn>
             </>

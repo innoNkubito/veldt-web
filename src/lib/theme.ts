@@ -1,4 +1,103 @@
 import { createTheme, type Shadows } from "@mui/material/styles";
+import { P } from "./palette";
+
+// ─────────────────────────────────────────────────────────────
+// `T` — semantic design tokens. This is what components import.
+//
+// Every name here describes a JOB ("border", "danger", "muted"),
+// never a colour. Swapping the brand means editing `palette.ts`;
+// this file only ever changes when a new *role* is needed.
+//
+// Raw hex in a component is a bug — the `veldt/no-raw-color` lint
+// rule will catch it. If nothing here fits, add a role here first.
+// ─────────────────────────────────────────────────────────────
+
+const T = {
+  // ── Surfaces ────────────────────────────────────────────────
+  bg: P.mist,
+  navBg: P.white,
+  sideBg: P.white,
+  card: P.white,
+  cardAlt: P.sageWash,
+  dim: P.haze,
+  white: P.white,
+
+  // ── Lines ───────────────────────────────────────────────────
+  border: P.stone,
+  borderStrong: P.stoneDeep,
+
+  // ── Text ────────────────────────────────────────────────────
+  text: P.ink,
+  sub: P.inkSoft,
+  muted: P.inkFaint,
+  onBrand: P.white, // text/icons sitting on a filled brand colour
+
+  // ── Brand ───────────────────────────────────────────────────
+  terra: P.forest,
+  terraDk: P.forestDeep, // hover / pressed on filled brand
+  terraLt: P.forestWash,
+
+  sage: P.eucalyptus,
+  sageDk: P.eucalyptusDp,
+  sageLt: P.eucalyptusWa,
+
+  teal: P.lagoon,
+  tealDk: P.lagoonDeep,
+  tealLt: P.lagoonWash,
+
+  gold: P.amber,
+  goldDk: P.amberDeep,
+  goldLt: P.amberWash,
+
+  // ── Status ──────────────────────────────────────────────────
+  // Each has: base (icons, borders, mid-weight text), Dk (text on
+  // the wash, meets AA), Lt (fill), Bd (border on the fill).
+  danger: P.brick,
+  dangerDk: P.brickDeep,
+  dangerLt: P.brickWash,
+  dangerBd: P.brickBorder,
+
+  warning: P.amber,
+  warningDk: P.amberDeep,
+  warningLt: P.amberWash,
+  warningBd: P.amberBorder,
+
+  success: P.eucalyptus,
+  successDk: P.eucalyptusDp,
+  successLt: P.eucalyptusWa,
+  successBd: P.eucalyptusBd,
+
+  info: P.lagoon,
+  infoDk: P.lagoonDeep,
+  infoLt: P.lagoonWash,
+  infoBd: P.lagoonBorder,
+
+  // ── Overlays ────────────────────────────────────────────────
+  scrim: P.scrim,
+  scrimDeep: P.scrimDeep,
+  glass: P.glass,
+  glassSoft: P.glassSoft,
+
+  // ── Composites ──────────────────────────────────────────────
+  // Placeholder fill behind a cover image that hasn't loaded.
+  coverGradient: `linear-gradient(160deg, ${P.eucalyptus} 0%, ${P.ink} 100%)`,
+} as const;
+
+// Categorical badge palette — for distinguishing CATEGORIES, not
+// status. Consumed by CONTENT_TYPE_CONFIG and TASK_TYPE_CONFIG so
+// both badge sets stay in step. Order is the assignment order.
+const ACCENT = {
+  moss: P.moss,
+  indigo: P.indigo,
+  plum: P.plum,
+  rose: P.rose,
+  leaf: P.leaf,
+  clay: P.clay,
+} as const;
+
+export type AccentName = keyof typeof ACCENT;
+
+export { T, ACCENT };
 
 // MUI expects exactly 25 shadow levels. Declared as Shadows so the tuple
 // length is checked at compile time rather than asserted away.
@@ -9,35 +108,27 @@ const SHADOWS: Shadows = [
   "0 4px 16px rgba(0,0,0,0.10)", // 3 — dropdown
   "0 8px 32px rgba(0,0,0,0.12)", // 4 — modal
   // 5–24 unused
-  "none", "none", "none", "none", "none",
-  "none", "none", "none", "none", "none",
-  "none", "none", "none", "none", "none",
-  "none", "none", "none", "none", "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
+  "none",
 ];
-
-// Veldt design tokens — extracted from Veldt_Dashboard_v2.html
-const T = {
-  bg: "#FAF6EF",
-  navBg: "#FFFFFF",
-  sideBg: "#FFFFFF",
-  card: "#FFFFFF",
-  cardAlt: "#F7F1E7",
-  border: "#EDE6D6",
-  terra: "#C4704A",
-  terraLt: "#FFF0E8",
-  gold: "#B89840",
-  goldLt: "#FFF8E8",
-  sage: "#5E8A64",
-  sageLt: "#EEF4EE",
-  teal: "#5A8888",
-  tealLt: "#EEF4F4",
-  text: "#2A1F14",
-  sub: "#5A4A38",
-  muted: "#9E8E7A",
-  dim: "#F4EDE0",
-};
-
-export { T };
 
 export const theme = createTheme({
   // ── Palette ──────────────────────────────────────────────
@@ -49,19 +140,29 @@ export const theme = createTheme({
     primary: {
       main: T.terra,
       light: T.terraLt,
-      contrastText: "#FFFFFF",
+      contrastText: T.onBrand,
     },
     secondary: {
       main: T.gold,
       light: T.goldLt,
     },
     success: {
-      main: T.sage,
-      light: T.sageLt,
+      main: T.success,
+      light: T.successLt,
     },
     info: {
-      main: T.teal,
-      light: T.tealLt,
+      main: T.info,
+      light: T.infoLt,
+    },
+    error: {
+      main: T.danger,
+      light: T.dangerLt,
+      dark: T.dangerDk,
+    },
+    warning: {
+      main: T.warning,
+      light: T.warningLt,
+      dark: T.warningDk,
     },
     text: {
       primary: T.text,
@@ -147,7 +248,7 @@ export const theme = createTheme({
         "::-webkit-scrollbar": { width: 5 },
         "::-webkit-scrollbar-track": { background: "transparent" },
         "::-webkit-scrollbar-thumb": {
-          background: "#DDD4C0",
+          background: T.borderStrong,
           borderRadius: 10,
         },
       },
@@ -166,7 +267,7 @@ export const theme = createTheme({
         },
         contained: {
           backgroundColor: T.terra,
-          "&:hover": { backgroundColor: "#AE6341" },
+          "&:hover": { backgroundColor: T.terraDk },
         },
         outlined: {
           borderColor: T.border,

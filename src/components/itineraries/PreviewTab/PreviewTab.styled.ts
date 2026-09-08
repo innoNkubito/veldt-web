@@ -99,7 +99,7 @@ export const CoverBgLayer = styled.div<{ $url: string | null; $visible: boolean 
   background: ${({ $url }) =>
     $url
       ? `url(${$url}) center/cover no-repeat`
-      : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
+      : `linear-gradient(160deg, ${T.sub} 0%, ${T.text} 100%)`};
 
   /* Darken overlay */
   &::after {
@@ -131,7 +131,7 @@ export const PreviewCoverTitle = styled.h1`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 32px;
   font-weight: 700;
-  color: #fff;
+  color: ${T.onBrand};
   margin: 0 0 16px;
   line-height: 1.15;
 `
@@ -162,7 +162,7 @@ export const PreviewCoverDot = styled.span`
 // ── Scrollable content area (col 3) ─────────────────────────────
 
 export const PreviewContent = styled.div`
-  background: #fff;
+  background: ${T.card};
   overflow-y: auto;
   min-height: calc(100vh - 200px);
   border-left: 1px solid ${T.border};
@@ -339,9 +339,9 @@ export const DayDate = styled.div`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 20px;
   font-style: italic;
-  color: #1a1a1a;
+  color: ${T.text};
   padding-bottom: 10px;
-  border-bottom: 1px solid #e8e3de;
+  border-bottom: 1px solid ${T.border};
   margin-bottom: 8px;
 `
 
@@ -409,21 +409,21 @@ export const ContentSectionTitle = styled.div`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 22px;
   font-style: italic;
-  color: #1a1a1a;
+  color: ${T.text};
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e8e3de;
+  border-bottom: 1px solid ${T.border};
 `
 
 export const ContentRichText = styled.div`
   font-size: 14px;
   line-height: 1.8;
-  color: #4a4a4a;
+  color: ${T.sub};
   margin-bottom: 14px;
 
   p { margin: 0 0 12px; }
   p:last-child { margin-bottom: 0; }
-  strong { font-weight: 600; color: #2a2a2a; }
+  strong { font-weight: 600; color: ${T.text}; }
   em { font-style: italic; }
   ul, ol { padding-left: 20px; margin: 0 0 12px; }
   li { margin-bottom: 4px; }
@@ -440,12 +440,12 @@ export const ContentRichText = styled.div`
 export const DayRichText = styled.div`
   font-size: 14px;
   line-height: 1.8;
-  color: #4a4a4a;
+  color: ${T.sub};
 
   p { margin: 0 0 10px; }
   p:last-child { margin-bottom: 0; }
   p:empty::after { content: ''; display: inline-block; }
-  strong { font-weight: 600; color: #2a2a2a; }
+  strong { font-weight: 600; color: ${T.text}; }
   em { font-style: italic; }
   s { text-decoration: line-through; }
   ul, ol { padding-left: 20px; margin: 0 0 10px; }
@@ -485,7 +485,7 @@ export const SliderWrap = styled.div`
   margin: 18px 0;
   border-radius: 10px;
   overflow: hidden;
-  background: #f0ebe4;
+  background: ${T.dim};
   aspect-ratio: 16/9;
 `
 
@@ -511,7 +511,7 @@ export const SliderArrow = styled.button<{ $side: 'left' | 'right' }>`
   height: 36px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.4);
-  color: #fff;
+  color: ${T.onBrand};
   border: none;
   cursor: pointer;
   display: flex;
@@ -537,7 +537,7 @@ export const SliderDot = styled.button<{ $active: boolean }>`
   width: ${({ $active }) => ($active ? 20 : 6)}px;
   height: 6px;
   border-radius: 3px;
-  background: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.5)')};
+  background: ${({ $active }) => ($active ? T.card : 'rgba(255,255,255,0.5)')};
   border: none;
   cursor: pointer;
   padding: 0;

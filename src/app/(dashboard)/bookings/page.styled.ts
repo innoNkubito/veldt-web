@@ -153,7 +153,7 @@ export const StatusChip = styled.span<{ $color: string; $bg: string }>`
 `
 
 export const OverdueText = styled.span`
-  color: #b91c1c;
+  color: ${T.dangerDk};
   font-weight: 600;
 `
 
@@ -180,9 +180,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 12.5px;
 `
 
@@ -327,7 +327,7 @@ export const LinkButton = styled.button<{ $danger?: boolean }>`
   font-size: 11.5px;
   font-family: 'DM Sans', sans-serif;
   padding: 0;
-  color: ${({ $danger }) => ($danger ? '#dc2626' : T.teal)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.teal)};
   white-space: nowrap;
   &:hover { text-decoration: underline; }
 `
@@ -347,7 +347,7 @@ export const PrimaryButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 7px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
@@ -359,7 +359,7 @@ export const DangerLink = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #dc2626;
+  color: ${T.danger};
   font-size: 12.5px;
   font-family: 'DM Sans', sans-serif;
   padding: 8px 4px;

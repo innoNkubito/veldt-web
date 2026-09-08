@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import { gqlErrorMessage } from '@/lib/gql-error'
+import { T } from '@/lib/theme'
 
 /**
  * Operator-facing bookings store (the /bookings dashboard).
@@ -77,21 +78,21 @@ export const BOOKING_STATUS_CONFIG: Record<
   BookingStatus,
   { label: string; color: string; bg: string }
 > = {
-  PENDING_REQUEST: { label: 'Request', color: '#8a6d1d', bg: '#f7edd8' },
-  AWAITING_PAYMENT: { label: 'Awaiting payment', color: '#2f5479', bg: '#e8eef5' },
-  CONFIRMED: { label: 'Confirmed', color: '#3d6b39', bg: '#e5efe4' },
-  CANCELLED: { label: 'Cancelled', color: '#8A7E6D', bg: '#EFE9DD' },
+  PENDING_REQUEST: { label: 'Request', color: T.gold, bg: T.goldLt },
+  AWAITING_PAYMENT: { label: 'Awaiting payment', color: T.infoDk, bg: T.infoLt },
+  CONFIRMED: { label: 'Confirmed', color: T.successDk, bg: T.successLt },
+  CANCELLED: { label: 'Cancelled', color: T.muted, bg: T.dim },
 }
 
 export const INSTALLMENT_STATUS_CONFIG: Record<
   InstallmentStatus,
   { label: string; color: string; bg: string }
 > = {
-  DUE: { label: 'Due', color: '#6B6153', bg: '#EFE9DD' },
-  PROCESSING: { label: 'Processing', color: '#2f5479', bg: '#e8eef5' },
-  PAID: { label: 'Paid', color: '#3d6b39', bg: '#e5efe4' },
-  OVERDUE: { label: 'Overdue', color: '#b91c1c', bg: '#fbe9e9' },
-  VOID: { label: 'Void', color: '#8A7E6D', bg: '#EFE9DD' },
+  DUE: { label: 'Due', color: T.sub, bg: T.dim },
+  PROCESSING: { label: 'Processing', color: T.infoDk, bg: T.infoLt },
+  PAID: { label: 'Paid', color: T.successDk, bg: T.successLt },
+  OVERDUE: { label: 'Overdue', color: T.dangerDk, bg: T.dangerLt },
+  VOID: { label: 'Void', color: T.muted, bg: T.dim },
 }
 
 export function formatMoney(amount: number, currency: string): string {

@@ -132,7 +132,7 @@ export default function ItineraryBuilderPage() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#DC2626',
+              color: T.danger,
             }}
             onClick={() => setPublishError(null)}
           >

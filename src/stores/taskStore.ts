@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import { gqlErrorMessage } from '@/lib/gql-error'
+import { ACCENT } from '@/lib/theme'
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -220,12 +221,12 @@ export const useTaskStore = create<TaskState>((set) => ({
 // ── Shared task type config ─────────────────────────────────────
 
 export const TASK_TYPE_CONFIG: Record<TaskType, { label: string; bg: string; fg: string; border: string }> = {
-  EMAIL:      { label: 'Email',      bg: '#e4f0ea', fg: '#2e7c5a', border: '#bfe0d0' },
-  PAYMENTS:   { label: 'Payments',   bg: '#e8f1fb', fg: '#2563eb', border: '#c6ddf7' },
-  CHECK_IN:   { label: 'Check In',   bg: '#e8f0e4', fg: '#3a6b2e', border: '#cfe3c6' },
-  FOLLOW_UP:  { label: 'Follow Up',  bg: '#fdf3e0', fg: '#b07818', border: '#f3e0b8' },
-  PHONE_CALL: { label: 'Phone Call', bg: '#ede4f0', fg: '#5a2e7c', border: '#ddc9e6' },
-  ADMIN:      { label: 'Admin',      bg: '#f0ebe4', fg: '#7c5a2e', border: '#e3d8c6' },
+  EMAIL:      { label: 'Email',      bg: ACCENT.moss.bg, fg: ACCENT.moss.fg, border: ACCENT.moss.border },
+  PAYMENTS:   { label: 'Payments',   bg: ACCENT.indigo.bg, fg: ACCENT.indigo.fg, border: ACCENT.indigo.border },
+  CHECK_IN:   { label: 'Check In',   bg: ACCENT.leaf.bg, fg: ACCENT.leaf.fg, border: ACCENT.leaf.border },
+  FOLLOW_UP:  { label: 'Follow Up',  bg: ACCENT.rose.bg, fg: ACCENT.rose.fg, border: ACCENT.rose.border },
+  PHONE_CALL: { label: 'Phone Call', bg: ACCENT.plum.bg, fg: ACCENT.plum.fg, border: ACCENT.plum.border },
+  ADMIN:      { label: 'Admin',      bg: ACCENT.clay.bg, fg: ACCENT.clay.fg, border: ACCENT.clay.border },
 }
 
 export const TASK_TYPES: TaskType[] = ['EMAIL', 'PAYMENTS', 'CHECK_IN', 'FOLLOW_UP', 'PHONE_CALL', 'ADMIN']

@@ -77,7 +77,7 @@ export const CreateButton = styled.button`
   border-radius: 7px;
   border: none;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -174,7 +174,7 @@ export const LoadingMessage = styled.div`
 export const ErrorMessage = styled.div`
   padding: 32px;
   text-align: center;
-  color: #dc2626;
+  color: ${T.danger};
   font-size: 13px;
 `
 
@@ -246,6 +246,6 @@ export const OpenButton = styled.button`
   &:hover {
     background: ${T.terra};
     border-color: ${T.terra};
-    color: #fff;
+    color: ${T.onBrand};
   }
 `

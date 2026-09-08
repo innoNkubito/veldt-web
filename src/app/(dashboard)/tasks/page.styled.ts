@@ -28,8 +28,8 @@ export const CreateButton = styled.button`
   padding: 9px 18px;
   border-radius: 20px;
   border: none;
-  background: #1a7a3a;
-  color: #fff;
+  background: ${T.success};
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -38,7 +38,7 @@ export const CreateButton = styled.button`
   align-items: center;
   gap: 6px;
 
-  &:hover { background: #166531; }
+  &:hover { background: ${T.successDk}; }
 `
 
 export const CreateButtonPlus = styled.span`
@@ -134,7 +134,7 @@ export const TableRow = styled.div<{ $hovered: boolean; $last: boolean; $complet
 export const RowCheckbox = styled.input`
   width: 15px;
   height: 15px;
-  accent-color: #1a7a3a;
+  accent-color: ${T.success};
   cursor: pointer;
 `
 
@@ -157,7 +157,7 @@ export const RowTitle = styled.div<{ $completed?: boolean }>`
 `
 
 export const NoteIcon = styled.span`
-  color: #1a7a3a;
+  color: ${T.success};
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
@@ -225,7 +225,7 @@ export const EditButton = styled.button`
   &:hover {
     background: ${T.terra};
     border-color: ${T.terra};
-    color: #fff;
+    color: ${T.onBrand};
   }
 `
 
@@ -241,8 +241,8 @@ export const DeleteButton = styled.button`
   transition: color 0.12s, background 0.12s;
 
   &:hover {
-    color: #dc2626;
-    background: #fbe9e9;
+    color: ${T.danger};
+    background: ${T.dangerLt};
   }
 `
 
@@ -256,7 +256,7 @@ export const LoadingMessage = styled.div`
 export const ErrorMessage = styled.div`
   padding: 32px;
   text-align: center;
-  color: #dc2626;
+  color: ${T.danger};
   font-size: 13px;
 `
 

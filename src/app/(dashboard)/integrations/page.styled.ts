@@ -33,7 +33,7 @@ export const ConnectButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 7px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'wait' : 'pointer')};
@@ -53,9 +53,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 12.5px;
   white-space: pre-line;
 `
@@ -123,9 +123,9 @@ export const StatusChip = styled.span<{ $status: string }>`
   letter-spacing: 0.06em;
   flex-shrink: 0;
   background: ${({ $status }) =>
-    $status === 'ACTIVE' ? '#e5efe4' : $status === 'DISABLED' ? T.dim : '#f7edd8'};
+    $status === 'ACTIVE' ? T.successLt : $status === 'DISABLED' ? T.dim : T.goldLt};
   color: ${({ $status }) =>
-    $status === 'ACTIVE' ? '#3d6b39' : $status === 'DISABLED' ? T.muted : '#8a6d1d'};
+    $status === 'ACTIVE' ? T.successDk : $status === 'DISABLED' ? T.muted : T.gold};
 `
 
 export const ChipStack = styled.div`
@@ -143,9 +143,9 @@ export const EnvChip = styled.span<{ $live: boolean }>`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: ${({ $live }) => ($live ? '#e8eef5' : '#f7edd8')};
-  color: ${({ $live }) => ($live ? '#2f5479' : '#8a6d1d')};
-  border: 1px solid ${({ $live }) => ($live ? '#c8d8e8' : '#e5d3a6')};
+  background: ${({ $live }) => ($live ? T.infoLt : T.goldLt)};
+  color: ${({ $live }) => ($live ? T.infoDk : T.gold)};
+  border: 1px solid ${({ $live }) => ($live ? T.infoBd : T.warningBd)};
 `
 
 export const EnvRow = styled.div`
@@ -163,10 +163,10 @@ export const EnvOption = styled.button<{ $active: boolean; $live: boolean }>`
   font-family: 'DM Sans', sans-serif;
   transition: border-color 0.12s, background 0.12s, color 0.12s;
   border: 1.5px solid
-    ${({ $active, $live }) => ($active ? ($live ? '#2f5479' : T.terra) : T.border)};
+    ${({ $active, $live }) => ($active ? ($live ? T.infoDk : T.terra) : T.border)};
   background: ${({ $active, $live }) =>
-    $active ? ($live ? '#e8eef5' : T.terraLt) : T.card};
-  color: ${({ $active, $live }) => ($active ? ($live ? '#2f5479' : T.terra) : T.sub)};
+    $active ? ($live ? T.infoLt : T.terraLt) : T.card};
+  color: ${({ $active, $live }) => ($active ? ($live ? T.infoDk : T.terra) : T.sub)};
 `
 
 export const Capabilities = styled.div`
@@ -205,7 +205,7 @@ export const CardActionLink = styled.button<{ $danger?: boolean }>`
   font-size: 12px;
   font-family: 'DM Sans', sans-serif;
   padding: 0;
-  color: ${({ $danger }) => ($danger ? '#dc2626' : T.teal)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.teal)};
   &:hover { text-decoration: underline; }
 `
 
@@ -315,7 +315,7 @@ export const SaveButton = styled.button<{ $disabled?: boolean }>`
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 `

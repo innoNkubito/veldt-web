@@ -4,9 +4,9 @@ import { T } from '@/lib/theme'
 export type BannerTone = 'info' | 'warn' | 'danger'
 
 const TONES: Record<BannerTone, { bg: string; border: string; text: string }> = {
-  info: { bg: '#e8eef5', border: '#c8d8e8', text: '#2f5479' },
-  warn: { bg: '#f7edd8', border: '#e5d3a6', text: '#7a5f16' },
-  danger: { bg: '#fbe9e9', border: '#f3c6c6', text: '#b91c1c' },
+  info: { bg: T.infoLt, border: T.infoBd, text: T.infoDk },
+  warn: { bg: T.goldLt, border: T.warningBd, text: T.goldDk },
+  danger: { bg: T.dangerLt, border: T.dangerBd, text: T.dangerDk },
 }
 
 export const Bar = styled.div<{ $tone: BannerTone }>`
@@ -40,7 +40,7 @@ export const Action = styled.a<{ $tone: BannerTone }>`
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   background: ${({ $tone }) => TONES[$tone].text};
-  color: #fff;
+  color: ${T.onBrand};
 
   &:hover { opacity: 0.9; }
 `

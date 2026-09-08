@@ -91,7 +91,7 @@ export const PrimaryButton = styled.button<{ $disabled?: boolean }>`
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 `

@@ -3,6 +3,7 @@ import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import { gqlErrorMessage } from '@/lib/gql-error'
 import type { BillingInterval, SubscriptionTier } from './onboardingStore'
+import { T } from '@/lib/theme'
 
 /**
  * Veldt staff store — onboarding request queue and operator provisioning.
@@ -53,12 +54,12 @@ export const REQUEST_STATUS_CONFIG: Record<
   OnboardingRequestStatus,
   { label: string; color: string; bg: string }
 > = {
-  SUBMITTED: { label: 'New', color: '#8a6d1d', bg: '#f7edd8' },
-  IN_REVIEW: { label: 'In review', color: '#2f5479', bg: '#e8eef5' },
-  INVOICED: { label: 'Invoiced', color: '#2f5479', bg: '#e8eef5' },
-  PAID: { label: 'Paid', color: '#3d6b39', bg: '#e5efe4' },
-  PROVISIONED: { label: 'Provisioned', color: '#3d6b39', bg: '#e5efe4' },
-  REJECTED: { label: 'Rejected', color: '#8A7E6D', bg: '#EFE9DD' },
+  SUBMITTED: { label: 'New', color: T.gold, bg: T.goldLt },
+  IN_REVIEW: { label: 'In review', color: T.infoDk, bg: T.infoLt },
+  INVOICED: { label: 'Invoiced', color: T.infoDk, bg: T.infoLt },
+  PAID: { label: 'Paid', color: T.successDk, bg: T.successLt },
+  PROVISIONED: { label: 'Provisioned', color: T.successDk, bg: T.successLt },
+  REJECTED: { label: 'Rejected', color: T.muted, bg: T.dim },
 }
 
 /** Statuses that move a request forward, in order. */
@@ -293,22 +294,22 @@ export const SUBSCRIPTION_STATUS_CONFIG: Record<
   SubscriptionStatus,
   { label: string; color: string; bg: string }
 > = {
-  TRIALING: { label: 'Trial', color: '#8a6d1d', bg: '#f7edd8' },
-  ACTIVE: { label: 'Active', color: '#3d6b39', bg: '#e5efe4' },
-  PAST_DUE: { label: 'Past due', color: '#8a6d1d', bg: '#f7edd8' },
-  SUSPENDED: { label: 'Suspended', color: '#b91c1c', bg: '#fbe9e9' },
-  CANCELLED: { label: 'Cancelled', color: '#8A7E6D', bg: '#EFE9DD' },
+  TRIALING: { label: 'Trial', color: T.gold, bg: T.goldLt },
+  ACTIVE: { label: 'Active', color: T.successDk, bg: T.successLt },
+  PAST_DUE: { label: 'Past due', color: T.gold, bg: T.goldLt },
+  SUSPENDED: { label: 'Suspended', color: T.dangerDk, bg: T.dangerLt },
+  CANCELLED: { label: 'Cancelled', color: T.muted, bg: T.dim },
 }
 
 export const INVOICE_STATUS_CONFIG: Record<
   InvoiceStatus,
   { label: string; color: string; bg: string }
 > = {
-  DRAFT: { label: 'Draft', color: '#6B6153', bg: '#EFE9DD' },
-  SENT: { label: 'Sent', color: '#2f5479', bg: '#e8eef5' },
-  PAID: { label: 'Paid', color: '#3d6b39', bg: '#e5efe4' },
-  OVERDUE: { label: 'Overdue', color: '#b91c1c', bg: '#fbe9e9' },
-  VOID: { label: 'Void', color: '#8A7E6D', bg: '#EFE9DD' },
+  DRAFT: { label: 'Draft', color: T.sub, bg: T.dim },
+  SENT: { label: 'Sent', color: T.infoDk, bg: T.infoLt },
+  PAID: { label: 'Paid', color: T.successDk, bg: T.successLt },
+  OVERDUE: { label: 'Overdue', color: T.dangerDk, bg: T.dangerLt },
+  VOID: { label: 'Void', color: T.muted, bg: T.dim },
 }
 
 const INVOICE_FIELDS = `

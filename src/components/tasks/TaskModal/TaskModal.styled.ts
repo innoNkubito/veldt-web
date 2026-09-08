@@ -177,7 +177,7 @@ export const TagRemove = styled.button`
   font-size: 12px;
   padding: 0;
   line-height: 1;
-  &:hover { color: #dc2626; }
+  &:hover { color: ${T.danger}; }
 `
 
 export const TagInput = styled.input`
@@ -308,7 +308,7 @@ export const CalendarDay = styled.button<{ $today?: boolean; $selected?: boolean
   border: none;
   border-radius: 6px;
   background: ${({ $selected }) => ($selected ? T.terra : 'transparent')};
-  color: ${({ $selected, $today }) => ($selected ? '#fff' : $today ? '#1a7a3a' : T.text)};
+  color: ${({ $selected, $today }) => ($selected ? T.onBrand : $today ? T.success : T.text)};
   font-weight: ${({ $today, $selected }) => ($today || $selected ? 700 : 400)};
   font-size: 12.5px;
   font-family: 'DM Sans', sans-serif;
@@ -350,17 +350,17 @@ export const SubmitButton = styled.button<{ $disabled?: boolean }>`
   padding: 10px 26px;
   border-radius: 20px;
   border: none;
-  background: ${({ $disabled }) => ($disabled ? T.muted : '#1a7a3a')};
+  background: ${({ $disabled }) => ($disabled ? T.muted : T.success)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 
-  &:hover { background: ${({ $disabled }) => ($disabled ? T.muted : '#166531')}; }
+  &:hover { background: ${({ $disabled }) => ($disabled ? T.muted : T.successDk)}; }
 `
 
 export const ErrorText = styled.div`
   font-size: 12.5px;
-  color: #dc2626;
+  color: ${T.danger};
 `

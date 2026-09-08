@@ -21,7 +21,7 @@ export const EditorTopBar = styled.header`
   gap: 16px;
   padding: 0 24px;
   height: 56px;
-  background: #fff;
+  background: ${T.card};
   border-bottom: 1px solid ${T.border};
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 `
@@ -100,22 +100,22 @@ export const SavingBadge = styled.span`
 export const TopBarBtn = styled.button<{ $danger?: boolean }>`
   padding: 6px 14px;
   background: none;
-  border: 1px solid ${({ $danger }) => ($danger ? '#fca5a5' : T.border)};
+  border: 1px solid ${({ $danger }) => ($danger ? T.dangerBd : T.border)};
   border-radius: 7px;
-  color: ${({ $danger }) => ($danger ? '#dc2626' : T.sub)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.sub)};
   font-size: 12px;
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
   transition: background 0.12s;
   &:hover {
-    background: ${({ $danger }) => ($danger ? '#fef2f2' : T.dim)};
+    background: ${({ $danger }) => ($danger ? T.dangerLt : T.dim)};
   }
 `
 
 export const PreviewBtn = styled.button`
   padding: 6px 16px;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   border: none;
   border-radius: 7px;
   font-size: 12px;
@@ -340,7 +340,7 @@ export const SaveRow = styled.div`
 export const SaveButton = styled.button`
   padding: 8px 20px;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   border: none;
   border-radius: 7px;
   font-size: 13px;
@@ -411,7 +411,7 @@ export const ImageRemove = styled.button`
   position: absolute; top: -6px; right: -6px;
   width: 18px; height: 18px;
   border-radius: 50%;
-  background: #dc2626; color: #fff; border: none;
+  background: ${T.danger}; color: ${T.card}; border: none;
   cursor: pointer; font-size: 11px;
   display: flex; align-items: center; justify-content: center; line-height: 1;
 `
@@ -468,7 +468,7 @@ export const IconBtn = styled.button`
 `
 
 export const DangerIconBtn = styled(IconBtn)`
-  &:hover { color: #dc2626; }
+  &:hover { color: ${T.danger}; }
 `
 
 export const AddSectionBar = styled.div`
@@ -581,12 +581,12 @@ export const RoomActionBtn = styled.button`
 `
 
 export const RoomDeleteBtn = styled(RoomActionBtn)`
-  &:hover { border-color: #fca5a5; color: #dc2626; }
+  &:hover { border-color: ${T.dangerBd}; color: ${T.danger}; }
 `
 
 export const AddNewRoomBtn = styled.button`
   display: block; width: 100%; padding: 12px;
-  background: ${T.teal}; color: #fff;
+  background: ${T.teal}; color: ${T.card};
   border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600;
   font-family: 'DM Sans', sans-serif; cursor: pointer;
@@ -647,7 +647,7 @@ export const ModalCancelBtn = styled.button`
 
 export const ModalSaveBtn = styled.button`
   padding: 8px 22px;
-  background: ${T.teal}; color: #fff;
+  background: ${T.teal}; color: ${T.card};
   border: none; border-radius: 7px;
   font-size: 13px; font-weight: 600;
   font-family: 'DM Sans', sans-serif; cursor: pointer;
@@ -688,7 +688,7 @@ export const PhotoThumb = styled.div<{ $url: string }>`
 export const PhotoRemove = styled.button`
   position: absolute; top: -5px; right: -5px;
   width: 16px; height: 16px; border-radius: 50%;
-  background: #dc2626; color: #fff; border: none;
+  background: ${T.danger}; color: ${T.card}; border: none;
   cursor: pointer; font-size: 10px;
   display: flex; align-items: center; justify-content: center;
 `
@@ -779,7 +779,7 @@ export const PageViewCover = styled.div<{ $url?: string }>`
     background: ${({ $url }) =>
       $url
         ? `url(${$url}) center/cover no-repeat`
-        : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
+        : `linear-gradient(160deg, ${T.sub} 0%, ${T.text} 100%)`};
   }
 
   &::after {
@@ -804,7 +804,7 @@ export const CoverUploadBtn = styled.label`
   cursor: pointer;
   backdrop-filter: blur(4px);
   transition: background 0.15s;
-  &:hover { background: rgba(0,0,0,0.65); color: #fff; }
+  &:hover { background: rgba(0,0,0,0.65); color: ${T.card}; }
 `
 
 export const PageViewCoverContent = styled.div`
@@ -829,7 +829,7 @@ export const PageViewCoverTitle = styled.h2`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 32px;
   font-weight: 700;
-  color: #fff;
+  color: ${T.onBrand};
   margin: 0 0 8px;
   line-height: 1.2;
   text-transform: uppercase;
@@ -846,7 +846,7 @@ export const PageViewCoverMeta = styled.div`
 // ── Right sections panel ────────────────────────────────────────
 
 export const PageViewSections = styled.div`
-  background: #fff;
+  background: ${T.card};
   padding: 32px 48px 64px;
   overflow-y: auto;
   min-height: calc(100vh - 56px);
@@ -883,21 +883,21 @@ export const ContentSectionTitle = styled.div`
   font-family: var(--font-playfair), 'Playfair Display', serif;
   font-size: 22px;
   font-style: italic;
-  color: #1a1a1a;
+  color: ${T.text};
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e8e3de;
+  border-bottom: 1px solid ${T.border};
 `
 
 export const ContentRichText = styled.div`
   font-size: 14px;
   line-height: 1.8;
-  color: #4a4a4a;
+  color: ${T.sub};
   margin-bottom: 16px;
 
   p { margin: 0 0 12px; }
   p:last-child { margin-bottom: 0; }
-  strong { font-weight: 600; color: #2a2a2a; }
+  strong { font-weight: 600; color: ${T.text}; }
   em { font-style: italic; }
   ul, ol { padding-left: 20px; margin: 0 0 12px; }
   li { margin-bottom: 4px; }
@@ -910,7 +910,7 @@ export const SliderWrap = styled.div`
   margin: 18px 0;
   border-radius: 10px;
   overflow: hidden;
-  background: #f0ebe4;
+  background: ${T.dim};
   aspect-ratio: 16/9;
 `
 
@@ -935,7 +935,7 @@ export const SliderArrow = styled.button<{ $side: 'left' | 'right' }>`
   width: 36px; height: 36px;
   border-radius: 50%;
   background: rgba(0,0,0,0.4);
-  color: #fff;
+  color: ${T.onBrand};
   border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   z-index: 2;
@@ -953,7 +953,7 @@ export const SliderDot = styled.button<{ $active: boolean }>`
   width: ${({ $active }) => ($active ? 20 : 6)}px;
   height: 6px;
   border-radius: 3px;
-  background: ${({ $active }) => ($active ? '#fff' : 'rgba(255,255,255,0.5)')};
+  background: ${({ $active }) => ($active ? T.card : 'rgba(255,255,255,0.5)')};
   border: none; cursor: pointer; padding: 0;
   transition: all 0.25s;
 `
@@ -970,7 +970,7 @@ export const FastFactGroup = styled.div`
   align-items: flex-start;
   gap: 20px;
   padding: 14px 0;
-  border-bottom: 1px solid #e8e3de;
+  border-bottom: 1px solid ${T.border};
 `
 
 export const FastFactGroupHeader = styled.div`
@@ -984,16 +984,16 @@ export const FastFactGroupHeader = styled.div`
 export const FastFactGroupIcon = styled.div`
   width: 28px; height: 28px;
   border-radius: 6px;
-  background: #f5f0e8;
+  background: ${T.cardAlt};
   display: flex; align-items: center; justify-content: center;
-  color: #7c5c3e;
+  color: ${T.sub};
   flex-shrink: 0;
 `
 
 export const FastFactGroupLabel = styled.div`
   font-size: 12px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: ${T.text};
   text-transform: uppercase;
   letter-spacing: 0.07em;
 `
@@ -1006,7 +1006,7 @@ export const FastFactItems = styled.div`
 
 export const FastFactItem = styled.div`
   font-size: 13px;
-  color: #4a4a4a;
+  color: ${T.sub};
   line-height: 1.8;
 `
 
@@ -1024,7 +1024,7 @@ export const GalleryCell = styled.div<{ $selected: boolean }>`
   cursor: pointer;
   border-radius: 4px;
   overflow: hidden;
-  outline: ${({ $selected }) => ($selected ? '2px solid #7c5c3e' : '2px solid transparent')};
+  outline: ${({ $selected }) => ($selected ? `2px solid ${T.sub}` : '2px solid transparent')};
   outline-offset: -2px;
   transition: outline-color 0.15s;
 
@@ -1043,14 +1043,14 @@ export const GalleryCellCheck = styled.span<{ $selected: boolean }>`
   top: 8px; left: 8px;
   width: 20px; height: 20px;
   border-radius: 50%;
-  background: ${({ $selected }) => ($selected ? '#7c5c3e' : 'rgba(255,255,255,0.85)')};
-  border: 2px solid ${({ $selected }) => ($selected ? '#7c5c3e' : 'rgba(0,0,0,0.25)')};
+  background: ${({ $selected }) => ($selected ? T.sub : 'rgba(255,255,255,0.85)')};
+  border: 2px solid ${({ $selected }) => ($selected ? T.sub : 'rgba(0,0,0,0.25)')};
   display: flex; align-items: center; justify-content: center;
   opacity: ${({ $selected }) => ($selected ? 1 : 0)};
   transition: opacity 0.15s, background 0.15s;
   pointer-events: none;
   font-size: 11px;
-  color: #fff;
+  color: ${T.onBrand};
 `
 
 export const GalleryDownloadBar = styled.div`
@@ -1060,24 +1060,24 @@ export const GalleryDownloadBar = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: #fff;
-  border-top: 1px solid #e8e3de;
+  background: ${T.card};
+  border-top: 1px solid ${T.border};
   margin-top: 12px;
   font-size: 13px;
-  color: #4a4a4a;
+  color: ${T.sub};
 `
 
 export const GalleryDownloadBtn = styled.button`
   padding: 7px 16px;
-  background: #7c5c3e;
-  color: #fff;
+  background: ${T.sub};
+  color: ${T.onBrand};
   border: none;
   border-radius: 6px;
   font-size: 13px;
   cursor: pointer;
   display: flex; align-items: center; gap: 6px;
 
-  &:hover { background: #6a4e35; }
+  &:hover { background: ${T.sub}; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 `
 
@@ -1085,7 +1085,7 @@ export const GallerySelectAllBtn = styled.button`
   background: none;
   border: none;
   font-size: 13px;
-  color: #7c5c3e;
+  color: ${T.sub};
   cursor: pointer;
   padding: 0;
   text-decoration: underline;
@@ -1105,8 +1105,8 @@ export const AccommodationGrid = styled.div`
 `
 
 export const AccommodationCard = styled.div`
-  border: 1px solid #e8e3de;
-  border-radius: 10px; overflow: hidden; background: #fff;
+  border: 1px solid ${T.border};
+  border-radius: 10px; overflow: hidden; background: ${T.card};
 `
 
 export const AccommodationPhoto = styled.div<{ $url: string }>`
@@ -1119,15 +1119,15 @@ export const AccommodationCardBody = styled.div`
 `
 
 export const AccommodationRoomName = styled.div`
-  font-size: 14px; font-weight: 600; color: #1a1a1a;
+  font-size: 14px; font-weight: 600; color: ${T.text};
 `
 
 export const AccommodationRoomDesc = styled.div`
-  font-size: 12px; color: #4a4a4a; line-height: 1.5; margin-top: 4px;
+  font-size: 12px; color: ${T.sub}; line-height: 1.5; margin-top: 4px;
 `
 
 export const AccommodationPhotoCount = styled.div`
-  font-size: 11px; color: #999; margin-top: 6px;
+  font-size: 11px; color: ${T.muted}; margin-top: 6px;
 `
 
 export const AccommodationRoomList = styled.div`
@@ -1150,7 +1150,7 @@ export const AccommodationRoomThumb = styled.div<{ $url: string }>`
 
 export const AccomRoomBlock = styled.div`
   padding: 28px 0;
-  border-bottom: 1px solid #e8e3de;
+  border-bottom: 1px solid ${T.border};
 
   &:first-child { padding-top: 0; }
   &:last-child { border-bottom: none; padding-bottom: 0; }
@@ -1160,14 +1160,14 @@ export const AccomRoomHeading = styled.div`
   font-family: 'DM Sans', sans-serif;
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: ${T.text};
   margin-bottom: 10px;
 `
 
 export const AccomRoomDescription = styled.p`
   font-size: 14px;
   line-height: 1.8;
-  color: #4a4a4a;
+  color: ${T.sub};
   margin: 0 0 18px;
 `
 
@@ -1184,7 +1184,7 @@ export const AccomPhoto = styled.div<{ $url: string }>`
   width: 100%;
   aspect-ratio: ${({ }) => '16/10'};
   background: ${({ $url }) => `url(${$url}) center/cover no-repeat`};
-  background-color: #e8e3de;
+  background-color: ${T.border};
 `
 
 // ── Preview modal ───────────────────────────────────────────────
@@ -1200,7 +1200,7 @@ export const PreviewOverlay = styled.div`
 export const PreviewBar = styled.div`
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px; height: 52px;
-  background: #1a1a1a;
+  background: ${T.text};
   flex-shrink: 0;
 `
 
@@ -1219,7 +1219,7 @@ export const PreviewCloseBtn = styled.button`
   background: none; border: none; cursor: pointer;
   color: rgba(255,255,255,0.6); font-size: 20px; line-height: 1;
   padding: 4px;
-  &:hover { color: #fff; }
+  &:hover { color: ${T.onBrand}; }
 `
 
 export const PreviewBody = styled.div`
@@ -1239,7 +1239,7 @@ export const PreviewCover = styled.div<{ $url?: string }>`
     background: ${({ $url }) =>
       $url
         ? `url(${$url}) center/cover no-repeat`
-        : 'linear-gradient(160deg, #7c5c3e 0%, #3d4a3a 100%)'};
+        : `linear-gradient(160deg, ${T.sub} 0%, ${T.text} 100%)`};
   }
 
   &::after {
@@ -1256,7 +1256,7 @@ export const PreviewCoverContent = styled.div`
 
 export const PreviewCoverTitle = styled.h2`
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 32px; font-weight: 700; color: #fff;
+  font-size: 32px; font-weight: 700; color: ${T.onBrand};
   margin: 0 0 8px; line-height: 1.2;
   text-transform: uppercase; letter-spacing: 0.02em;
   text-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -1267,7 +1267,7 @@ export const PreviewCoverMeta = styled.div`
 `
 
 export const PreviewSections = styled.div`
-  background: #fff;
+  background: ${T.card};
   padding: 40px 56px 80px;
   overflow-y: auto;
 `

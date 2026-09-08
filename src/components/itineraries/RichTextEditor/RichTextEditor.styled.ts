@@ -32,8 +32,8 @@ export const Wrap = styled.div`
     .mention {
       display: inline-flex;
       align-items: center;
-      background: #dbeafe;
-      color: #1d4ed8;
+      background: ${T.infoLt};
+      color: ${T.infoDk};
       border-radius: 4px;
       padding: 1px 5px;
       font-size: 12.5px;

@@ -98,9 +98,9 @@ export const Callout = styled.div<{ $tone?: 'warn' | 'info' }>`
   font-size: 12.5px;
   line-height: 1.55;
   margin-bottom: 16px;
-  background: ${({ $tone }) => ($tone === 'warn' ? '#f7edd8' : T.dim)};
-  border: 1px solid ${({ $tone }) => ($tone === 'warn' ? '#e5d3a6' : T.border)};
-  color: ${({ $tone }) => ($tone === 'warn' ? '#7a5f16' : T.sub)};
+  background: ${({ $tone }) => ($tone === 'warn' ? T.goldLt : T.dim)};
+  border: 1px solid ${({ $tone }) => ($tone === 'warn' ? T.warningBd : T.border)};
+  color: ${({ $tone }) => ($tone === 'warn' ? T.goldDk : T.sub)};
 `
 
 export const CalloutLink = styled.a`
@@ -114,9 +114,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 12.5px;
   white-space: pre-line;
 `
@@ -191,7 +191,7 @@ export const LinkButton = styled.button<{ $danger?: boolean }>`
   font-size: 12px;
   font-family: 'DM Sans', sans-serif;
   padding: 0;
-  color: ${({ $danger }) => ($danger ? '#dc2626' : T.teal)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.teal)};
   &:hover { text-decoration: underline; }
 `
 
@@ -252,9 +252,9 @@ export const ScheduleTotalRow = styled.div<{ $valid: boolean }>`
   padding: 10px 14px;
   border-radius: 7px;
   font-size: 12.5px;
-  background: ${({ $valid }) => ($valid ? '#e5efe4' : '#f7edd8')};
-  border: 1px solid ${({ $valid }) => ($valid ? '#c3ddc0' : '#e5d3a6')};
-  color: ${({ $valid }) => ($valid ? '#3d6b39' : '#7a5f16')};
+  background: ${({ $valid }) => ($valid ? T.successLt : T.goldLt)};
+  border: 1px solid ${({ $valid }) => ($valid ? T.successBd : T.warningBd)};
+  color: ${({ $valid }) => ($valid ? T.successDk : T.goldDk)};
 `
 
 // ── Reminder chips ────────────────────────────────────────────
@@ -286,7 +286,7 @@ export const ChipRemove = styled.button`
   font-size: 12px;
   padding: 0;
   line-height: 1;
-  &:hover { color: #dc2626; }
+  &:hover { color: ${T.danger}; }
 `
 
 export const ChipInput = styled.input`
@@ -406,7 +406,7 @@ export const SaveButton = styled.button<{ $disabled?: boolean }>`
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 `

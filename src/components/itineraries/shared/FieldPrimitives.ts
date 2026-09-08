@@ -89,6 +89,6 @@ export const SmallButton = styled.button<{ $primary?: boolean }>`
 
   ${({ $primary }) =>
     $primary
-      ? `background: ${T.terra}; color: #fff; border: none;`
+      ? `background: ${T.terra}; color: ${T.card}; border: none;`
       : `background: transparent; color: ${T.sub}; border: 1px solid ${T.border};`}
 `

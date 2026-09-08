@@ -85,7 +85,7 @@ export const PayButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 9px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 15px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
@@ -93,7 +93,7 @@ export const PayButton = styled.button<{ $disabled?: boolean }>`
   margin-top: 24px;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #AE6341; }
+  &:hover:not(:disabled) { background: ${T.terraDk}; }
 `
 
 export const SecureNote = styled.div`
@@ -111,11 +111,11 @@ export const Banner = styled.div<{ $tone: 'error' | 'success' | 'info' }>`
   line-height: 1.55;
   margin-bottom: 20px;
   background: ${({ $tone }) =>
-    $tone === 'error' ? '#fbe9e9' : $tone === 'success' ? '#e5efe4' : '#f7edd8'};
+    $tone === 'error' ? T.dangerLt : $tone === 'success' ? T.successLt : T.goldLt};
   border: 1px solid
-    ${({ $tone }) => ($tone === 'error' ? '#f3c6c6' : $tone === 'success' ? '#c3ddc0' : '#e5d3a6')};
+    ${({ $tone }) => ($tone === 'error' ? T.dangerBd : $tone === 'success' ? T.successBd : T.warningBd)};
   color: ${({ $tone }) =>
-    $tone === 'error' ? '#b91c1c' : $tone === 'success' ? '#3d6b39' : '#7a5f16'};
+    $tone === 'error' ? T.dangerDk : $tone === 'success' ? T.successDk : T.goldDk};
 `
 
 export const StatusMark = styled.div<{ $tone: 'success' | 'neutral' }>`
@@ -123,7 +123,7 @@ export const StatusMark = styled.div<{ $tone: 'success' | 'neutral' }>`
   height: 54px;
   border-radius: 50%;
   background: ${({ $tone }) => ($tone === 'success' ? T.sage : T.dim)};
-  color: ${({ $tone }) => ($tone === 'success' ? '#fff' : T.muted)};
+  color: ${({ $tone }) => ($tone === 'success' ? T.onBrand : T.muted)};
   display: flex;
   align-items: center;
   justify-content: center;

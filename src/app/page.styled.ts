@@ -67,7 +67,7 @@ export const PrimaryLink = styled(Link)`
   align-items: center;
   gap: 8px;
   background: ${T.terra};
-  color: #ffffff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   padding: 11px 20px;
@@ -76,7 +76,7 @@ export const PrimaryLink = styled(Link)`
   transition: background 0.15s ease;
 
   &:hover {
-    background: #ae6341;
+    background: ${T.terraDk};
   }
 `
 

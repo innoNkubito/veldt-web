@@ -8,6 +8,7 @@ import ActivityDetailsTab from './tabs/DetailsTab'
 import ActivityPageContentTab from './tabs/ActivityPageContentTab'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 type ActivityTab = 'details' | 'content'
 
@@ -66,7 +67,7 @@ export default function ActivityDetailPage() {
           {saving && <S.SavingBadge>Saving…</S.SavingBadge>}
           {confirmDelete ? (
             <>
-              <span style={{ fontSize: 12, color: '#dc2626' }}>Delete this activity?</span>
+              <span style={{ fontSize: 12, color: T.danger }}>Delete this activity?</span>
               <S.TopBarBtn $danger onClick={handleDelete}>Yes, delete</S.TopBarBtn>
               <S.TopBarBtn onClick={() => setConfirmDelete(false)}>Cancel</S.TopBarBtn>
             </>

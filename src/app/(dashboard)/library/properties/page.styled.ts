@@ -55,7 +55,7 @@ export const SearchInput = styled.input`
 export const CreateButton = styled.button`
   padding: 8px 16px;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   border: none;
   border-radius: 7px;
   font-size: 13px;

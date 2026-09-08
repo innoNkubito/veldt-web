@@ -8,6 +8,7 @@ import AboutUsDetailsTab from './tabs/DetailsTab'
 import AboutUsPageContentTab from './tabs/AboutUsPageContentTab'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 type AboutUsTab = 'details' | 'content'
 
@@ -66,7 +67,7 @@ export default function AboutUsDetailPage() {
           {saving && <S.SavingBadge>Saving…</S.SavingBadge>}
           {confirmDelete ? (
             <>
-              <span style={{ fontSize: 12, color: '#dc2626' }}>Delete this page?</span>
+              <span style={{ fontSize: 12, color: T.danger }}>Delete this page?</span>
               <S.TopBarBtn $danger onClick={handleDelete}>Yes, delete</S.TopBarBtn>
               <S.TopBarBtn onClick={() => setConfirmDelete(false)}>Cancel</S.TopBarBtn>
             </>

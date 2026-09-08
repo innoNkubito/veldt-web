@@ -38,7 +38,7 @@ export const CreateButton = styled.button`
   border-radius: 7px;
   border: none;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

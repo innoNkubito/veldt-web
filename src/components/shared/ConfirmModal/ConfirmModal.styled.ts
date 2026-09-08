@@ -75,10 +75,10 @@ export const ConfirmButton = styled.button<{ $danger?: boolean }>`
   padding: 9px 22px;
   border-radius: 7px;
   border: none;
-  background: ${({ $danger }) => ($danger ? '#dc2626' : T.terra)};
+  background: ${({ $danger }) => ($danger ? T.danger : T.terra)};
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: ${T.onBrand};
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
   transition: filter 0.12s;

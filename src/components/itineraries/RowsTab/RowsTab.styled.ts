@@ -49,7 +49,7 @@ export const Row = styled.div<{ $last?: boolean }>`
   min-height: 120px;
 
   &:hover > * {
-    background: #fdfaf6;
+    background: ${T.card};
   }
 `
 
@@ -146,7 +146,7 @@ export const DateEditSave = styled.button`
   border: none;
   border-radius: 4px;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 11px;
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;
@@ -234,12 +234,12 @@ export const ActionItem = styled.button<{ $danger?: boolean }>`
   text-align: left;
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
-  color: ${({ $danger }) => ($danger ? '#DC2626' : T.text)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.text)};
   cursor: pointer;
   transition: background 0.1s;
 
   &:hover {
-    background: ${({ $danger }) => ($danger ? '#fef2f2' : T.dim)};
+    background: ${({ $danger }) => ($danger ? T.dangerLt : T.dim)};
   }
 `
 
@@ -331,7 +331,7 @@ export const AddRowSave = styled.button`
   border: none;
   border-radius: 6px;
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-family: 'DM Sans', sans-serif;
   cursor: pointer;

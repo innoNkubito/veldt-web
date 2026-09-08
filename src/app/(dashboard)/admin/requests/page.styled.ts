@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { T } from '@/lib/theme'
+import { T, ACCENT } from '@/lib/theme'
 
 export const PageRoot = styled.div`
   padding: 2rem;
@@ -34,9 +34,9 @@ export const StaffBadge = styled.span`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: #efe3f5;
-  color: #6b3f86;
-  border: 1px solid #ddc9e8;
+  background: ${ACCENT.plum.bg};
+  color: ${ACCENT.plum.fg};
+  border: 1px solid ${ACCENT.plum.border};
   margin-left: 10px;
   vertical-align: middle;
 `
@@ -160,9 +160,9 @@ export const ErrorBanner = styled.div`
   margin-bottom: 16px;
   padding: 10px 16px;
   border-radius: 8px;
-  background: #fbe9e9;
-  border: 1px solid #f3c6c6;
-  color: #b91c1c;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
   font-size: 12.5px;
 `
 
@@ -287,9 +287,9 @@ export const PipelineStep = styled.button<{ $state: 'done' | 'current' | 'todo' 
     ${({ $state }) =>
       $state === 'current' ? T.terra : $state === 'done' ? T.sage : T.border};
   background: ${({ $state }) =>
-    $state === 'current' ? T.terraLt : $state === 'done' ? '#e5efe4' : T.card};
+    $state === 'current' ? T.terraLt : $state === 'done' ? T.successLt : T.card};
   color: ${({ $state }) =>
-    $state === 'current' ? T.terra : $state === 'done' ? '#3d6b39' : T.sub};
+    $state === 'current' ? T.terra : $state === 'done' ? T.successDk : T.sub};
 `
 
 // ── Fields ────────────────────────────────────────────────────
@@ -375,9 +375,9 @@ export const Hint = styled.div`
 export const Callout = styled.div`
   padding: 12px 14px;
   border-radius: 8px;
-  background: #e5efe4;
-  border: 1px solid #c3ddc0;
-  color: #3d6b39;
+  background: ${T.successLt};
+  border: 1px solid ${T.successBd};
+  color: ${T.successDk};
   font-size: 12.5px;
   line-height: 1.55;
 `
@@ -398,7 +398,7 @@ export const PrimaryButton = styled.button<{ $disabled?: boolean }>`
   border-radius: 8px;
   border: none;
   background: ${({ $disabled }) => ($disabled ? T.muted : T.terra)};
-  color: #fff;
+  color: ${T.onBrand};
   font-size: 13px;
   font-weight: 600;
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
@@ -410,7 +410,7 @@ export const DangerLink = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  color: #dc2626;
+  color: ${T.danger};
   font-size: 12.5px;
   font-family: 'DM Sans', sans-serif;
   padding: 8px 4px;
@@ -469,7 +469,7 @@ export const LinkAction = styled.button<{ $danger?: boolean }>`
   font-size: 11.5px;
   font-family: 'DM Sans', sans-serif;
   padding: 0;
-  color: ${({ $danger }) => ($danger ? '#dc2626' : T.teal)};
+  color: ${({ $danger }) => ($danger ? T.danger : T.teal)};
   white-space: nowrap;
   &:hover { text-decoration: underline; }
 `

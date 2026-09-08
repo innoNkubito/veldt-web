@@ -21,9 +21,9 @@ export const ActionButton = styled.button<{
     $variant === 'primary'
       ? `
         background: ${T.terra};
-        color: #fff;
+        color: ${T.onBrand};
         border: none;
-        &:hover:not(:disabled) { background: #AE6341; }
+        &:hover:not(:disabled) { background: ${T.terraDk}; }
       `
       : $variant === 'ghost'
         ? `

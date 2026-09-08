@@ -14,6 +14,7 @@ import {
 } from '@/stores/bookingsStore'
 import * as S from './page.styled'
 import { recordFrom } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 type TabKey = 'ALL' | 'REQUESTS' | 'AWAITING' | 'CONFIRMED' | 'OVERDUE' | 'CANCELLED'
 type SortKey = 'createdAt' | 'clientName' | 'total' | 'balanceDue' | 'nextDue'
@@ -212,8 +213,8 @@ function BookingDrawer({ booking, onClose }: { booking: Booking; onClose: () => 
 
                 <S.InstallmentActions>
                   <S.StatusChip
-                    $color={overdue ? '#b91c1c' : meta.color}
-                    $bg={overdue ? '#fbe9e9' : meta.bg}
+                    $color={overdue ? T.dangerDk : meta.color}
+                    $bg={overdue ? T.dangerLt : meta.bg}
                   >
                     {overdue ? 'Overdue' : meta.label}
                   </S.StatusChip>

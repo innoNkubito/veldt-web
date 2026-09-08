@@ -10,6 +10,7 @@ import PageContentTab from './tabs/PageContentTab'
 import RoomsTab from './tabs/RoomsTab'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { T } from '@/lib/theme'
 
 type DetailTab = 'details' | 'rooms' | 'content'
 
@@ -81,7 +82,7 @@ export default function PropertyDetailPage() {
           {saving && <S.SavingBadge>Saving…</S.SavingBadge>}
           {confirmDelete ? (
             <>
-              <span style={{ fontSize: 12, color: '#dc2626' }}>Delete this property?</span>
+              <span style={{ fontSize: 12, color: T.danger }}>Delete this property?</span>
               <S.TopBarBtn $danger onClick={handleDelete}>Yes, delete</S.TopBarBtn>
               <S.TopBarBtn onClick={() => setConfirmDelete(false)}>Cancel</S.TopBarBtn>
             </>

@@ -74,7 +74,7 @@ export const OperatorChip = styled.div`
 
 export const NewBtn = styled.button`
   background: ${T.terra};
-  color: #fff;
+  color: ${T.onBrand};
   border: none;
   border-radius: 7px;
   padding: 8px 18px;
@@ -96,13 +96,13 @@ export const Avatar = styled.div`
   width: 33px;
   height: 33px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e8c98a, #c4704a);
+  background: linear-gradient(135deg, ${T.warningBd}, ${T.terra});
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: ${T.onBrand};
   flex-shrink: 0;
   cursor: pointer;
   user-select: none;
@@ -166,7 +166,7 @@ export const AvatarDropdownDivider = styled.div`
 `;
 
 export const AvatarDropdownSignOut = styled(AvatarDropdownItem)`
-  color: #dc2626;
+  color: ${T.danger};
 `;
 
 export const Backdrop = styled.div`
