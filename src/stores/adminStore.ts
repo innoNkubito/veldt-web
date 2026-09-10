@@ -110,7 +110,7 @@ const GET_REQUESTS = gql`
 
 const RESEND_INVITE = gql`
   mutation ResendOwnerInvitation($id: ID!) {
-    resendOwnerInvitation(id: $id) { sent reason }
+    resendOwnerInvitation(id: $id) { sent reason url }
   }
 `
 
@@ -167,7 +167,9 @@ interface AdminState {
   ) => Promise<string | null>
   reject: (id: string, reason?: string) => Promise<string | null>
   provision: (id: string, input: ProvisionInput) => Promise<ProvisionResult | null>
-  resendInvite: (id: string) => Promise<{ sent: boolean; reason: string | null } | null>
+  resendInvite: (
+    id: string,
+  ) => Promise<{ sent: boolean; reason: string | null; url: string | null } | null>
   setError: (error: string | null) => void
 }
 
@@ -277,7 +279,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     set({ saving: true, error: null })
     try {
       const data = await client.request<{
-        resendOwnerInvitation: { sent: boolean; reason: string | null }
+        resendOwnerInvitation: { sent: boolean; reason: string | null; url: string | null }
       }>(RESEND_INVITE, { id })
       set({ saving: false })
       return data.resendOwnerInvitation

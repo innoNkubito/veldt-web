@@ -67,7 +67,11 @@ function RequestDrawer({
   onClose: () => void
 }) {
   const { setStatus, reject, provision, resendInvite, saving } = useAdminStore()
-  const [resend, setResend] = useState<{ sent: boolean; reason: string | null } | null>(null)
+  const [resend, setResend] = useState<{
+    sent: boolean
+    reason: string | null
+    url: string | null
+  } | null>(null)
 
   async function handleResend() {
     setResend(await resendInvite(request.id))
@@ -245,11 +249,24 @@ function RequestDrawer({
               </S.SecondaryButton>
             </S.Actions>
             {resend && (
-              <S.ResultLine $ok={resend.sent}>
-                {resend.sent
-                  ? `Invitation re-sent to ${request.contactEmail}.`
-                  : resend.reason}
-              </S.ResultLine>
+              <>
+                <S.ResultLine $ok={resend.sent}>
+                  {resend.sent
+                    ? `Invitation re-sent to ${request.contactEmail}.`
+                    : resend.reason}
+                </S.ResultLine>
+                {/* Clerk's email is best-effort, especially on a development
+                    instance. The accept link works regardless, and support is
+                    often already talking to the customer. */}
+                {resend.url && (
+                  <S.InviteLinkBox>
+                    <S.BillingLabel>Accept link — send this if the email doesn&apos;t arrive</S.BillingLabel>
+                    <S.InviteLink href={resend.url} target="_blank" rel="noreferrer">
+                      {resend.url}
+                    </S.InviteLink>
+                  </S.InviteLinkBox>
+                )}
+              </>
             )}
           </S.Section>
         ) : request.status === 'REJECTED' ? (

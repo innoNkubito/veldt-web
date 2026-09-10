@@ -530,3 +530,21 @@ export const ResultLine = styled.p<{ $ok: boolean }>`
   font-size: 12.5px;
   color: ${({ $ok }) => ($ok ? T.successDk : T.dangerDk)};
 `
+
+export const InviteLinkBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: ${T.dim};
+  border-radius: 7px;
+`
+
+export const InviteLink = styled.a`
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: ${T.terra};
+  word-break: break-all;
+  line-height: 1.5;
+`
