@@ -44,6 +44,21 @@ function matchesTab(request: OnboardingRequest, tab: TabKey): boolean {
 
 // ── Detail drawer ───────────────────────────────────────────────
 
+/** Maps live billing state onto the drawer's three tones. */
+function subscriptionTone(status: string): 'good' | 'warn' | 'bad' | undefined {
+  if (status === 'ACTIVE' || status === 'TRIALING') return 'good'
+  if (status === 'PAST_DUE') return 'warn'
+  if (status === 'SUSPENDED' || status === 'CANCELLED') return 'bad'
+  return undefined
+}
+
+function invoiceTone(status: string | null): 'good' | 'warn' | 'bad' | undefined {
+  if (status === 'PAID') return 'good'
+  if (status === 'SENT' || status === 'DRAFT') return 'warn'
+  if (status === 'OVERDUE') return 'bad'
+  return undefined
+}
+
 function RequestDrawer({
   request,
   onClose,
@@ -51,7 +66,12 @@ function RequestDrawer({
   request: OnboardingRequest
   onClose: () => void
 }) {
-  const { setStatus, reject, provision, saving } = useAdminStore()
+  const { setStatus, reject, provision, resendInvite, saving } = useAdminStore()
+  const [resend, setResend] = useState<{ sent: boolean; reason: string | null } | null>(null)
+
+  async function handleResend() {
+    setResend(await resendInvite(request.id))
+  }
 
   const [slug, setSlug] = useState(request.proposedSlug)
   const [tier, setTier] = useState<SubscriptionTier>(request.requestedTier)
@@ -62,7 +82,13 @@ function RequestDrawer({
 
   const meta = REQUEST_STATUS_CONFIG[request.status]
   const isClosed = request.status === 'PROVISIONED' || request.status === 'REJECTED'
-  const currentStep = PIPELINE.indexOf(request.status)
+  // Rows created before billing state moved off the request can still carry
+  // INVOICED or PAID. They sit past review, so show the pipeline complete
+  // rather than indexOf's -1, which would render every step as not-yet-done.
+  const currentStep =
+    request.status === 'INVOICED' || request.status === 'PAID'
+      ? PIPELINE.length - 1
+      : PIPELINE.indexOf(request.status)
 
   async function handleProvision() {
     const parsedAmount = parseFloat(amount)
@@ -171,6 +197,60 @@ function RequestDrawer({
               Workspace created — slug <strong>{request.proposedSlug}</strong>. An owner
               invitation was sent to {request.contactEmail}.
             </S.Callout>
+
+            {/* Billing is read from the subscription, not from this request's
+                status — the tenant goes live before the first invoice settles,
+                so this is the only honest view of whether they have paid. */}
+            {request.billing && (
+              <S.BillingGrid>
+                <S.BillingCell>
+                  <S.BillingLabel>Subscription</S.BillingLabel>
+                  <S.BillingValue $tone={subscriptionTone(request.billing.subscriptionStatus)}>
+                    {request.billing.subscriptionStatus}
+                  </S.BillingValue>
+                </S.BillingCell>
+                <S.BillingCell>
+                  <S.BillingLabel>First invoice</S.BillingLabel>
+                  <S.BillingValue $tone={invoiceTone(request.billing.invoiceStatus)}>
+                    {request.billing.invoiceStatus ?? 'None raised'}
+                  </S.BillingValue>
+                </S.BillingCell>
+                {request.billing.amountDue != null && (
+                  <S.BillingCell>
+                    <S.BillingLabel>Amount</S.BillingLabel>
+                    <S.BillingValue>
+                      {request.billing.currency} {request.billing.amountDue.toFixed(2)}
+                    </S.BillingValue>
+                  </S.BillingCell>
+                )}
+                {request.billing.invoiceNumber && (
+                  <S.BillingCell>
+                    <S.BillingLabel>Number</S.BillingLabel>
+                    <S.BillingValue>{request.billing.invoiceNumber}</S.BillingValue>
+                  </S.BillingCell>
+                )}
+              </S.BillingGrid>
+            )}
+
+            {request.billing?.invoiceStatus == null && (
+              <S.Hint>
+                No invoice exists for this operator — nothing is being charged. Raise one
+                from the Operators screen.
+              </S.Hint>
+            )}
+
+            <S.Actions>
+              <S.SecondaryButton onClick={handleResend} disabled={saving}>
+                {saving ? 'Sending…' : 'Resend owner invitation'}
+              </S.SecondaryButton>
+            </S.Actions>
+            {resend && (
+              <S.ResultLine $ok={resend.sent}>
+                {resend.sent
+                  ? `Invitation re-sent to ${request.contactEmail}.`
+                  : resend.reason}
+              </S.ResultLine>
+            )}
           </S.Section>
         ) : request.status === 'REJECTED' ? (
           <S.Section>
@@ -195,8 +275,8 @@ function RequestDrawer({
                 ))}
               </S.PipelineRow>
               <S.Hint>
-                Move the request along as you confirm details and send the invoice. Provision
-                only once payment has settled.
+                Move the request along as you confirm details. Provisioning creates the
+                workspace and sends the first invoice — billing is chased from there.
               </S.Hint>
             </S.Section>
 

@@ -473,3 +473,60 @@ export const LinkAction = styled.button<{ $danger?: boolean }>`
   white-space: nowrap;
   &:hover { text-decoration: underline; }
 `
+
+// ── Billing state on a provisioned request ────────────────────
+
+export const BillingGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+`
+
+export const BillingCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+`
+
+export const BillingLabel = styled.span`
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: ${T.muted};
+`
+
+export const BillingValue = styled.span<{ $tone?: 'good' | 'warn' | 'bad' }>`
+  font-size: 13px;
+  font-weight: 600;
+  color: ${({ $tone }) =>
+    $tone === 'good' ? T.successDk : $tone === 'warn' ? T.goldDk : $tone === 'bad' ? T.dangerDk : T.text};
+`
+
+export const SecondaryButton = styled.button`
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid ${T.border};
+  background: ${T.card};
+  color: ${T.sub};
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: ${T.dim};
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+`
+
+export const ResultLine = styled.p<{ $ok: boolean }>`
+  margin: 0.625rem 0 0;
+  font-size: 12.5px;
+  color: ${({ $ok }) => ($ok ? T.successDk : T.dangerDk)};
+`

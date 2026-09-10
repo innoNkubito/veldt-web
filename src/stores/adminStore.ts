@@ -18,6 +18,17 @@ export type OnboardingRequestStatus =
   | 'PROVISIONED'
   | 'REJECTED'
 
+/** Live billing state, resolved server-side from the operator's subscription. */
+export interface RequestBilling {
+  subscriptionStatus: string
+  invoiceNumber: string | null
+  invoiceStatus: string | null
+  amountDue: number | null
+  currency: string | null
+  dueDate: string | null
+  payToken: string | null
+}
+
 export interface OnboardingRequest {
   id: string
   status: OnboardingRequestStatus
@@ -37,6 +48,7 @@ export interface OnboardingRequest {
   reviewedAt: string | null
   reviewedByName: string | null
   operatorId: string | null
+  billing: RequestBilling | null
   createdAt: string
   updatedAt: string
 }
@@ -62,13 +74,16 @@ export const REQUEST_STATUS_CONFIG: Record<
   REJECTED: { label: 'Rejected', color: T.muted, bg: T.dim },
 }
 
-/** Statuses that move a request forward, in order. */
-export const PIPELINE: OnboardingRequestStatus[] = [
-  'SUBMITTED',
-  'IN_REVIEW',
-  'INVOICED',
-  'PAID',
-]
+/**
+ * Review stages support moves a request through, in order.
+ *
+ * INVOICED and PAID were here too, which made them look like steps someone was
+ * meant to click. They never were: billing is trust-first, so the tenant is
+ * created before any invoice settles, and nothing in the system reads either
+ * value. Real billing state now comes back on `billing` and is displayed
+ * rather than set by hand.
+ */
+export const PIPELINE: OnboardingRequestStatus[] = ['SUBMITTED', 'IN_REVIEW']
 
 const REQUEST_FIELDS = `
   id status companyName proposedSlug country website
@@ -76,6 +91,10 @@ const REQUEST_FIELDS = `
   requestedTier requestedInterval
   notes internalNotes rejectionReason
   reviewedAt reviewedByName operatorId
+  billing {
+    subscriptionStatus invoiceNumber invoiceStatus
+    amountDue currency dueDate payToken
+  }
   createdAt updatedAt
 `
 
@@ -86,6 +105,12 @@ const IS_ADMIN = gql`
 const GET_REQUESTS = gql`
   query OnboardingRequests {
     onboardingRequests { ${REQUEST_FIELDS} }
+  }
+`
+
+const RESEND_INVITE = gql`
+  mutation ResendOwnerInvitation($id: ID!) {
+    resendOwnerInvitation(id: $id) { sent reason }
   }
 `
 
@@ -123,6 +148,7 @@ export interface ProvisionResult {
   slug: string
   invitationSent: boolean
   alreadyProvisioned: boolean
+  firstInvoiceIssued: boolean
 }
 
 interface AdminState {
@@ -141,6 +167,7 @@ interface AdminState {
   ) => Promise<string | null>
   reject: (id: string, reason?: string) => Promise<string | null>
   provision: (id: string, input: ProvisionInput) => Promise<ProvisionResult | null>
+  resendInvite: (id: string) => Promise<{ sent: boolean; reason: string | null } | null>
   setError: (error: string | null) => void
 }
 
@@ -233,6 +260,29 @@ export const useAdminStore = create<AdminState>((set, get) => ({
       return data.provisionOperatorFromRequest
     } catch (err) {
       set({ saving: false, error: gqlErrorMessage(err, 'Failed to provision operator') })
+      return null
+    }
+  },
+
+  /**
+   * Re-sends the owner invitation for a provisioned request.
+   *
+   * Invitation delivery is the step of provisioning most likely to fail
+   * quietly — a bounced address or an expired link leaves a paid-for tenant
+   * nobody can reach, and until now support's only recourse was Clerk itself.
+   */
+  resendInvite: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true, error: null })
+    try {
+      const data = await client.request<{
+        resendOwnerInvitation: { sent: boolean; reason: string | null }
+      }>(RESEND_INVITE, { id })
+      set({ saving: false })
+      return data.resendOwnerInvitation
+    } catch (err) {
+      set({ saving: false, error: gqlErrorMessage(err, 'Failed to resend the invitation') })
       return null
     }
   },
