@@ -101,8 +101,9 @@ function RequestDrawer({
     const ok = await confirmDialog({
       title: 'Provision this operator?',
       message:
-        `This creates the workspace for ${request.companyName} and emails an owner ` +
-        `invitation to ${request.contactEmail}. Only do this once the first invoice is settled.`,
+        `This creates the workspace for ${request.companyName}, emails an owner ` +
+        `invitation to ${request.contactEmail}, and raises and sends their first ` +
+        `invoice. They get access straight away — payment is chased from there.`,
       confirmLabel: 'Provision',
     })
     if (!ok) return
