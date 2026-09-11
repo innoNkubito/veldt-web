@@ -29,8 +29,10 @@ function firstGraphQLMessage(err: unknown): string | null {
 
 /**
  * Resolves an error to a message for display.
- * Server-side error prefixes (VALIDATION:, FORBIDDEN:, NOT_FOUND:) are stripped
- * so the text reads naturally in the UI.
+ * Server-side error prefixes (VALIDATION:, FORBIDDEN:, SEAT_LIMIT: and the
+ * rest) are stripped so the text reads naturally in the UI. The seat and
+ * subscription errors carry the message a user actually needs to act on, so
+ * leaving their prefix on would put machine vocabulary in front of it.
  */
 export function gqlErrorMessage(err: unknown, fallback: string): string {
   const message =
@@ -38,5 +40,8 @@ export function gqlErrorMessage(err: unknown, fallback: string): string {
     (isRecord(err) && typeof err.message === 'string' ? err.message : null)
 
   if (!message) return fallback
-  return message.replace(/^(VALIDATION|FORBIDDEN|NOT_FOUND|UNAUTHENTICATED|CONFIG): /, '')
+  return message.replace(
+    /^(VALIDATION|FORBIDDEN|NOT_FOUND|UNAUTHENTICATED|CONFIG|SEAT_LIMIT|OWNER_REQUIRED|SUBSCRIPTION_REQUIRED): /,
+    '',
+  )
 }

@@ -45,6 +45,12 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: "M9 2v6M15 2v6M9 22v-4a3 3 0 0 1-3-3V8h12v7a3 3 0 0 1-3 3v4",
         ownerOnly: true,
       },
+      {
+        label: "Team",
+        href: "/team",
+        icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+        ownerOnly: true,
+      },
     ],
   },
   {
