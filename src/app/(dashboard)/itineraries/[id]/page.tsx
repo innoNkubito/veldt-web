@@ -13,6 +13,9 @@ import CostsTab from '@/components/itineraries/CostsTab'
 import BookingTab from '@/components/itineraries/BookingTab'
 import PreviewTab from '@/components/itineraries/PreviewTab'
 import PublishModal from '@/components/itineraries/PublishModal'
+import ConfirmTripModal from '@/components/itineraries/ConfirmTripModal'
+import { confirmDialog } from '@/stores/confirmStore'
+import type { TripDetailsInput } from '@/stores/builderStore'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
@@ -33,12 +36,22 @@ export default function ItineraryBuilderPage() {
   const id = routeParam(params?.id)
 
   const client = useClientStore((s) => s.client)
-  const { itinerary, loading, error, saving, fetchItinerary, publishItinerary } = useBuilderStore()
+  const {
+    itinerary,
+    loading,
+    error,
+    saving,
+    fetchItinerary,
+    publishItinerary,
+    setItineraryStatus,
+    restoreItinerary,
+  } = useBuilderStore()
 
   const [activeTab, setActiveTab] = useState<BuilderTab>('overview')
   const [showPublish, setShowPublish] = useState(false)
   const [publishError, setPublishError] = useState<string | null>(null)
   const [publishing, setPublishing] = useState(false)
+  const [showConfirmTrip, setShowConfirmTrip] = useState(false)
 
   useEffect(() => {
     if (client && id) fetchItinerary(id)
@@ -58,8 +71,50 @@ export default function ItineraryBuilderPage() {
     }
   }
 
+  async function handleConfirmTrip(trip: TripDetailsInput) {
+    if (!itinerary) return null
+    const err = await setItineraryStatus(itinerary.id, 'CONFIRMED', trip)
+    if (!err) {
+      setShowConfirmTrip(false)
+      setPublishError(null)
+    }
+    return err
+  }
+
+  async function handleUndoConfirm() {
+    if (!itinerary) return
+    const ok = await confirmDialog({
+      title: 'Undo confirmation?',
+      message:
+        'The trip goes back to being a published proposal. The traveller details and dates are kept.',
+      confirmLabel: 'Undo Confirmation',
+    })
+    if (!ok) return
+    setPublishError(await setItineraryStatus(itinerary.id, 'PUBLISHED'))
+  }
+
+  async function handleArchive() {
+    if (!itinerary) return
+    const ok = await confirmDialog({
+      title: 'Archive this itinerary?',
+      message:
+        'It leaves the working list and its share link stops working. You can restore it from the Archived tab.',
+      confirmLabel: 'Archive',
+      danger: true,
+    })
+    if (!ok) return
+    setPublishError(await setItineraryStatus(itinerary.id, 'ARCHIVED'))
+  }
+
+  async function handleRestore() {
+    if (!itinerary) return
+    setPublishError(await restoreItinerary(itinerary.id))
+  }
+
   const statusMeta = STATUS_META[itinerary?.status ?? ''] ?? { color: T.muted, bg: T.dim }
   const isDraft = itinerary?.status === 'DRAFT'
+  const isArchived = itinerary?.status === 'ARCHIVED'
+  const canArchive = !!itinerary && !isDraft && !isArchived
 
   if (loading) {
     return (
@@ -99,7 +154,7 @@ export default function ItineraryBuilderPage() {
 
         <S.HeaderActions>
           {saving && <S.SaveIndicator>Saving…</S.SaveIndicator>}
-          {itinerary?.status !== 'DRAFT' && (
+          {!isDraft && !isArchived && (
             <ActionButton
               onClick={() =>
                 navigator.clipboard.writeText(`${window.location.origin}/view/${itinerary?.slug}`)
@@ -113,9 +168,24 @@ export default function ItineraryBuilderPage() {
               Publish
             </ActionButton>
           )}
+          {canArchive && (
+            <ActionButton onClick={handleArchive} disabled={saving}>
+              Archive
+            </ActionButton>
+          )}
+          {itinerary?.status === 'CONFIRMED' && (
+            <ActionButton onClick={handleUndoConfirm} disabled={saving}>
+              Undo Confirmation
+            </ActionButton>
+          )}
           {itinerary?.status === 'PUBLISHED' && (
-            <ActionButton $variant="primary" onClick={() => itinerary && publishItinerary(itinerary.id)}>
+            <ActionButton $variant="primary" onClick={() => setShowConfirmTrip(true)}>
               Mark Confirmed
+            </ActionButton>
+          )}
+          {isArchived && (
+            <ActionButton $variant="primary" onClick={handleRestore} disabled={saving}>
+              Restore
             </ActionButton>
           )}
         </S.HeaderActions>
@@ -163,6 +233,15 @@ export default function ItineraryBuilderPage() {
           onConfirm={handlePublish}
           onCancel={() => setShowPublish(false)}
           loading={publishing}
+        />
+      )}
+
+      {/* ── Confirm trip modal ───────────────────────────────── */}
+      {showConfirmTrip && itinerary && (
+        <ConfirmTripModal
+          itinerary={itinerary}
+          onSubmit={handleConfirmTrip}
+          onCancel={() => setShowConfirmTrip(false)}
         />
       )}
     </S.PageRoot>

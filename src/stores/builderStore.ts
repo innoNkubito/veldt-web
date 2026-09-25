@@ -18,12 +18,46 @@ export interface ItineraryFull {
   slug: string
   createdAt: string
   updatedAt: string
+  clientEmail: string | null
+  clientPhone: string | null
+  startDate: string | null // YYYY-MM-DD
+  endDate: string | null // YYYY-MM-DD
+  confirmedAt: string | null
+  archivedAt: string | null
   assignedTo: { id: string; firstName: string | null; lastName: string | null } | null
   viewCount: number
   rows: ItineraryRow[]
   infoPageSlots: ItineraryInfoPageSlot[]
   costs: ItineraryCosts | null
 }
+
+export type ItineraryStatus =
+  | 'DRAFT'
+  | 'PUBLISHED'
+  | 'CONFIRMED'
+  | 'TRAVELLING'
+  | 'COMPLETED'
+  | 'ARCHIVED'
+
+/** Sent with a status change; confirming requires the email and both dates. */
+export interface TripDetailsInput {
+  clientEmail?: string | null
+  clientPhone?: string | null
+  startDate?: string | null
+  endDate?: string | null
+}
+
+/** What a status change returns — merged over the loaded itinerary. */
+type ItineraryStatusFields = Pick<
+  ItineraryFull,
+  | 'status'
+  | 'clientEmail'
+  | 'clientPhone'
+  | 'startDate'
+  | 'endDate'
+  | 'confirmedAt'
+  | 'archivedAt'
+>
 
 export interface ItineraryRow {
   id: string
@@ -111,6 +145,11 @@ export interface ItineraryCosts {
 
 // ── GQL ────────────────────────────────────────────────────────
 
+// Everything a status change can alter, so the header re-renders from one response.
+const STATUS_FIELDS = `
+  status clientEmail clientPhone startDate endDate confirmedAt archivedAt
+`
+
 const GET_ITINERARY = gql`
   query GetItinerary($id: ID!) {
     itinerary(id: $id) {
@@ -126,6 +165,7 @@ const GET_ITINERARY = gql`
       slug
       createdAt
       updatedAt
+      ${STATUS_FIELDS}
       viewCount
       assignedTo { id firstName lastName }
       rows {
@@ -166,6 +206,22 @@ const UPDATE_ITINERARY = gql`
   mutation UpdateItinerary($id: ID!, $input: UpdateItineraryInput!) {
     updateItinerary(id: $id, input: $input) {
       id proposalTitle preparedFor travelDates whiteLabel internalNotes status
+    }
+  }
+`
+
+const SET_ITINERARY_STATUS = gql`
+  mutation SetItineraryStatus($id: ID!, $status: ItineraryStatus!, $trip: TripDetailsInput) {
+    setItineraryStatus(id: $id, status: $status, trip: $trip) {
+      id ${STATUS_FIELDS}
+    }
+  }
+`
+
+const RESTORE_ITINERARY = gql`
+  mutation RestoreItinerary($id: ID!) {
+    restoreItinerary(id: $id) {
+      id ${STATUS_FIELDS}
     }
   }
 `
@@ -343,11 +399,17 @@ interface BuilderState {
     travelDates?: string
     whiteLabel?: boolean
     internalNotes?: string
-    status?: string
     assignedToId?: string
     mobileAppChoice?: string
   }) => Promise<void>
   publishItinerary: (id: string) => Promise<string | null>
+  /** Moves the itinerary to another status; returns an error message or null. */
+  setItineraryStatus: (
+    id: string,
+    status: ItineraryStatus,
+    trip?: TripDetailsInput,
+  ) => Promise<string | null>
+  restoreItinerary: (id: string) => Promise<string | null>
 
   addRow: (itineraryId: string, input: {
     dateLabel?: string
@@ -492,6 +554,44 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const msg = gqlErrorMessage(err, 'Failed to publish')
       set({ saving: false })
       return msg
+    }
+  },
+
+  setItineraryStatus: async (id, status, trip) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ setItineraryStatus: ItineraryStatusFields }>(
+        SET_ITINERARY_STATUS, { id, status, trip: trip ?? null }
+      )
+      set((s) => ({
+        itinerary: s.itinerary ? { ...s.itinerary, ...data.setItineraryStatus } : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to update status')
+    }
+  },
+
+  restoreItinerary: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ restoreItinerary: ItineraryStatusFields }>(
+        RESTORE_ITINERARY, { id }
+      )
+      set((s) => ({
+        itinerary: s.itinerary ? { ...s.itinerary, ...data.restoreItinerary } : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to restore')
     }
   },
 
