@@ -33,6 +33,7 @@ export default function OverviewTab() {
     whiteLabel: itinerary?.whiteLabel ?? false,
   })
   const [dirty, setDirty] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     if (itinerary) {
@@ -50,28 +51,34 @@ export default function OverviewTab() {
   function set(key: keyof typeof form, value: string | boolean) {
     setForm((f) => ({ ...f, [key]: value }))
     setDirty(true)
+    setSaveError(null)
   }
 
   async function handleSave() {
     if (!itinerary) return
-    await updateItinerary(itinerary.id, {
+    const err = await updateItinerary(itinerary.id, {
       proposalTitle: form.proposalTitle,
       preparedFor: form.preparedFor || undefined,
       travelDates: form.travelDates || undefined,
       internalNotes: form.internalNotes || undefined,
       whiteLabel: form.whiteLabel,
     })
-    setDirty(false)
+    // On failure the edits stay in the form so they can be corrected and resaved.
+    setSaveError(err)
+    if (!err) setDirty(false)
   }
 
   const saveButton = dirty ? (
-    <ActionButton
-      $variant="primary"
-      onClick={handleSave}
-      $disabled={saving || !form.proposalTitle.trim()}
-    >
-      {saving ? 'Saving…' : 'Save Changes'}
-    </ActionButton>
+    <>
+      {saveError && <S.SaveError>{saveError}</S.SaveError>}
+      <ActionButton
+        $variant="primary"
+        onClick={handleSave}
+        $disabled={saving || !form.proposalTitle.trim()}
+      >
+        {saving ? 'Saving…' : 'Save Changes'}
+      </ActionButton>
+    </>
   ) : null
 
   return (

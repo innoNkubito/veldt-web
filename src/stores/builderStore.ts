@@ -24,11 +24,64 @@ export interface ItineraryFull {
   endDate: string | null // YYYY-MM-DD
   confirmedAt: string | null
   archivedAt: string | null
+  noFlights: boolean
+  flights: FlightSegment[]
   assignedTo: { id: string; firstName: string | null; lastName: string | null } | null
   viewCount: number
   rows: ItineraryRow[]
   infoPageSlots: ItineraryInfoPageSlot[]
   costs: ItineraryCosts | null
+}
+
+export type FlightDirection = 'ARRIVAL' | 'DEPARTURE' | 'INTERNAL'
+
+/** Times are as printed on the ticket: local wall-clock at the airport + its zone. */
+export interface FlightSegment {
+  id: string
+  direction: FlightDirection
+  airline: string
+  flightNumber: string
+  departureAirport: string
+  arrivalAirport: string
+  departsLocal: string | null // YYYY-MM-DDTHH:mm
+  departsZone: string | null
+  departsAt: string | null // UTC, ordering only
+  arrivesLocal: string | null
+  arrivesZone: string | null
+  arrivesAt: string | null
+  bookingReference: string | null
+  travellerName: string | null
+  notes: string | null
+  source: 'OPERATOR' | 'TRAVELLER'
+  confirmedByOperator: boolean
+  position: number
+  updatedAt: string
+}
+
+/** Every field is replaced on save; blank optionals clear. A time with no zone takes the airport's. */
+export interface FlightSegmentInput {
+  direction: FlightDirection
+  airline: string
+  flightNumber: string
+  departureAirport: string
+  arrivalAirport: string
+  departsLocal: string | null
+  departsZone: string | null
+  arrivesLocal: string | null
+  arrivesZone: string | null
+  bookingReference: string | null
+  travellerName: string | null
+  notes: string | null
+}
+
+/** Editable from the Trip tab. Once confirmed, the email and dates cannot be cleared. */
+export interface TripDetailsUpdate extends TripDetailsInput {
+  noFlights?: boolean
+}
+
+export interface AirportZone {
+  code: string
+  zone: string
 }
 
 export type ItineraryStatus =
@@ -57,6 +110,7 @@ type ItineraryStatusFields = Pick<
   | 'endDate'
   | 'confirmedAt'
   | 'archivedAt'
+  | 'noFlights'
 >
 
 export interface ItineraryRow {
@@ -147,7 +201,13 @@ export interface ItineraryCosts {
 
 // Everything a status change can alter, so the header re-renders from one response.
 const STATUS_FIELDS = `
-  status clientEmail clientPhone startDate endDate confirmedAt archivedAt
+  status clientEmail clientPhone startDate endDate confirmedAt archivedAt noFlights
+`
+
+const FLIGHT_FIELDS = `
+  id direction airline flightNumber departureAirport arrivalAirport
+  departsLocal departsZone departsAt arrivesLocal arrivesZone arrivesAt
+  bookingReference travellerName notes source confirmedByOperator position updatedAt
 `
 
 const GET_ITINERARY = gql`
@@ -166,6 +226,7 @@ const GET_ITINERARY = gql`
       createdAt
       updatedAt
       ${STATUS_FIELDS}
+      flights { ${FLIGHT_FIELDS} }
       viewCount
       assignedTo { id firstName lastName }
       rows {
@@ -207,6 +268,38 @@ const UPDATE_ITINERARY = gql`
     updateItinerary(id: $id, input: $input) {
       id proposalTitle preparedFor travelDates whiteLabel internalNotes status
     }
+  }
+`
+
+const UPDATE_TRIP_DETAILS = gql`
+  mutation UpdateTripDetails($id: ID!, $input: UpdateItineraryInput!) {
+    updateItinerary(id: $id, input: $input) {
+      id ${STATUS_FIELDS}
+    }
+  }
+`
+
+const ADD_FLIGHT = gql`
+  mutation AddFlightSegment($itineraryId: ID!, $input: FlightSegmentInput!) {
+    addFlightSegment(itineraryId: $itineraryId, input: $input) { ${FLIGHT_FIELDS} }
+  }
+`
+
+const UPDATE_FLIGHT = gql`
+  mutation UpdateFlightSegment($id: ID!, $input: FlightSegmentInput!) {
+    updateFlightSegment(id: $id, input: $input) { ${FLIGHT_FIELDS} }
+  }
+`
+
+const DELETE_FLIGHT = gql`
+  mutation DeleteFlightSegment($id: ID!) {
+    deleteFlightSegment(id: $id)
+  }
+`
+
+const AIRPORT_ZONES = gql`
+  query AirportZones {
+    airportZones { code zone }
   }
 `
 
@@ -401,7 +494,7 @@ interface BuilderState {
     internalNotes?: string
     assignedToId?: string
     mobileAppChoice?: string
-  }) => Promise<void>
+  }) => Promise<string | null>
   publishItinerary: (id: string) => Promise<string | null>
   /** Moves the itinerary to another status; returns an error message or null. */
   setItineraryStatus: (
@@ -410,6 +503,14 @@ interface BuilderState {
     trip?: TripDetailsInput,
   ) => Promise<string | null>
   restoreItinerary: (id: string) => Promise<string | null>
+
+  // ── Trip (from CONFIRMED) — each returns an error message or null ──
+  airportZones: AirportZone[]
+  fetchAirportZones: () => Promise<void>
+  updateTripDetails: (id: string, input: TripDetailsUpdate) => Promise<string | null>
+  addFlight: (itineraryId: string, input: FlightSegmentInput) => Promise<string | null>
+  updateFlight: (id: string, input: FlightSegmentInput) => Promise<string | null>
+  deleteFlight: (id: string) => Promise<string | null>
 
   addRow: (itineraryId: string, input: {
     dateLabel?: string
@@ -520,9 +621,12 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }
   },
 
+  // Returns an error message rather than setting `error`: that field drives the
+  // page-level load failure screen, so a rejected save would replace the whole
+  // builder instead of showing next to the form.
   updateItinerary: async (id, input) => {
     const client = useClientStore.getState().client
-    if (!client) return
+    if (!client) return null
     set({ saving: true })
     try {
       const data = await client.request<{ updateItinerary: Partial<ItineraryFull> }>(
@@ -532,8 +636,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         itinerary: s.itinerary ? { ...s.itinerary, ...data.updateItinerary } : null,
         saving: false,
       }))
+      return null
     } catch (err) {
-      set({ error: gqlErrorMessage(err, 'Failed to save'), saving: false })
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to save')
     }
   },
 
@@ -592,6 +698,104 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     } catch (err) {
       set({ saving: false })
       return gqlErrorMessage(err, 'Failed to restore')
+    }
+  },
+
+  airportZones: [],
+
+  fetchAirportZones: async () => {
+    const client = useClientStore.getState().client
+    if (!client || get().airportZones.length > 0) return
+    try {
+      const data = await client.request<{ airportZones: AirportZone[] }>(AIRPORT_ZONES)
+      set({ airportZones: data.airportZones })
+    } catch {
+      // Non-fatal: the form falls back to choosing every zone by hand.
+    }
+  },
+
+  updateTripDetails: async (id, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ updateItinerary: ItineraryStatusFields }>(
+        UPDATE_TRIP_DETAILS, { id, input }
+      )
+      set((s) => ({
+        itinerary: s.itinerary ? { ...s.itinerary, ...data.updateItinerary } : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to save trip details')
+    }
+  },
+
+  addFlight: async (itineraryId, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ addFlightSegment: FlightSegment }>(
+        ADD_FLIGHT, { itineraryId, input }
+      )
+      set((s) => ({
+        itinerary: s.itinerary
+          ? { ...s.itinerary, flights: sortFlights([...s.itinerary.flights, data.addFlightSegment]) }
+          : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to add flight')
+    }
+  },
+
+  updateFlight: async (id, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ updateFlightSegment: FlightSegment }>(
+        UPDATE_FLIGHT, { id, input }
+      )
+      set((s) => ({
+        itinerary: s.itinerary
+          ? {
+              ...s.itinerary,
+              flights: sortFlights(
+                s.itinerary.flights.map((f) => (f.id === id ? data.updateFlightSegment : f)),
+              ),
+            }
+          : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to save flight')
+    }
+  },
+
+  deleteFlight: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      await client.request(DELETE_FLIGHT, { id })
+      set((s) => ({
+        itinerary: s.itinerary
+          ? { ...s.itinerary, flights: s.itinerary.flights.filter((f) => f.id !== id) }
+          : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to delete flight')
     }
   },
 
@@ -881,3 +1085,15 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }
   },
 }))
+
+/** Same order as the API: by UTC departure (untimed last), then entry order. */
+function sortFlights(flights: FlightSegment[]): FlightSegment[] {
+  return [...flights].sort((a, b) => {
+    if (a.departsAt && b.departsAt) {
+      if (a.departsAt !== b.departsAt) return a.departsAt < b.departsAt ? -1 : 1
+    } else if (a.departsAt || b.departsAt) {
+      return a.departsAt ? -1 : 1
+    }
+    return a.position - b.position
+  })
+}

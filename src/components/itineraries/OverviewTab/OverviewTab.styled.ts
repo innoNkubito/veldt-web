@@ -41,3 +41,10 @@ export const ShareInputRow = styled.div`
   align-items: center;
   gap: 10px;
 `
+
+export const SaveError = styled.div`
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: ${T.dangerDk};
+  margin: 14px 0 10px;
+`

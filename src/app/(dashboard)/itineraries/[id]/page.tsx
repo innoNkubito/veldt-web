@@ -12,6 +12,7 @@ import RowsTab from '@/components/itineraries/RowsTab'
 import CostsTab from '@/components/itineraries/CostsTab'
 import BookingTab from '@/components/itineraries/BookingTab'
 import PreviewTab from '@/components/itineraries/PreviewTab'
+import TripTab from '@/components/itineraries/TripTab'
 import PublishModal from '@/components/itineraries/PublishModal'
 import ConfirmTripModal from '@/components/itineraries/ConfirmTripModal'
 import { confirmDialog } from '@/stores/confirmStore'
@@ -20,10 +21,11 @@ import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
 
-type BuilderTab = 'overview' | 'rows' | 'costs' | 'booking' | 'preview'
+type BuilderTab = 'overview' | 'trip' | 'rows' | 'costs' | 'booking' | 'preview'
 
 const TABS: { key: BuilderTab; label: string }[] = [
   { key: 'overview', label: 'Overview' },
+  { key: 'trip', label: 'Trip' },
   { key: 'rows', label: 'Day-by-Day' },
   { key: 'costs', label: 'Costs' },
   { key: 'booking', label: 'Booking' },
@@ -114,6 +116,14 @@ export default function ItineraryBuilderPage() {
   const statusMeta = STATUS_META[itinerary?.status ?? ''] ?? { color: T.muted, bg: T.dim }
   const isDraft = itinerary?.status === 'DRAFT'
   const isArchived = itinerary?.status === 'ARCHIVED'
+  // The trip is run from CONFIRMED on; before that it is still a proposal.
+  const showTrip =
+    itinerary?.status === 'CONFIRMED' ||
+    itinerary?.status === 'TRAVELLING' ||
+    itinerary?.status === 'COMPLETED'
+  const visibleTabs = TABS.filter((t) => t.key !== 'trip' || showTrip)
+  // Undoing a confirmation hides the tab; fall back rather than render nothing.
+  const currentTab: BuilderTab = activeTab === 'trip' && !showTrip ? 'overview' : activeTab
   const canArchive = !!itinerary && !isDraft && !isArchived
 
   if (loading) {
@@ -213,19 +223,20 @@ export default function ItineraryBuilderPage() {
 
       {/* ── Tabs ────────────────────────────────────────────── */}
       <S.TabBar>
-        {TABS.map(({ key, label }) => (
-          <S.Tab key={key} $active={activeTab === key} onClick={() => setActiveTab(key)}>
+        {visibleTabs.map(({ key, label }) => (
+          <S.Tab key={key} $active={currentTab === key} onClick={() => setActiveTab(key)}>
             {label}
           </S.Tab>
         ))}
       </S.TabBar>
 
       {/* ── Tab panels ──────────────────────────────────────── */}
-      {activeTab === 'overview' && <OverviewTab />}
-      {activeTab === 'rows' && <RowsTab />}
-      {activeTab === 'costs' && <CostsTab />}
-      {activeTab === 'booking' && <BookingTab />}
-      {activeTab === 'preview' && <PreviewTab />}
+      {currentTab === 'overview' && <OverviewTab />}
+      {currentTab === 'trip' && <TripTab />}
+      {currentTab === 'rows' && <RowsTab />}
+      {currentTab === 'costs' && <CostsTab />}
+      {currentTab === 'booking' && <BookingTab />}
+      {currentTab === 'preview' && <PreviewTab />}
 
       {/* ── Publish modal ────────────────────────────────────── */}
       {showPublish && (
