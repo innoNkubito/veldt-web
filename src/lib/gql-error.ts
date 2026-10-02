@@ -28,20 +28,30 @@ function firstGraphQLMessage(err: unknown): string | null {
 }
 
 /**
+ * The prefixes the API puts on messages written for the user to read.
+ *
+ * Anything without one was never meant to be shown: a resolver crash
+ * ("Cannot read properties of undefined…"), a query the schema rejects, a
+ * network failure, or a JS error thrown while handling the response. Those
+ * fall back to the caller's message, which says what the user was doing.
+ */
+const USER_FACING = /^(VALIDATION|FORBIDDEN|NOT_FOUND|UNAUTHENTICATED|CONFIG|SEAT_LIMIT|OWNER_REQUIRED|SUBSCRIPTION_REQUIRED|PAYMENT):\s*/
+
+/**
  * Resolves an error to a message for display.
- * Server-side error prefixes (VALIDATION:, FORBIDDEN:, SEAT_LIMIT: and the
- * rest) are stripped so the text reads naturally in the UI. The seat and
- * subscription errors carry the message a user actually needs to act on, so
- * leaving their prefix on would put machine vocabulary in front of it.
+ *
+ * Shows the API's own message when it is one written for the user, with its
+ * prefix stripped so the text reads naturally. Otherwise returns `fallback`,
+ * which should name the operation that failed ("Could not save this flight")
+ * — and logs the real error, so it is not lost.
  */
 export function gqlErrorMessage(err: unknown, fallback: string): string {
-  const message =
-    firstGraphQLMessage(err) ??
-    (isRecord(err) && typeof err.message === 'string' ? err.message : null)
+  const message = firstGraphQLMessage(err)
+  const match = message ? USER_FACING.exec(message) : null
 
-  if (!message) return fallback
-  return message.replace(
-    /^(VALIDATION|FORBIDDEN|NOT_FOUND|UNAUTHENTICATED|CONFIG|SEAT_LIMIT|OWNER_REQUIRED|SUBSCRIPTION_REQUIRED): /,
-    '',
-  )
+  if (!message || !match) {
+    console.error(`[gql] ${fallback}:`, message ?? err)
+    return fallback
+  }
+  return message.slice(match[0].length).trim() || fallback
 }

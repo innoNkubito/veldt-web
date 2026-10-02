@@ -104,7 +104,7 @@ export const useItineraryStore = create<ItineraryState>((set, get) => ({
       set({ itineraries: data.itineraries, loading: false })
     } catch (err) {
       set({
-        error: gqlErrorMessage(err, 'Failed to fetch'),
+        error: gqlErrorMessage(err, 'Could not load your itineraries'),
         loading: false,
       })
     }
@@ -123,7 +123,7 @@ export const useItineraryStore = create<ItineraryState>((set, get) => ({
       }))
       return data.createItinerary
     } catch (err) {
-      set({ error: gqlErrorMessage(err, 'Failed to create') })
+      set({ error: gqlErrorMessage(err, 'Could not create the itinerary') })
       return null
     }
   },

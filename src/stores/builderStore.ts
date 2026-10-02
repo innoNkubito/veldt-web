@@ -92,6 +92,16 @@ export type ItineraryStatus =
   | 'COMPLETED'
   | 'ARCHIVED'
 
+/** What failed, by the status that was being moved to. */
+const STATUS_CHANGE_FALLBACK: Record<ItineraryStatus, string> = {
+  DRAFT: 'Could not move this itinerary back to draft',
+  PUBLISHED: 'Could not undo the confirmation',
+  CONFIRMED: 'Could not confirm this trip',
+  TRAVELLING: 'Could not start this trip',
+  COMPLETED: 'Could not complete this trip',
+  ARCHIVED: 'Could not archive this itinerary',
+}
+
 /** Sent with a status change; confirming requires the email and both dates. */
 export interface TripDetailsInput {
   clientEmail?: string | null
@@ -604,7 +614,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const data = await client.request<{ itinerary: ItineraryFull }>(GET_ITINERARY, { id })
       set({ itinerary: data.itinerary, loading: false })
     } catch (err) {
-      set({ error: gqlErrorMessage(err, 'Failed to load'), loading: false })
+      set({ error: gqlErrorMessage(err, 'Could not load this itinerary'), loading: false })
     }
   },
 
@@ -639,7 +649,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       return null
     } catch (err) {
       set({ saving: false })
-      return gqlErrorMessage(err, 'Failed to save')
+      return gqlErrorMessage(err, 'Could not save the itinerary details')
     }
   },
 
@@ -657,7 +667,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       }))
       return null
     } catch (err) {
-      const msg = gqlErrorMessage(err, 'Failed to publish')
+      const msg = gqlErrorMessage(err, 'Could not publish this itinerary')
       set({ saving: false })
       return msg
     }
@@ -678,7 +688,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       return null
     } catch (err) {
       set({ saving: false })
-      return gqlErrorMessage(err, 'Failed to update status')
+      return gqlErrorMessage(err, STATUS_CHANGE_FALLBACK[status])
     }
   },
 
@@ -697,7 +707,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       return null
     } catch (err) {
       set({ saving: false })
-      return gqlErrorMessage(err, 'Failed to restore')
+      return gqlErrorMessage(err, 'Could not restore this itinerary')
     }
   },
 
@@ -1081,7 +1091,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         }
       })
     } catch (err) {
-      set({ error: gqlErrorMessage(err, 'Failed to reorder') })
+      set({ error: gqlErrorMessage(err, 'Could not reorder the information pages') })
     }
   },
 }))
