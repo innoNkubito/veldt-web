@@ -87,3 +87,6 @@ export function emergencyContactLabel(contact: EmergencyContact): string {
 
 /** A dialable tel: link — spaces, dashes and brackets removed. */
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`
+
+/** A WhatsApp chat link — wa.me takes the number as digits only, no "+". */
+export const whatsappHref = (number: string) => `https://wa.me/${number.replace(/\D/g, '')}`

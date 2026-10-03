@@ -21,6 +21,14 @@ export interface TripContact {
   email: string | null
 }
 
+/** The operator's own contact details; null fields are not set. */
+export interface OperatorContact {
+  name: string
+  phone: string | null
+  whatsapp: string | null
+  email: string | null
+}
+
 /** The day-by-day fields the dashboard needs to place tonight's stay. */
 export interface TripRow {
   id: string
@@ -53,6 +61,7 @@ export interface TravelDashboardItinerary {
   rows: TripRow[]
   flights: TripFlight[]
   tripContact: TripContact | null
+  operatorContact: OperatorContact | null
   emergencyContacts: EmergencyContact[]
 }
 

@@ -14,6 +14,7 @@ import {
   type TeamMember,
   type UserRole,
 } from '@/stores/teamStore'
+import OperatorContactCard from './OperatorContactCard'
 import * as S from './page.styled'
 
 function initials(first: string | null, last: string | null, fallback: string): string {
@@ -478,6 +479,8 @@ export default function TeamPage() {
           )}
         </S.Card>
       </S.Section>
+
+      <OperatorContactCard canEdit={canManage} />
 
       {invitations.length > 0 && (
         <S.Section>

@@ -2,6 +2,7 @@
 
 import type {
   EmergencyContact,
+  OperatorContact,
   TripContact,
   TripFlight,
 } from '@/components/itineraries/TravelDashboard'
@@ -67,6 +68,8 @@ export interface PublicItinerary {
   flights: TripFlight[]
   /** Null until the trip is under way. */
   tripContact: TripContact | null
+  /** The operator's own contact details; null until the trip is under way or when none are set. */
+  operatorContact: OperatorContact | null
   /** Property emergency contacts; empty until the trip is under way. */
   emergencyContacts: EmergencyContact[]
   infoPageSlots: InfoPageSlot[]

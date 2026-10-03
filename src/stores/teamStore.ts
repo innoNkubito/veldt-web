@@ -90,6 +90,32 @@ const INVITATION_FIELDS = `
   createdAt
 `
 
+/** How travellers reach the operator; null fields are not set. */
+export interface OperatorContact {
+  name: string
+  phone: string | null
+  whatsapp: string | null
+  email: string | null
+}
+
+export interface OperatorContactInput {
+  phone: string | null
+  whatsapp: string | null
+  email: string | null
+}
+
+const OPERATOR_CONTACT = gql`
+  query OperatorContact {
+    operatorContact { name phone whatsapp email }
+  }
+`
+
+const UPDATE_OPERATOR_CONTACT = gql`
+  mutation UpdateOperatorContact($input: OperatorContactInput!) {
+    updateOperatorContact(input: $input) { name phone whatsapp email }
+  }
+`
+
 const TEAM = gql`
   query Team {
     team {
@@ -157,6 +183,11 @@ interface State {
     note?: string,
   ) => Promise<{ sent: boolean; message: string }>
   clearError: () => void
+
+  operatorContact: OperatorContact | null
+  fetchOperatorContact: () => Promise<void>
+  /** Returns an error message, or null once saved. */
+  updateOperatorContact: (input: OperatorContactInput) => Promise<string | null>
 }
 
 export const useTeamStore = create<State>((set, get) => ({
@@ -166,6 +197,36 @@ export const useTeamStore = create<State>((set, get) => ({
   error: null,
 
   clearError: () => set({ error: null }),
+
+  operatorContact: null,
+
+  fetchOperatorContact: async () => {
+    const client = useClientStore.getState().client
+    if (!client) return
+    try {
+      const data = await client.request<{ operatorContact: OperatorContact | null }>(OPERATOR_CONTACT)
+      set({ operatorContact: data.operatorContact })
+    } catch (err) {
+      set({ error: gqlErrorMessage(err, 'Could not load your contact details.') })
+    }
+  },
+
+  updateOperatorContact: async (input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ updateOperatorContact: OperatorContact | null }>(
+        UPDATE_OPERATOR_CONTACT,
+        { input },
+      )
+      set({ operatorContact: data.updateOperatorContact, saving: false })
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Could not save your contact details.')
+    }
+  },
 
   fetchTeam: async () => {
     const client = useClientStore.getState().client

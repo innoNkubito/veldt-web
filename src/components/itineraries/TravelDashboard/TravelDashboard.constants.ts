@@ -22,6 +22,9 @@ export const COPY = {
   noStayTonight: 'No accommodation listed for tonight.',
   emergency: 'In an emergency',
   contact: 'Your travel advisor',
+  operatorContact: 'Contact us',
+  phone: 'Phone',
+  whatsapp: 'WhatsApp',
   bookingRef: 'Ref',
   timeTbc: 'Time to be confirmed',
 } as const

@@ -3,7 +3,13 @@
 import * as S from './TravelDashboard.styled'
 import { useTravelDashboard } from './useTravelDashboard'
 import { COPY, DIRECTION_LABELS, TRIP_SECTION_ID } from './TravelDashboard.constants'
-import { contactName, emergencyContactLabel, flightTime, telHref } from './TravelDashboard.utils'
+import {
+  contactName,
+  emergencyContactLabel,
+  flightTime,
+  telHref,
+  whatsappHref,
+} from './TravelDashboard.utils'
 import type { TravelDashboardProps, TripFlight } from './TravelDashboard.types'
 
 function FlightSummary({ flight }: { flight: TripFlight }) {
@@ -34,6 +40,7 @@ export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
     useTravelDashboard(itinerary)
   const contact = itinerary.tripContact
   const contactLabel = contact ? contactName(contact.name, contact.email) : null
+  const operator = itinerary.operatorContact
 
   return (
     <S.Block id={TRIP_SECTION_ID} data-cover-id={TRIP_SECTION_ID}>
@@ -88,6 +95,28 @@ export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
             <S.CardTitle>{contactLabel}</S.CardTitle>
             {contact?.email && (
               <S.CardLink href={`mailto:${contact.email}`}>{contact.email}</S.CardLink>
+            )}
+          </S.Card>
+        )}
+        {operator && (
+          <S.Card>
+            <S.CardLabel>{COPY.operatorContact}</S.CardLabel>
+            <S.CardTitle>{operator.name}</S.CardTitle>
+            {operator.phone && (
+              <S.CardText>
+                {COPY.phone}: <S.CardLink href={telHref(operator.phone)}>{operator.phone}</S.CardLink>
+              </S.CardText>
+            )}
+            {operator.whatsapp && (
+              <S.CardText>
+                {COPY.whatsapp}:{' '}
+                <S.CardLink href={whatsappHref(operator.whatsapp)} target="_blank" rel="noopener noreferrer">
+                  {operator.whatsapp}
+                </S.CardLink>
+              </S.CardText>
+            )}
+            {operator.email && (
+              <S.CardLink href={`mailto:${operator.email}`}>{operator.email}</S.CardLink>
             )}
           </S.Card>
         )}
