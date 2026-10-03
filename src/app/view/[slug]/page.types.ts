@@ -1,0 +1,73 @@
+/** The public share-link query's response shape. */
+
+export interface Room {
+  id: string
+  roomType: string
+  description: string | null
+  photos: string[]
+}
+
+export interface FullContentPage {
+  id: string
+  name: string
+  type: string
+  coverImageUrl: string | null
+  pageContent: unknown
+  rooms: Room[]
+}
+
+export interface InfoPageSlot {
+  id: string
+  slot: string
+  position: number
+  contentPage: FullContentPage
+}
+
+export interface PublicRow {
+  id: string
+  position: number
+  dateLabel: string | null
+  startDate: string | null
+  numNights: number | null
+  transfersText: string | null
+  activitiesRichText: Record<string, unknown> | null
+  accommodationsRichText: Record<string, unknown> | null
+  areaPage: { id: string; name: string } | null
+  activities: {
+    id: string
+    position: number
+    contentPage: FullContentPage
+  }[]
+  accommodations: {
+    id: string
+    position: number
+    contentPage: FullContentPage
+    room: { id: string; roomType: string } | null
+    areaPage: { id: string; name: string } | null
+  }[]
+}
+
+export interface PublicItinerary {
+  id: string
+  proposalTitle: string
+  preparedFor: string | null
+  travelDates: string | null
+  whiteLabel: boolean
+  slug: string
+  infoPageSlots: InfoPageSlot[]
+  rows: PublicRow[]
+  costs: {
+    pricePerPerson: number | null
+    numGuests: number
+    accommodationType: string | null
+    currency: string
+    costsToBeDetetermined: boolean
+    costIncludes: string | null
+    costExcludes: string | null
+    costNotes: string | null
+    notesVisible: boolean
+    miscText: string | null
+    miscVisible: boolean
+    priceVisible: boolean
+  } | null
+}
