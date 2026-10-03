@@ -6,9 +6,14 @@ export function lowestPackagePrice(options: PublicBookingOptions | null): number
   return available.length > 0 ? Math.min(...available.map((p) => p.price)) : null
 }
 
-/** Booking is offered unless the operator has switched it off. */
+/**
+ * Booking is offered on a confirmed trip (the API returns no options otherwise)
+ * unless the operator has switched it off. Booking through Veldt also needs a
+ * package with places left, so the block disappears once the trip is booked.
+ */
 export function isBookable(options: PublicBookingOptions | null): options is PublicBookingOptions {
-  return !!options && options.bookingMode !== 'OFF'
+  if (!options || options.bookingMode === 'OFF') return false
+  return options.bookingMode !== 'VELDT' || lowestPackagePrice(options) != null
 }
 
 export const bookingPath = (slug: string) => `/view/${slug}/book`

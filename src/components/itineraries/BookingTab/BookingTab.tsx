@@ -50,6 +50,9 @@ interface BookingForm {
   reminderDaysBefore: number[]
 }
 
+const BOOKING_OPENS_HINT =
+  'Travellers see the booking option once you confirm the trip, until it starts. Before that the link shows the proposal only.'
+
 const FLOW_TYPES: readonly BookingFlowType[] = ['INSTANT', 'REQUEST']
 const SURCHARGE_PAYERS: readonly SurchargePayer[] = ['CLIENT', 'OPERATOR']
 
@@ -342,6 +345,7 @@ export default function BookingTab() {
         <S.CardTitleRow>
           <S.CardTitle>Make Bookable</S.CardTitle>
         </S.CardTitleRow>
+        <S.CardHint>{BOOKING_OPENS_HINT}</S.CardHint>
 
         <S.ModeRow>
           {MODES.map((mode) => (
