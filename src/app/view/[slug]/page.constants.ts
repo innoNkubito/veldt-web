@@ -11,6 +11,7 @@ export const GET_BY_SLUG = gql`
       id proposalTitle preparedFor travelDates whiteLabel slug
       status startDate endDate
       tripContact { name email }
+      emergencyContacts { id pageId role name phone email }
       flights {
         id direction airline flightNumber departureAirport arrivalAirport
         departsLocal departsZone departsAt arrivesLocal arrivesZone

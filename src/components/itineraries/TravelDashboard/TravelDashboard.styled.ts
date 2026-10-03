@@ -91,6 +91,18 @@ export const CardLink = styled.a`
   }
 `
 
+export const Emergency = styled.div`
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid ${T.border};
+`
+
+export const EmergencyLine = styled.div`
+  font-size: 13px;
+  color: ${T.text};
+  line-height: 1.6;
+`
+
 export const SectionLabel = styled.h2`
   font-size: 11px;
   font-weight: 700;

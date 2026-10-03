@@ -1,6 +1,10 @@
 /** The public share-link query's response shape. */
 
-import type { TripContact, TripFlight } from '@/components/itineraries/TravelDashboard'
+import type {
+  EmergencyContact,
+  TripContact,
+  TripFlight,
+} from '@/components/itineraries/TravelDashboard'
 
 export interface Room {
   id: string
@@ -63,6 +67,8 @@ export interface PublicItinerary {
   flights: TripFlight[]
   /** Null until the trip is under way. */
   tripContact: TripContact | null
+  /** Property emergency contacts; empty until the trip is under way. */
+  emergencyContacts: EmergencyContact[]
   infoPageSlots: InfoPageSlot[]
   rows: PublicRow[]
   costs: {

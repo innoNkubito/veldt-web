@@ -3,7 +3,7 @@
 import * as S from './TravelDashboard.styled'
 import { useTravelDashboard } from './useTravelDashboard'
 import { COPY, DIRECTION_LABELS, TRIP_SECTION_ID } from './TravelDashboard.constants'
-import { contactName, flightTime } from './TravelDashboard.utils'
+import { contactName, emergencyContactLabel, flightTime, telHref } from './TravelDashboard.utils'
 import type { TravelDashboardProps, TripFlight } from './TravelDashboard.types'
 
 function FlightSummary({ flight }: { flight: TripFlight }) {
@@ -30,7 +30,8 @@ function FlightSummary({ flight }: { flight: TripFlight }) {
  * who to contact. Read-only once the trip is complete.
  */
 export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
-  const { phase, completed, dateRange, daysToGo, tonight, next } = useTravelDashboard(itinerary)
+  const { phase, completed, dateRange, daysToGo, tonight, tonightContacts, next } =
+    useTravelDashboard(itinerary)
   const contact = itinerary.tripContact
   const contactLabel = contact ? contactName(contact.name, contact.email) : null
 
@@ -57,6 +58,22 @@ export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
               <S.CardText>{COPY.noStayTonight}</S.CardText>
             )}
             {tonight.area && <S.CardText>{tonight.area}</S.CardText>}
+            {tonightContacts.length > 0 && (
+              <S.Emergency>
+                <S.CardLabel>{COPY.emergency}</S.CardLabel>
+                {tonightContacts.map((contact) => (
+                  <S.EmergencyLine key={contact.id}>
+                    {emergencyContactLabel(contact)}
+                    {contact.phone && (
+                      <> · <S.CardLink href={telHref(contact.phone)}>{contact.phone}</S.CardLink></>
+                    )}
+                    {contact.email && (
+                      <> · <S.CardLink href={`mailto:${contact.email}`}>{contact.email}</S.CardLink></>
+                    )}
+                  </S.EmergencyLine>
+                ))}
+              </S.Emergency>
+            )}
           </S.Card>
         )}
         {next && (

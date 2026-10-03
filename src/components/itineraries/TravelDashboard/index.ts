@@ -1,2 +1,2 @@
 export { default } from './TravelDashboard'
-export type { TripContact, TripFlight } from './TravelDashboard.types'
+export type { EmergencyContact, TripContact, TripFlight } from './TravelDashboard.types'

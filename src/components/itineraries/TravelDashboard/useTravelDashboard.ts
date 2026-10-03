@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  contactsFor,
   daysUntil,
   formatTripRange,
   localToday,
@@ -24,12 +25,15 @@ export function useTravelDashboard(itinerary: TravelDashboardItinerary) {
     const completed = itinerary.status === 'COMPLETED'
     const phase = completed ? 'after' : tripPhase(today, startDate, endDate)
 
+    const tonight = phase === 'during' && startDate ? tonightStay(itinerary.rows, startDate, today) : null
+
     return {
       phase,
+      tonight,
+      tonightContacts: tonight ? contactsFor(itinerary.emergencyContacts, tonight.pageIds) : [],
       completed,
       dateRange: startDate && endDate ? formatTripRange(startDate, endDate) : null,
       daysToGo: phase === 'before' && startDate ? daysUntil(today, startDate) : null,
-      tonight: phase === 'during' && startDate ? tonightStay(itinerary.rows, startDate, today) : null,
       next: completed ? null : nextFlight(itinerary.flights, now.getTime()),
     }
   }, [itinerary, now])

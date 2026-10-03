@@ -31,9 +31,19 @@ export interface TripRow {
   accommodations: {
     id: string
     position: number
-    contentPage: { name: string }
+    contentPage: { id: string; name: string }
     room: { roomType: string } | null
   }[]
+}
+
+/** A property's EMERGENCY contact; `pageId` is the property. */
+export interface EmergencyContact {
+  id: string
+  pageId: string
+  role: string | null
+  name: string | null
+  phone: string | null
+  email: string | null
 }
 
 export interface TravelDashboardItinerary {
@@ -43,6 +53,7 @@ export interface TravelDashboardItinerary {
   rows: TripRow[]
   flights: TripFlight[]
   tripContact: TripContact | null
+  emergencyContacts: EmergencyContact[]
 }
 
 export interface TravelDashboardProps {
@@ -56,4 +67,6 @@ export interface TonightStay {
   dayNumber: number
   area: string | null
   stays: string[]
+  /** The properties stayed at tonight, for matching their emergency contacts. */
+  pageIds: string[]
 }

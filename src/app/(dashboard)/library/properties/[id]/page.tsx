@@ -8,15 +8,17 @@ import { useAuth } from '@clerk/nextjs'
 import DetailsTab from './tabs/DetailsTab'
 import PageContentTab from './tabs/PageContentTab'
 import RoomsTab from './tabs/RoomsTab'
+import ContactsTab from './tabs/ContactsTab'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
 import { T } from '@/lib/theme'
 
-type DetailTab = 'details' | 'rooms' | 'content'
+type DetailTab = 'details' | 'rooms' | 'contacts' | 'content'
 
 const TABS: { key: DetailTab; label: string }[] = [
   { key: 'details', label: 'Details' },
   { key: 'rooms', label: 'Rooms' },
+  { key: 'contacts', label: 'Contacts' },
   { key: 'content', label: 'New Page' },
 ]
 
@@ -102,6 +104,11 @@ export default function PropertyDetailPage() {
         {activeTab === 'rooms' && (
           <S.TabBody>
             <RoomsTab property={property!} />
+          </S.TabBody>
+        )}
+        {activeTab === 'contacts' && (
+          <S.TabBody>
+            <ContactsTab property={property!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (

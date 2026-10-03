@@ -35,6 +35,27 @@ export interface PropertyListItem {
   createdAt: string
 }
 
+export type ContactType = 'EMERGENCY' | 'OFFICE'
+
+export interface PropertyContact {
+  id: string
+  contactType: ContactType
+  role: string | null
+  name: string | null
+  phone: string | null
+  email: string | null
+  position: number
+}
+
+/** Every field is replaced on save. Needs a phone or an email. */
+export interface ContactInput {
+  contactType: ContactType
+  role: string | null
+  name: string | null
+  phone: string | null
+  email: string | null
+}
+
 export interface PropertyFull {
   id: string
   name: string
@@ -47,6 +68,7 @@ export interface PropertyFull {
   pageContent: unknown
   area: { id: string; name: string } | null
   rooms: PropertyRoom[]
+  contacts: PropertyContact[]
   createdAt: string
   updatedAt: string
 }
@@ -67,6 +89,8 @@ const LIST_PROPERTIES = gql`
     }
   }
 `
+
+const CONTACT_FIELDS = 'id contactType role name phone email position'
 
 const GET_PROPERTY = gql`
   query GetProperty($id: ID!) {
@@ -91,6 +115,7 @@ const GET_PROPERTY = gql`
         videos { name url }
         position
       }
+      contacts { ${CONTACT_FIELDS} }
     }
   }
 `
@@ -169,6 +194,24 @@ const UPDATE_ROOM = gql`
   }
 `
 
+const ADD_CONTACT = gql`
+  mutation AddContentPageContact($pageId: ID!, $input: ContentPageContactInput!) {
+    addContentPageContact(pageId: $pageId, input: $input) { ${CONTACT_FIELDS} }
+  }
+`
+
+const UPDATE_CONTACT = gql`
+  mutation UpdateContentPageContact($id: ID!, $input: ContentPageContactInput!) {
+    updateContentPageContact(id: $id, input: $input) { ${CONTACT_FIELDS} }
+  }
+`
+
+const DELETE_CONTACT = gql`
+  mutation DeleteContentPageContact($id: ID!) {
+    deleteContentPageContact(id: $id)
+  }
+`
+
 const DELETE_ROOM = gql`
   mutation DeleteRoom($id: ID!) {
     deletePropertyRoom(id: $id)
@@ -195,6 +238,10 @@ interface ContentLibraryState {
   addRoom: (pageId: string, input: RoomInput) => Promise<void>
   updateRoom: (id: string, input: RoomInput) => Promise<void>
   deleteRoom: (id: string) => Promise<void>
+  // Contacts — each returns an error message or null
+  addContact: (pageId: string, input: ContactInput) => Promise<string | null>
+  updateContact: (id: string, input: ContactInput) => Promise<string | null>
+  deleteContact: (id: string) => Promise<string | null>
 }
 
 export interface UpdatePropertyInput {
@@ -358,6 +405,66 @@ export const useContentLibraryStore = create<ContentLibraryState>((set, get) => 
       }))
     } catch (e) {
       set({ saving: false, error: gqlErrorMessage(e, 'Failed to update room') })
+    }
+  },
+
+  addContact: async (pageId, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ addContentPageContact: PropertyContact }>(ADD_CONTACT, { pageId, input })
+      set((s) => ({
+        saving: false,
+        property: s.property
+          ? { ...s.property, contacts: [...s.property.contacts, data.addContentPageContact] }
+          : s.property,
+      }))
+      return null
+    } catch (e) {
+      set({ saving: false })
+      return gqlErrorMessage(e, 'Could not add this contact')
+    }
+  },
+
+  updateContact: async (id, input) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ updateContentPageContact: PropertyContact }>(UPDATE_CONTACT, { id, input })
+      set((s) => ({
+        saving: false,
+        property: s.property
+          ? {
+              ...s.property,
+              contacts: s.property.contacts.map((c) => (c.id === id ? data.updateContentPageContact : c)),
+            }
+          : s.property,
+      }))
+      return null
+    } catch (e) {
+      set({ saving: false })
+      return gqlErrorMessage(e, 'Could not save this contact')
+    }
+  },
+
+  deleteContact: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      await client.request(DELETE_CONTACT, { id })
+      set((s) => ({
+        saving: false,
+        property: s.property
+          ? { ...s.property, contacts: s.property.contacts.filter((c) => c.id !== id) }
+          : s.property,
+      }))
+      return null
+    } catch (e) {
+      set({ saving: false })
+      return gqlErrorMessage(e, 'Could not delete this contact')
     }
   },
 

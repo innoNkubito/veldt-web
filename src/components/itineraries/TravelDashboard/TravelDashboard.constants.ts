@@ -20,6 +20,7 @@ export const COPY = {
   tonight: 'Tonight',
   dayOf: (day: number) => `Day ${day}`,
   noStayTonight: 'No accommodation listed for tonight.',
+  emergency: 'In an emergency',
   contact: 'Your travel advisor',
   bookingRef: 'Ref',
   timeTbc: 'Time to be confirmed',

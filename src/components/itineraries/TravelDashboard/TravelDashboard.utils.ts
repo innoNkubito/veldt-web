@@ -1,6 +1,12 @@
 import { formatFlightLocal, zoneCity } from '@/lib/flight-time'
 import { DAY_MS, DEFAULT_ROW_NIGHTS, LOCALE, RANGE_FORMAT } from './TravelDashboard.constants'
-import type { TonightStay, TripFlight, TripPhase, TripRow } from './TravelDashboard.types'
+import type {
+  EmergencyContact,
+  TonightStay,
+  TripFlight,
+  TripPhase,
+  TripRow,
+} from './TravelDashboard.types'
 
 /** "YYYY-MM-DD" (or a full ISO string) → that calendar date at UTC midnight, in ms. */
 export function dayValue(date: string): number {
@@ -34,12 +40,14 @@ export function tonightStay(rows: TripRow[], tripStart: string, today: number): 
     const start = row.startDate ? dayValue(row.startDate) : cursor
     const end = start + (row.numNights ?? DEFAULT_ROW_NIGHTS) * DAY_MS
     if (today >= start && today < end) {
+      const accommodations = [...row.accommodations].sort((a, b) => a.position - b.position)
       return {
         dayNumber: Math.round((today - dayValue(tripStart)) / DAY_MS) + 1,
         area: row.areaPage?.name ?? null,
-        stays: [...row.accommodations]
-          .sort((a, b) => a.position - b.position)
-          .map((a) => (a.room ? `${a.contentPage.name} — ${a.room.roomType}` : a.contentPage.name)),
+        stays: accommodations.map((a) =>
+          a.room ? `${a.contentPage.name} — ${a.room.roomType}` : a.contentPage.name,
+        ),
+        pageIds: [...new Set(accommodations.map((a) => a.contentPage.id))],
       }
     }
     cursor = end
@@ -66,3 +74,16 @@ export function formatTripRange(start: string, end: string): string {
 export function contactName(name: string | null, email: string | null): string | null {
   return name ?? email
 }
+
+/** Emergency contacts for the properties stayed at tonight. */
+export function contactsFor(contacts: EmergencyContact[], pageIds: string[]): EmergencyContact[] {
+  return contacts.filter((c) => pageIds.includes(c.pageId))
+}
+
+/** "Jane · Camp Manager" — whichever parts exist. */
+export function emergencyContactLabel(contact: EmergencyContact): string {
+  return [contact.name, contact.role].filter(Boolean).join(' · ')
+}
+
+/** A dialable tel: link — spaces, dashes and brackets removed. */
+export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`
