@@ -12,7 +12,7 @@ import {
   useCoverCrossfade,
 } from '@/components/itineraries/ProposalSections'
 import { GET_BY_SLUG, RECORD_VIEW } from './page.constants'
-import { bookingPath, isBookable, lowestPackagePrice } from './page.utils'
+import { bookingPath, isBookable, isTripMode, lowestPackagePrice } from './page.utils'
 import type { PublicItinerary } from './page.types'
 
 /**
@@ -62,6 +62,7 @@ export function useSharePage() {
     const rows = sortByPosition(itinerary.rows)
     return {
       rows,
+      tripMode: isTripMode(itinerary.status),
       glance: tripGlance(rows),
       taggedPages: collectTaggedPages(rows),
       costs: hasCosts(itinerary.costs) ? itinerary.costs : null,

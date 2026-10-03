@@ -13,6 +13,7 @@ import {
   pluralise,
   taggedId,
 } from '@/components/itineraries/ProposalSections'
+import TravelDashboard from '@/components/itineraries/TravelDashboard'
 import { useSharePage } from './useSharePage'
 import {
   BOOK_SECTION_ID,
@@ -73,6 +74,7 @@ export default function SharePage() {
       </S.CoverPanel>
 
       <S.ViewContent ref={contentRef}>
+        {view.tripMode && <TravelDashboard itinerary={itinerary} />}
         <ProposalCoverPage itinerary={itinerary} dayCount={view.rows.length} glance={view.glance} />
         {[...view.afterCover, ...view.beforeDayByDay].map((slot) => (
           <ContentPageBlock key={slot.id} page={slot.contentPage} blockId={infoSlotId(slot.id)} pageId={slot.contentPage.id} />

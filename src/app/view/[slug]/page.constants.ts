@@ -9,6 +9,13 @@ export const GET_BY_SLUG = gql`
   query GetBySlug($slug: String!) {
     itineraryBySlug(slug: $slug) {
       id proposalTitle preparedFor travelDates whiteLabel slug
+      status startDate endDate
+      tripContact { name email }
+      flights {
+        id direction airline flightNumber departureAirport arrivalAirport
+        departsLocal departsZone departsAt arrivesLocal arrivesZone
+        bookingReference travellerName
+      }
       infoPageSlots {
         id slot position
         contentPage { ${CONTENT_PAGE_FIELDS} }

@@ -108,6 +108,29 @@ export default function ItineraryBuilderPage() {
     setPublishError(await setItineraryStatus(itinerary.id, 'ARCHIVED'))
   }
 
+  async function handleStartTrip() {
+    if (!itinerary) return
+    const ok = await confirmDialog({
+      title: 'Start this trip?',
+      message:
+        'The share link becomes the traveller\u2019s travel dashboard: confirmed flights, where they stay each night and who to contact.',
+      confirmLabel: 'Start Trip',
+    })
+    if (!ok) return
+    setPublishError(await setItineraryStatus(itinerary.id, 'TRAVELLING'))
+  }
+
+  async function handleCompleteTrip() {
+    if (!itinerary) return
+    const ok = await confirmDialog({
+      title: 'Mark this trip complete?',
+      message: 'The travel dashboard stays available to the traveller, read-only.',
+      confirmLabel: 'Complete Trip',
+    })
+    if (!ok) return
+    setPublishError(await setItineraryStatus(itinerary.id, 'COMPLETED'))
+  }
+
   async function handleRestore() {
     if (!itinerary) return
     setPublishError(await restoreItinerary(itinerary.id))
@@ -186,6 +209,16 @@ export default function ItineraryBuilderPage() {
           {itinerary?.status === 'CONFIRMED' && (
             <ActionButton onClick={handleUndoConfirm} disabled={saving}>
               Undo Confirmation
+            </ActionButton>
+          )}
+          {itinerary?.status === 'CONFIRMED' && (
+            <ActionButton $variant="primary" onClick={handleStartTrip} disabled={saving}>
+              Start Trip
+            </ActionButton>
+          )}
+          {itinerary?.status === 'TRAVELLING' && (
+            <ActionButton $variant="primary" onClick={handleCompleteTrip} disabled={saving}>
+              Complete Trip
             </ActionButton>
           )}
           {itinerary?.status === 'PUBLISHED' && (

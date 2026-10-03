@@ -1,0 +1,68 @@
+import { formatFlightLocal, zoneCity } from '@/lib/flight-time'
+import { DAY_MS, DEFAULT_ROW_NIGHTS, LOCALE, RANGE_FORMAT } from './TravelDashboard.constants'
+import type { TonightStay, TripFlight, TripPhase, TripRow } from './TravelDashboard.types'
+
+/** "YYYY-MM-DD" (or a full ISO string) → that calendar date at UTC midnight, in ms. */
+export function dayValue(date: string): number {
+  return Date.parse(`${date.slice(0, 10)}T00:00:00.000Z`)
+}
+
+/** The viewer's own calendar date, as a UTC-midnight value comparable with `dayValue`. */
+export function localToday(now: Date): number {
+  return Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+}
+
+export function tripPhase(today: number, start: string | null, end: string | null): TripPhase {
+  if (!start || !end) return 'undated'
+  if (today < dayValue(start)) return 'before'
+  if (today > dayValue(end)) return 'after'
+  return 'during'
+}
+
+export function daysUntil(today: number, start: string): number {
+  return Math.round((dayValue(start) - today) / DAY_MS)
+}
+
+/**
+ * Where tonight is spent. Each row covers `numNights` nights from its own
+ * start date, or — when it has none — from where the previous row ended
+ * (the first row starts on the trip's start date).
+ */
+export function tonightStay(rows: TripRow[], tripStart: string, today: number): TonightStay | null {
+  let cursor = dayValue(tripStart)
+  for (const row of [...rows].sort((a, b) => a.position - b.position)) {
+    const start = row.startDate ? dayValue(row.startDate) : cursor
+    const end = start + (row.numNights ?? DEFAULT_ROW_NIGHTS) * DAY_MS
+    if (today >= start && today < end) {
+      return {
+        dayNumber: Math.round((today - dayValue(tripStart)) / DAY_MS) + 1,
+        area: row.areaPage?.name ?? null,
+        stays: [...row.accommodations]
+          .sort((a, b) => a.position - b.position)
+          .map((a) => (a.room ? `${a.contentPage.name} — ${a.room.roomType}` : a.contentPage.name)),
+      }
+    }
+    cursor = end
+  }
+  return null
+}
+
+/** The first flight that has not yet departed; flights arrive sorted by departure. */
+export function nextFlight(flights: TripFlight[], now: number): TripFlight | null {
+  return flights.find((f) => f.departsAt && Date.parse(f.departsAt) > now) ?? null
+}
+
+/** "19:15, 12 Oct · London" — as printed on the ticket. */
+export function flightTime(local: string | null, zone: string | null, fallback: string): string {
+  if (!local) return fallback
+  return zone ? `${formatFlightLocal(local)} · ${zoneCity(zone)}` : formatFlightLocal(local)
+}
+
+export function formatTripRange(start: string, end: string): string {
+  const format = (d: string) => new Date(dayValue(d)).toLocaleDateString(LOCALE, RANGE_FORMAT)
+  return `${format(start)} – ${format(end)}`
+}
+
+export function contactName(name: string | null, email: string | null): string | null {
+  return name ?? email
+}

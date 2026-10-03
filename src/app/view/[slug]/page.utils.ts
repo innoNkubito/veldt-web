@@ -12,3 +12,8 @@ export function isBookable(options: PublicBookingOptions | null): options is Pub
 }
 
 export const bookingPath = (slug: string) => `/view/${slug}/book`
+
+/** Once the trip is under way the link leads with the travel dashboard. */
+export function isTripMode(status: string): boolean {
+  return status === 'TRAVELLING' || status === 'COMPLETED'
+}

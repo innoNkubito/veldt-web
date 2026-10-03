@@ -1,5 +1,7 @@
 /** The public share-link query's response shape. */
 
+import type { TripContact, TripFlight } from '@/components/itineraries/TravelDashboard'
+
 export interface Room {
   id: string
   roomType: string
@@ -54,6 +56,13 @@ export interface PublicItinerary {
   travelDates: string | null
   whiteLabel: boolean
   slug: string
+  status: string
+  startDate: string | null // YYYY-MM-DD
+  endDate: string | null // YYYY-MM-DD
+  /** Confirmed flights; empty until the trip is under way. */
+  flights: TripFlight[]
+  /** Null until the trip is under way. */
+  tripContact: TripContact | null
   infoPageSlots: InfoPageSlot[]
   rows: PublicRow[]
   costs: {

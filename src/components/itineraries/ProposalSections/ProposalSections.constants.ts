@@ -28,6 +28,7 @@ export const SECTION_COVERS: Readonly<Record<string, { label: string; title: str
   [DAY_BY_DAY_ID]: { label: 'Day by Day', title: 'Day-by-Day Itinerary' },
   [COSTS_ID]: { label: 'Investment', title: null },
   book: { label: 'Booking', title: null },
+  trip: { label: 'Your Trip', title: null },
 }
 export const EMPTY_COVER: CoverInfo = { url: null, label: DEFAULT_COVER_LABEL, title: '' }
 
