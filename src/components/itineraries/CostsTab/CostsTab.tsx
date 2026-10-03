@@ -36,6 +36,7 @@ export default function CostsTab() {
     accuracyConfirmed: existing?.accuracyConfirmed ?? false,
   })
   const [dirty, setDirty] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     if (existing) {
@@ -65,7 +66,7 @@ export default function CostsTab() {
 
   async function handleSave() {
     if (!itinerary) return
-    await upsertCosts(itinerary.id, {
+    const message = await upsertCosts(itinerary.id, {
       pricePerPerson: form.pricePerPerson ? parseFloat(form.pricePerPerson) : undefined,
       numGuests: parseInt(form.numGuests) || 2,
       accommodationType: form.accommodationType || undefined,
@@ -80,7 +81,8 @@ export default function CostsTab() {
       priceVisible: form.priceVisible,
       accuracyConfirmed: form.accuracyConfirmed,
     })
-    setDirty(false)
+    setSaveError(message)
+    if (!message) setDirty(false)
   }
 
   return (
@@ -104,6 +106,7 @@ export default function CostsTab() {
             <FieldSelect value={form.currency} onChange={(e) => setF('currency', e.target.value)}>
               {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
             </FieldSelect>
+            <S.FieldHint>Also used for packages and payments on the Booking tab.</S.FieldHint>
           </Field>
           <Field>
             <FieldLabel>Number of Guests</FieldLabel>
@@ -169,7 +172,7 @@ export default function CostsTab() {
             <HtmlRichTextEditor
               content={form.costNotes}
               onChange={(html) => setF('costNotes', html)}
-              placeholder="Validity period, payment schedule, cancellation policy…"
+              placeholder="Validity period, cancellation policy…"
             />
             <CheckboxRow style={{ marginTop: 6 }}>
               <input
@@ -222,6 +225,7 @@ export default function CostsTab() {
         </S.ConfirmNote>
       </S.Card>
 
+      {saveError && <S.SaveError>{saveError}</S.SaveError>}
       {dirty && (
         <S.SaveRow>
           <ActionButton $variant="primary" onClick={handleSave} $disabled={saving}>

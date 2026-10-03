@@ -9,7 +9,6 @@ import { useIntegrationsStore, PROCESSOR_META } from '@/stores/integrationsStore
 import { confirmDialog } from '@/stores/confirmStore'
 import {
   useBookingStore,
-  BOOKING_CURRENCIES,
   AMOUNT_TYPE_LABELS,
   type BookingMode,
   type BookingFlowType,
@@ -17,6 +16,7 @@ import {
   type ScheduleAmountType,
   type BookingPackage,
   type BookingAddon,
+  type PackageInput,
   type ScheduleItemInput,
 } from '@/stores/bookingStore'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
@@ -31,6 +31,7 @@ import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import PackageModal from './PackageModal'
 import AddonModal from './AddonModal'
 import * as S from './BookingTab.styled'
+import { packageFromQuote } from './BookingTab.utils'
 import { parseOption, keysOf } from '@/lib/guards'
 
 interface BookingForm {
@@ -38,7 +39,6 @@ interface BookingForm {
   externalUrl: string
   externalContact: string
   flowType: BookingFlowType
-  currency: string
   processorConnectionId: string
   companyInfo: string
   invoiceNotes: string
@@ -52,6 +52,8 @@ interface BookingForm {
 
 const BOOKING_OPENS_HINT =
   'Travellers see the booking option once you confirm the trip, until it starts. Before that the link shows the proposal only.'
+
+const CURRENCY_HINT = 'Set with the quote on the Costs tab.'
 
 const FLOW_TYPES: readonly BookingFlowType[] = ['INSTANT', 'REQUEST']
 const SURCHARGE_PAYERS: readonly SurchargePayer[] = ['CLIENT', 'OPERATOR']
@@ -111,6 +113,9 @@ export default function BookingTab() {
   const { connections, fetchConnections } = useIntegrationsStore()
 
   const isOwner = profile?.role === 'OWNER'
+  // The quote's currency; the API copies it to the booking config
+  const currency = config?.currency ?? itinerary?.costs?.currency ?? 'USD'
+  const quotePackage = packageFromQuote(itinerary?.costs ?? null)
 
   // ── Settings form ──────────────────────────────────────────
   const [form, setForm] = useState<BookingForm>({
@@ -118,7 +123,6 @@ export default function BookingTab() {
     externalUrl: '',
     externalContact: '',
     flowType: 'INSTANT',
-    currency: 'USD',
     processorConnectionId: '',
     companyInfo: '',
     invoiceNotes: '',
@@ -159,7 +163,6 @@ export default function BookingTab() {
       externalUrl: config.externalUrl ?? '',
       externalContact: config.externalContact ?? '',
       flowType: config.flowType,
-      currency: config.currency,
       processorConnectionId: config.processorConnectionId ?? '',
       companyInfo: config.companyInfo ?? '',
       invoiceNotes: config.invoiceNotes ?? '',
@@ -192,6 +195,13 @@ export default function BookingTab() {
     ? PROCESSOR_META[selectedConnection.type]?.name ?? selectedConnection.type
     : 'your payment processor'
 
+  // ── Packages ───────────────────────────────────────────
+
+  async function handleCreateFromQuote(input: PackageInput) {
+    const message = await addPackage(input)
+    if (message) setError(message)
+  }
+
   // ── Save settings ──────────────────────────────────────────
 
   async function handleSaveSettings() {
@@ -201,7 +211,6 @@ export default function BookingTab() {
       externalUrl: form.externalUrl.trim() || null,
       externalContact: form.externalContact.trim() || null,
       flowType: form.flowType,
-      currency: form.currency,
       processorConnectionId: form.processorConnectionId || null,
       companyInfo: form.companyInfo.trim() || null,
       invoiceNotes: form.invoiceNotes || null,
@@ -310,7 +319,7 @@ export default function BookingTab() {
     if (hasRemainder) {
       const parts = [
         percentSum > 0 ? `${percentSum}% in percentages` : null,
-        fixedSum > 0 ? `${fixedSum.toLocaleString()} ${form.currency} fixed` : null,
+        fixedSum > 0 ? `${fixedSum.toLocaleString()} ${currency} fixed` : null,
       ].filter(Boolean)
       return {
         valid: true,
@@ -326,7 +335,7 @@ export default function BookingTab() {
       }
     }
     return { valid: true, text: 'Schedule adds up.' }
-  }, [schedule, form.currency])
+  }, [schedule, currency])
 
   // ── Render ─────────────────────────────────────────────────
 
@@ -404,13 +413,24 @@ export default function BookingTab() {
           <S.Card>
             <S.CardTitleRow>
               <S.CardTitle>Packages</S.CardTitle>
-              <ActionButton
-                $variant="outline"
-                $disabled={!configSaved}
-                onClick={() => configSaved && setPackageModal({ open: true, existing: null })}
-              >
-                + Add Package
-              </ActionButton>
+              <S.TitleActions>
+                {configSaved && config!.packages.length === 0 && quotePackage && (
+                  <ActionButton
+                    $variant="outline"
+                    $disabled={saving}
+                    onClick={() => !saving && handleCreateFromQuote(quotePackage)}
+                  >
+                    Create from Quote
+                  </ActionButton>
+                )}
+                <ActionButton
+                  $variant="outline"
+                  $disabled={!configSaved}
+                  onClick={() => configSaved && setPackageModal({ open: true, existing: null })}
+                >
+                  + Add Package
+                </ActionButton>
+              </S.TitleActions>
             </S.CardTitleRow>
 
             {!configSaved ? (
@@ -430,7 +450,7 @@ export default function BookingTab() {
                       </S.ItemMeta>
                     </S.ItemMain>
                     <S.ItemPrice>
-                      {form.currency} {pkg.price.toLocaleString()}
+                      {currency} {pkg.price.toLocaleString()}
                     </S.ItemPrice>
                     <S.ItemActions>
                       <S.LinkButton onClick={() => setPackageModal({ open: true, existing: pkg })}>
@@ -477,7 +497,7 @@ export default function BookingTab() {
                       </S.ItemMeta>
                     </S.ItemMain>
                     <S.ItemPrice>
-                      {form.currency} {addon.perPersonPrice.toLocaleString()}
+                      {currency} {addon.perPersonPrice.toLocaleString()}
                       <div style={{ fontSize: 10.5, fontWeight: 400, opacity: 0.65 }}>per person</div>
                     </S.ItemPrice>
                     <S.ItemActions>
@@ -529,11 +549,8 @@ export default function BookingTab() {
             </Field>
             <Field>
               <FieldLabel>Currency</FieldLabel>
-              <FieldSelect value={form.currency} onChange={(e) => setF('currency', e.target.value)}>
-                {BOOKING_CURRENCIES.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </FieldSelect>
+              <FieldInput value={currency} readOnly disabled />
+              <S.ToggleHint>{CURRENCY_HINT}</S.ToggleHint>
             </Field>
             <S.FullRow>
               <Field>
@@ -662,7 +679,7 @@ export default function BookingTab() {
                       step="0.01"
                       value={row.amountValue}
                       onChange={(e) => updateScheduleRow(index, { amountValue: e.target.value })}
-                      placeholder={row.amountType === 'PERCENT_OF_TOTAL' ? '%' : form.currency}
+                      placeholder={row.amountType === 'PERCENT_OF_TOTAL' ? '%' : currency}
                     />
                   )}
 
@@ -837,7 +854,7 @@ export default function BookingTab() {
       {packageModal.open && (
         <PackageModal
           existing={packageModal.existing}
-          currency={form.currency}
+          currency={currency}
           saving={saving}
           onSave={(input) =>
             packageModal.existing
@@ -850,7 +867,7 @@ export default function BookingTab() {
       {addonModal.open && (
         <AddonModal
           existing={addonModal.existing}
-          currency={form.currency}
+          currency={currency}
           saving={saving}
           onSave={(input) =>
             addonModal.existing ? editAddon(addonModal.existing.id, input) : addAddon(input)

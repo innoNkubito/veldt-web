@@ -66,3 +66,19 @@ export const SaveRow = styled.div`
   display: flex;
   justify-content: flex-end;
 `
+
+export const FieldHint = styled.div`
+  font-size: 11.5px;
+  color: ${T.muted};
+  margin-top: 4px;
+`
+
+export const SaveError = styled.div`
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: ${T.dangerLt};
+  border: 1px solid ${T.dangerBd};
+  color: ${T.dangerDk};
+  font-size: 12.5px;
+`

@@ -69,7 +69,6 @@ export interface BookingConfigInput {
   externalUrl?: string | null
   externalContact?: string | null
   flowType?: BookingFlowType
-  currency?: string
   processorConnectionId?: string | null
   companyInfo?: string | null
   invoiceNotes?: string | null
@@ -120,7 +119,6 @@ export const AMOUNT_TYPE_LABELS: Record<ScheduleAmountType, string> = {
   REMAINING_BALANCE: 'Remaining balance',
 }
 
-export const BOOKING_CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'ZAR', 'KES', 'TZS']
 
 // ── GQL ─────────────────────────────────────────────────────────
 

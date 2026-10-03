@@ -11,6 +11,11 @@ export const Card = styled.div`
   margin-bottom: 16px;
 `
 
+export const TitleActions = styled.div`
+  display: flex;
+  gap: 8px;
+`
+
 export const CardTitleRow = styled.div`
   display: flex;
   align-items: center;

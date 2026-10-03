@@ -566,7 +566,8 @@ interface BuilderState {
   deleteRow: (id: string) => Promise<void>
   reorderRows: (itineraryId: string, rowIds: string[]) => Promise<void>
 
-  upsertCosts: (itineraryId: string, input: Partial<ItineraryCosts>) => Promise<void>
+  /** Returns an error message, or null on success. */
+  upsertCosts: (itineraryId: string, input: Partial<ItineraryCosts>) => Promise<string | null>
 
   addAccommodation: (rowId: string, input: {
     contentPageId: string
@@ -954,7 +955,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
 
   upsertCosts: async (itineraryId, input) => {
     const client = useClientStore.getState().client
-    if (!client) return
+    if (!client) return 'Not connected'
     set({ saving: true })
     try {
       const data = await client.request<{ upsertCosts: ItineraryCosts }>(UPSERT_COSTS, {
@@ -965,8 +966,10 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         itinerary: s.itinerary ? { ...s.itinerary, costs: data.upsertCosts } : null,
         saving: false,
       }))
+      return null
     } catch (err) {
-      set({ error: gqlErrorMessage(err, 'Failed to save costs'), saving: false })
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Failed to save costs')
     }
   },
 
