@@ -15,6 +15,7 @@ import PreviewTab from '@/components/itineraries/PreviewTab'
 import TripTab from '@/components/itineraries/TripTab'
 import PublishModal from '@/components/itineraries/PublishModal'
 import ConfirmTripModal from '@/components/itineraries/ConfirmTripModal'
+import StartTripModal from '@/components/itineraries/StartTripModal'
 import { confirmDialog } from '@/stores/confirmStore'
 import type { TripDetailsInput } from '@/stores/builderStore'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
@@ -54,6 +55,7 @@ export default function ItineraryBuilderPage() {
   const [publishError, setPublishError] = useState<string | null>(null)
   const [publishing, setPublishing] = useState(false)
   const [showConfirmTrip, setShowConfirmTrip] = useState(false)
+  const [showStartTrip, setShowStartTrip] = useState(false)
 
   useEffect(() => {
     if (client && id) fetchItinerary(id)
@@ -73,9 +75,9 @@ export default function ItineraryBuilderPage() {
     }
   }
 
-  async function handleConfirmTrip(trip: TripDetailsInput) {
+  async function handleConfirmTrip(trip: TripDetailsInput, notifyTraveller: boolean) {
     if (!itinerary) return null
-    const err = await setItineraryStatus(itinerary.id, 'CONFIRMED', trip)
+    const err = await setItineraryStatus(itinerary.id, 'CONFIRMED', trip, notifyTraveller)
     if (!err) {
       setShowConfirmTrip(false)
       setPublishError(null)
@@ -108,16 +110,14 @@ export default function ItineraryBuilderPage() {
     setPublishError(await setItineraryStatus(itinerary.id, 'ARCHIVED'))
   }
 
-  async function handleStartTrip() {
-    if (!itinerary) return
-    const ok = await confirmDialog({
-      title: 'Start this trip?',
-      message:
-        'The share link becomes the traveller\u2019s travel dashboard: confirmed flights, where they stay each night and who to contact.',
-      confirmLabel: 'Start Trip',
-    })
-    if (!ok) return
-    setPublishError(await setItineraryStatus(itinerary.id, 'TRAVELLING'))
+  async function handleStartTrip(notifyTraveller: boolean) {
+    if (!itinerary) return null
+    const err = await setItineraryStatus(itinerary.id, 'TRAVELLING', undefined, notifyTraveller)
+    if (!err) {
+      setShowStartTrip(false)
+      setPublishError(null)
+    }
+    return err
   }
 
   async function handleCompleteTrip() {
@@ -212,7 +212,7 @@ export default function ItineraryBuilderPage() {
             </ActionButton>
           )}
           {itinerary?.status === 'CONFIRMED' && (
-            <ActionButton $variant="primary" onClick={handleStartTrip} disabled={saving}>
+            <ActionButton $variant="primary" onClick={() => setShowStartTrip(true)} disabled={saving}>
               Start Trip
             </ActionButton>
           )}
@@ -277,6 +277,14 @@ export default function ItineraryBuilderPage() {
           onConfirm={handlePublish}
           onCancel={() => setShowPublish(false)}
           loading={publishing}
+        />
+      )}
+
+      {showStartTrip && itinerary && (
+        <StartTripModal
+          travellerEmail={itinerary.clientEmail}
+          onConfirm={handleStartTrip}
+          onCancel={() => setShowStartTrip(false)}
         />
       )}
 

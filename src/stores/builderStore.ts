@@ -326,8 +326,13 @@ const AIRPORT_ZONES = gql`
 `
 
 const SET_ITINERARY_STATUS = gql`
-  mutation SetItineraryStatus($id: ID!, $status: ItineraryStatus!, $trip: TripDetailsInput) {
-    setItineraryStatus(id: $id, status: $status, trip: $trip) {
+  mutation SetItineraryStatus(
+    $id: ID!
+    $status: ItineraryStatus!
+    $trip: TripDetailsInput
+    $notifyTraveller: Boolean
+  ) {
+    setItineraryStatus(id: $id, status: $status, trip: $trip, notifyTraveller: $notifyTraveller) {
       id ${STATUS_FIELDS}
     }
   }
@@ -523,6 +528,8 @@ interface BuilderState {
     id: string,
     status: ItineraryStatus,
     trip?: TripDetailsInput,
+    /** Email the traveller when confirming or starting the trip (API default: yes). */
+    notifyTraveller?: boolean,
   ) => Promise<string | null>
   restoreItinerary: (id: string) => Promise<string | null>
   /** Issues a new share link; the old one stops working. Returns an error message or null. */
@@ -689,13 +696,13 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }
   },
 
-  setItineraryStatus: async (id, status, trip) => {
+  setItineraryStatus: async (id, status, trip, notifyTraveller = true) => {
     const client = useClientStore.getState().client
     if (!client) return null
     set({ saving: true })
     try {
       const data = await client.request<{ setItineraryStatus: ItineraryStatusFields }>(
-        SET_ITINERARY_STATUS, { id, status, trip: trip ?? null }
+        SET_ITINERARY_STATUS, { id, status, trip: trip ?? null, notifyTraveller }
       )
       set((s) => ({
         itinerary: s.itinerary ? { ...s.itinerary, ...data.setItineraryStatus } : null,

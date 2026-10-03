@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
+import { CheckboxRow } from '@/components/itineraries/shared/FieldPrimitives'
 import type { ItineraryFull, TripDetailsInput } from '@/stores/builderStore'
 import * as S from './ConfirmTripModal.styled'
 
 interface Props {
   itinerary: ItineraryFull
   /** Resolves to an error message, or null once the trip is confirmed. */
-  onSubmit: (trip: TripDetailsInput) => Promise<string | null>
+  onSubmit: (trip: TripDetailsInput, notifyTraveller: boolean) => Promise<string | null>
   onCancel: () => void
 }
 
@@ -25,6 +26,7 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
   const [endDate, setEndDate] = useState(itinerary.endDate ?? suggested.endDate)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [notifyTraveller, setNotifyTraveller] = useState(true)
 
   const prefilledFromRows = !itinerary.startDate && suggested.startDate !== ''
 
@@ -36,7 +38,7 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
 
     setError(null)
     setSubmitting(true)
-    const err = await onSubmit({ clientEmail, clientPhone, startDate, endDate })
+    const err = await onSubmit({ clientEmail, clientPhone, startDate, endDate }, notifyTraveller)
     setSubmitting(false)
     if (err) setError(err)
   }
@@ -95,6 +97,15 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
           </S.FieldRow>
           {prefilledFromRows && <S.Hint>Suggested from the day-by-day dates.</S.Hint>}
         </S.FieldGroup>
+
+        <CheckboxRow>
+          <input
+            type="checkbox"
+            checked={notifyTraveller}
+            onChange={(e) => setNotifyTraveller(e.target.checked)}
+          />
+          Email the traveller that their trip is confirmed
+        </CheckboxRow>
 
         {error && <S.ErrorText>{error}</S.ErrorText>}
 
