@@ -301,9 +301,21 @@ const UPDATE_FLIGHT = gql`
   }
 `
 
+const CONFIRM_FLIGHT = gql`
+  mutation ConfirmFlightSegment($id: ID!) {
+    confirmFlightSegment(id: $id) { ${FLIGHT_FIELDS} }
+  }
+`
+
 const DELETE_FLIGHT = gql`
   mutation DeleteFlightSegment($id: ID!) {
     deleteFlightSegment(id: $id)
+  }
+`
+
+const REGENERATE_SHARE_LINK = gql`
+  mutation RegenerateShareLink($id: ID!) {
+    regenerateShareLink(id: $id) { id slug }
   }
 `
 
@@ -513,6 +525,8 @@ interface BuilderState {
     trip?: TripDetailsInput,
   ) => Promise<string | null>
   restoreItinerary: (id: string) => Promise<string | null>
+  /** Issues a new share link; the old one stops working. Returns an error message or null. */
+  regenerateShareLink: (id: string) => Promise<string | null>
 
   // ── Trip (from CONFIRMED) — each returns an error message or null ──
   airportZones: AirportZone[]
@@ -521,6 +535,8 @@ interface BuilderState {
   addFlight: (itineraryId: string, input: FlightSegmentInput) => Promise<string | null>
   updateFlight: (id: string, input: FlightSegmentInput) => Promise<string | null>
   deleteFlight: (id: string) => Promise<string | null>
+  /** Approves a traveller's submission so it appears on the share link. */
+  confirmFlight: (id: string) => Promise<string | null>
 
   addRow: (itineraryId: string, input: {
     dateLabel?: string
@@ -711,6 +727,25 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     }
   },
 
+  regenerateShareLink: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ regenerateShareLink: { id: string; slug: string } }>(
+        REGENERATE_SHARE_LINK, { id }
+      )
+      set((s) => ({
+        itinerary: s.itinerary ? { ...s.itinerary, slug: data.regenerateShareLink.slug } : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Could not create a new share link')
+    }
+  },
+
   airportZones: [],
 
   fetchAirportZones: async () => {
@@ -787,6 +822,28 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
     } catch (err) {
       set({ saving: false })
       return gqlErrorMessage(err, 'Failed to save flight')
+    }
+  },
+
+  confirmFlight: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+    set({ saving: true })
+    try {
+      const data = await client.request<{ confirmFlightSegment: FlightSegment }>(CONFIRM_FLIGHT, { id })
+      set((s) => ({
+        itinerary: s.itinerary
+          ? {
+              ...s.itinerary,
+              flights: s.itinerary.flights.map((f) => (f.id === id ? data.confirmFlightSegment : f)),
+            }
+          : null,
+        saving: false,
+      }))
+      return null
+    } catch (err) {
+      set({ saving: false })
+      return gqlErrorMessage(err, 'Could not approve this flight')
     }
   },
 

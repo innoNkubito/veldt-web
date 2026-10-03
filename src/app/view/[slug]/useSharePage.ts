@@ -12,7 +12,14 @@ import {
   useCoverCrossfade,
 } from '@/components/itineraries/ProposalSections'
 import { GET_BY_SLUG, RECORD_VIEW } from './page.constants'
-import { bookingPath, isBookable, isTripMode, lowestPackagePrice } from './page.utils'
+import {
+  acceptsFlights,
+  bookingPath,
+  flightsPath,
+  isBookable,
+  isTripMode,
+  lowestPackagePrice,
+} from './page.utils'
 import type { PublicItinerary } from './page.types'
 
 /**
@@ -63,6 +70,7 @@ export function useSharePage() {
     return {
       rows,
       tripMode: isTripMode(itinerary.status),
+      flightsLink: acceptsFlights(itinerary.status) ? flightsPath(itinerary.slug) : null,
       glance: tripGlance(rows),
       taggedPages: collectTaggedPages(rows),
       costs: hasCosts(itinerary.costs) ? itinerary.costs : null,

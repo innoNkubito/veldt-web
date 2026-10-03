@@ -18,6 +18,7 @@ import { useSharePage } from './useSharePage'
 import {
   BOOK_SECTION_ID,
   BOOKING_COPY,
+  FLIGHTS_PROMPT,
   FOOTER_COPY,
   LOADING_MESSAGE,
   NOT_FOUND,
@@ -74,6 +75,12 @@ export default function SharePage() {
       </S.CoverPanel>
 
       <S.ViewContent ref={contentRef}>
+        {view.flightsLink && (
+          <S.FlightsPrompt>
+            <span>{FLIGHTS_PROMPT.text}</span>
+            <S.FlightsPromptLink href={view.flightsLink}>{FLIGHTS_PROMPT.action}</S.FlightsPromptLink>
+          </S.FlightsPrompt>
+        )}
         {view.tripMode && <TravelDashboard itinerary={itinerary} />}
         <ProposalCoverPage itinerary={itinerary} dayCount={view.rows.length} glance={view.glance} />
         {[...view.afterCover, ...view.beforeDayByDay].map((slot) => (

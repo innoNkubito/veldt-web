@@ -74,3 +74,8 @@ export const FOOTER_COPY = {
   brand: 'Veldt',
   after: '— the safari itinerary platform',
 } as const
+
+export const FLIGHTS_PROMPT = {
+  text: 'Booked your flights? Send us the details so they appear on your itinerary.',
+  action: 'Send flight details',
+} as const

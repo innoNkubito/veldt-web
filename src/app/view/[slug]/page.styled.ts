@@ -242,3 +242,31 @@ export const FooterBrand = styled.span`
   font-weight: 600;
   color: ${T.terra};
 `
+
+export const FlightsPrompt = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px 64px;
+  background: ${T.terraLt};
+  border-bottom: 1px solid ${T.border};
+  font-size: 13.5px;
+  color: ${T.text};
+
+  @media (max-width: 900px) {
+    padding: 14px 24px;
+  }
+`
+
+export const FlightsPromptLink = styled.a`
+  font-weight: 600;
+  color: ${T.terra};
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`

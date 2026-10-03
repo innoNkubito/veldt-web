@@ -14,6 +14,7 @@ import {
 } from '@/components/itineraries/shared/FieldPrimitives'
 import * as S from './OverviewTab.styled'
 import InfoPagesCard from '@/components/itineraries/InfoPagesCard'
+import { confirmDialog } from '@/stores/confirmStore'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
@@ -24,7 +25,8 @@ function formatDate(iso: string) {
 }
 
 export default function OverviewTab() {
-  const { itinerary, updateItinerary, saving } = useBuilderStore()
+  const { itinerary, updateItinerary, regenerateShareLink, saving } = useBuilderStore()
+  const [shareError, setShareError] = useState<string | null>(null)
   const [form, setForm] = useState({
     proposalTitle: itinerary?.proposalTitle ?? '',
     preparedFor: itinerary?.preparedFor ?? '',
@@ -66,6 +68,19 @@ export default function OverviewTab() {
     // On failure the edits stay in the form so they can be corrected and resaved.
     setSaveError(err)
     if (!err) setDirty(false)
+  }
+
+  async function handleNewLink() {
+    if (!itinerary) return
+    const ok = await confirmDialog({
+      title: 'Create a new share link?',
+      message:
+        'The current link stops working straight away. Send the new link to anyone who should still have access.',
+      confirmLabel: 'Create New Link',
+      danger: true,
+    })
+    if (!ok) return
+    setShareError(await regenerateShareLink(itinerary.id))
   }
 
   const saveButton = dirty ? (
@@ -166,7 +181,13 @@ export default function OverviewTab() {
               Copy
             </ActionButton>
           )}
+          {itinerary?.status !== 'DRAFT' && (
+            <ActionButton onClick={handleNewLink} $disabled={saving} disabled={saving}>
+              New Link
+            </ActionButton>
+          )}
         </S.ShareInputRow>
+        {shareError && <S.SaveError>{shareError}</S.SaveError>}
         {itinerary && (
           <S.ShareMeta>
             {itinerary.viewCount} view{itinerary.viewCount !== 1 ? 's' : ''} · Created{' '}

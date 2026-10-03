@@ -17,3 +17,10 @@ export const bookingPath = (slug: string) => `/view/${slug}/book`
 export function isTripMode(status: string): boolean {
   return status === 'TRAVELLING' || status === 'COMPLETED'
 }
+
+/** The traveller can send flight details while the trip is confirmed or travelling. */
+export function acceptsFlights(status: string): boolean {
+  return status === 'CONFIRMED' || status === 'TRAVELLING'
+}
+
+export const flightsPath = (slug: string) => `/view/${slug}/flights`

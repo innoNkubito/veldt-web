@@ -13,6 +13,7 @@ import {
   CheckboxRow,
 } from '@/components/itineraries/shared/FieldPrimitives'
 import FlightModal from '@/components/itineraries/FlightModal'
+import FlightReviewQueue from '@/components/itineraries/FlightReviewQueue'
 import { formatFlightLocal, zoneCity } from '@/lib/flight-time'
 import * as S from './TripTab.styled'
 
@@ -72,10 +73,14 @@ export default function TripTab() {
     setFlightError(await updateTripDetails(itinerary.id, { noFlights: checked }))
   }
 
-  const flights = itinerary.flights
+  // Traveller submissions wait in the review queue until approved.
+  const flights = itinerary.flights.filter((f) => f.confirmedByOperator)
+  const pending = itinerary.flights.filter((f) => !f.confirmedByOperator)
 
   return (
     <S.Grid>
+      {/* Full width above the two cards, so it is the first thing seen. */}
+      {pending.length > 0 && <FlightReviewQueue flights={pending} />}
       <TravellerCard key={itinerary.id} />
 
       <S.Card>

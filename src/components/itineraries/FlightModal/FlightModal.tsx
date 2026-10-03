@@ -13,15 +13,14 @@ import {
 import type {
   AirportZone,
   FlightDirection,
-  FlightSegment,
   FlightSegmentInput,
 } from '@/stores/builderStore'
 import { allTimeZones, zoneCity } from '@/lib/flight-time'
 import * as S from './FlightModal.styled'
 
 interface Props {
-  /** The flight being edited; omitted when adding. */
-  flight?: FlightSegment
+  /** The flight being edited — saved, or still only in a form; omitted when adding. */
+  flight?: FlightSegmentInput
   airportZones: AirportZone[]
   /** Resolves to an error message, or null once saved. */
   onSubmit: (input: FlightSegmentInput) => Promise<string | null>
