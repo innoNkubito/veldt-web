@@ -13,12 +13,7 @@ import ItineraryRowMenu from '@/components/itineraries/ItineraryRowMenu'
 import ItineraryEmptyState from '@/components/itineraries/ItineraryEmptyState'
 import { Box } from '@mui/material'
 import * as S from './page.styled'
-
-function formatDate(iso: string) {
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return '—'
-  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-}
+import { formatTimestamp } from '@/lib/dates'
 
 function advisorName(assignedTo: ItineraryListItem['assignedTo']) {
   if (!assignedTo) return '—'
@@ -198,7 +193,7 @@ function ItinerariesPageInner() {
 
               <S.RowCell>{advisorName(item.assignedTo)}</S.RowCell>
               <S.RowCell>{item.travelDates ?? '—'}</S.RowCell>
-              <S.RowCell $variant="muted">{formatDate(item.createdAt)}</S.RowCell>
+              <S.RowCell $variant="muted">{formatTimestamp(item.createdAt)}</S.RowCell>
 
               <div>
                 <ItineraryStatusBadge status={item.status} />

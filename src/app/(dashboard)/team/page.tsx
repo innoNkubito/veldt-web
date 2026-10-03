@@ -16,6 +16,7 @@ import {
 } from '@/stores/teamStore'
 import OperatorContactCard from './OperatorContactCard'
 import * as S from './page.styled'
+import { formatTimestamp } from '@/lib/dates'
 
 function initials(first: string | null, last: string | null, fallback: string): string {
   const letters = [first?.[0], last?.[0]].filter(Boolean).join('')
@@ -25,14 +26,6 @@ function initials(first: string | null, last: string | null, fallback: string): 
 function displayName(person: { firstName: string | null; lastName: string | null }): string | null {
   const name = [person.firstName, person.lastName].filter(Boolean).join(' ').trim()
   return name.length > 0 ? name : null
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
 }
 
 // ── Seat meter ──────────────────────────────────────────────────
@@ -309,7 +302,7 @@ function MemberRow({ member }: { member: TeamMember }) {
           {member.isYou && <S.YouTag>YOU</S.YouTag>}
         </S.RowName>
         <S.RowMeta>
-          {member.email ?? 'No email on file'} · joined {formatDate(member.joinedAt)}
+          {member.email ?? 'No email on file'} · joined {formatTimestamp(member.joinedAt)}
         </S.RowMeta>
       </S.RowMain>
       <S.RowActions>
@@ -343,7 +336,7 @@ function InvitationRow({
         </S.RowName>
         <S.RowMeta>
           {invitation.email}
-          {invitation.expiresAt && ` · expires ${formatDate(invitation.expiresAt)}`}
+          {invitation.expiresAt && ` · expires ${formatTimestamp(invitation.expiresAt)}`}
           {invitation.invitedByName && ` · invited by ${invitation.invitedByName}`}
         </S.RowMeta>
       </S.RowMain>

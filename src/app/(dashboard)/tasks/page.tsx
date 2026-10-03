@@ -13,6 +13,7 @@ import {
 import TaskModal from '@/components/tasks/TaskModal'
 import * as S from './page.styled'
 import { recordFrom } from '@/lib/guards'
+import { formatDate } from '@/lib/dates'
 
 // ── Date bucketing ──────────────────────────────────────────────
 
@@ -56,13 +57,6 @@ function matchesTab(task: TaskItem, tab: FilterTab): boolean {
     case 'DUE_THIS_WEEK': return !task.completed && due != null && due >= today && due < today + 7 * DAY_MS
     case 'UPCOMING':      return !task.completed && due != null && due >= today + 7 * DAY_MS
   }
-}
-
-function formatDueDate(iso: string | null): string {
-  if (!iso) return 'TBD'
-  const d = new Date(iso)
-  if (isNaN(d.getTime())) return 'TBD'
-  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 function stripHtml(html: string): string {
@@ -279,7 +273,7 @@ export default function TasksPage() {
                 </div>
 
                 <S.RowCell $variant={task.dueDate ? undefined : 'muted'}>
-                  {formatDueDate(task.dueDate)}
+                  {formatDate(task.dueDate, 'long', 'TBD')}
                 </S.RowCell>
 
                 <S.RowActionsCell>

@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from 'next/navigation'
 import { usePublicBookingStore } from '@/stores/publicBookingStore'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { formatDate } from '@/lib/dates'
 
 function money(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, {
@@ -130,7 +131,7 @@ function PayPageInner() {
         <S.Title>{installment.proposalTitle}</S.Title>
         <S.Subtitle>
           {installment.description} · due{' '}
-          {new Date(installment.dueDate).toLocaleDateString()}
+          {formatDate(installment.dueDate)}
         </S.Subtitle>
 
         {verifying && <S.Banner $tone="info">Confirming your payment…</S.Banner>}

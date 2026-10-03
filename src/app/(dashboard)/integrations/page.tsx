@@ -12,6 +12,7 @@ import {
   type ProcessorEnvironment,
 } from '@/stores/integrationsStore'
 import * as S from './page.styled'
+import { formatTimestamp } from '@/lib/dates'
 
 const ENVIRONMENTS: readonly ProcessorEnvironment[] = ['TEST', 'LIVE']
 
@@ -276,7 +277,7 @@ export default function IntegrationsPage() {
               </S.Capabilities>
 
               <S.CardMeta>
-                Connected {new Date(Number(connection.createdAt) || connection.createdAt).toLocaleDateString()}
+                Connected {formatTimestamp(Number(connection.createdAt) || connection.createdAt)}
               </S.CardMeta>
 
               <S.CardActions>

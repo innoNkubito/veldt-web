@@ -15,14 +15,7 @@ import {
 import * as S from './OverviewTab.styled'
 import InfoPagesCard from '@/components/itineraries/InfoPagesCard'
 import { confirmDialog } from '@/stores/confirmStore'
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
+import { formatTimestamp } from '@/lib/dates'
 
 export default function OverviewTab() {
   const { itinerary, updateItinerary, regenerateShareLink, saving } = useBuilderStore()
@@ -191,7 +184,7 @@ export default function OverviewTab() {
         {itinerary && (
           <S.ShareMeta>
             {itinerary.viewCount} view{itinerary.viewCount !== 1 ? 's' : ''} · Created{' '}
-            {formatDate(itinerary.createdAt)} · Last updated {formatDate(itinerary.updatedAt)}
+            {formatTimestamp(itinerary.createdAt)} · Last updated {formatTimestamp(itinerary.updatedAt)}
           </S.ShareMeta>
         )}
       </S.Card>

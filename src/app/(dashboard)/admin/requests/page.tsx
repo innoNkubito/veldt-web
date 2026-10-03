@@ -13,6 +13,7 @@ import {
 import type { BillingInterval, SubscriptionTier } from '@/stores/onboardingStore'
 import * as S from './page.styled'
 import { recordFrom, parseOption } from '@/lib/guards'
+import { formatTimestamp } from '@/lib/dates'
 
 type TabKey = 'OPEN' | 'SUBMITTED' | 'PROVISIONED' | 'REJECTED' | 'ALL'
 
@@ -137,7 +138,7 @@ function RequestDrawer({
           <div>
             <S.DrawerTitle>{request.companyName}</S.DrawerTitle>
             <S.DrawerMeta>
-              Submitted {new Date(request.createdAt).toLocaleDateString()}
+              Submitted {formatTimestamp(request.createdAt)}
               {request.reviewedByName && ` · last actioned by ${request.reviewedByName}`}
             </S.DrawerMeta>
           </div>
@@ -498,7 +499,7 @@ export default function AdminRequestsPage() {
                       </S.StatusChip>
                     </S.Td>
                     <S.Td $right $muted>
-                      {new Date(request.createdAt).toLocaleDateString()}
+                      {formatTimestamp(request.createdAt)}
                     </S.Td>
                   </S.Tr>
                 )

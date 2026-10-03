@@ -34,11 +34,3 @@ export const DIRECTION_LABELS = {
   INTERNAL: 'Internal',
   DEPARTURE: 'Departure',
 } as const
-
-export const RANGE_FORMAT: Intl.DateTimeFormatOptions = {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-  timeZone: 'UTC',
-}
-export const LOCALE = 'en-GB'

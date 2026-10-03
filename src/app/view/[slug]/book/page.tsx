@@ -11,6 +11,7 @@ import {
 } from '@/stores/publicBookingStore'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { formatDate } from '@/lib/dates'
 
 type Step = 'packages' | 'addons' | 'details' | 'review'
 
@@ -72,7 +73,7 @@ function Confirmation({
             <div>
               {installment.description}
               <S.ScheduleDue>
-                {new Date(installment.dueDate).toLocaleDateString()}
+                {formatDate(installment.dueDate)}
               </S.ScheduleDue>
             </div>
             <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>

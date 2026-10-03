@@ -9,9 +9,9 @@ import {
   DEFAULT_FACT_ICON,
   ROOM_GRID_PHOTO_COUNT,
   LOCALE,
-  DAY_LABEL_FORMAT,
 } from './ProposalBlocks.constants'
 import type { DayLabelRow, RoomPhotoLayout } from './ProposalBlocks.types'
+import { formatDate } from '@/lib/dates'
 
 /** Section heading. Overview headings depend on the content page's type. */
 export function sectionTitle(type: string, contentType?: string): string {
@@ -70,12 +70,7 @@ export function hasDayContent(node: PMNode | null): node is PMNode & { content: 
 /** The day heading: the operator's label, else the formatted date, else "Day N". */
 export function dayLabel(row: DayLabelRow, index: number): string {
   if (row.dateLabel) return row.dateLabel
-  if (row.startDate) {
-    try {
-      return new Date(row.startDate).toLocaleDateString(LOCALE, DAY_LABEL_FORMAT)
-    } catch { /* fall through */ }
-  }
-  return `Day ${index + 1}`
+  return formatDate(row.startDate, 'day', `Day ${index + 1}`)
 }
 
 export function formatPrice(amount: number, currency: string): string {

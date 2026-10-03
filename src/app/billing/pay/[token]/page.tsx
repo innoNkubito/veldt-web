@@ -5,20 +5,13 @@ import { useParams, useSearchParams } from 'next/navigation'
 import { useInvoiceStore } from '@/stores/invoiceStore'
 import * as S from './page.styled'
 import { routeParam } from '@/lib/guards'
+import { formatTimestamp } from '@/lib/dates'
 
 function money(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`
-}
-
-function dateLabel(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
 }
 
 function InvoicePayInner() {
@@ -98,7 +91,7 @@ function InvoicePayInner() {
             <br />
             <br />
             {invoice.operatorName} is active on Veldt until{' '}
-            <strong>{dateLabel(invoice.periodEnd)}</strong>.
+            <strong>{formatTimestamp(invoice.periodEnd)}</strong>.
           </S.CenteredText>
         </S.Card>
       </S.PageRoot>
@@ -127,8 +120,8 @@ function InvoicePayInner() {
         <S.Eyebrow>Invoice {invoice.number}</S.Eyebrow>
         <S.Title>{invoice.operatorName}</S.Title>
         <S.Subtitle>
-          Veldt subscription · {dateLabel(invoice.periodStart)} –{' '}
-          {dateLabel(invoice.periodEnd)}
+          Veldt subscription · {formatTimestamp(invoice.periodStart)} –{' '}
+          {formatTimestamp(invoice.periodEnd)}
         </S.Subtitle>
 
         {verifying && <S.Banner $tone="info">Confirming your payment…</S.Banner>}
@@ -140,7 +133,7 @@ function InvoicePayInner() {
         )}
         {isOverdue && !verifyMessage && (
           <S.Banner $tone="error">
-            This invoice was due on {dateLabel(invoice.dueDate)}.
+            This invoice was due on {formatTimestamp(invoice.dueDate)}.
           </S.Banner>
         )}
         {error && <S.Banner $tone="error">{error}</S.Banner>}
@@ -148,7 +141,7 @@ function InvoicePayInner() {
         <S.AmountBlock>
           <S.AmountValue>{money(invoice.amountDue, invoice.currency)}</S.AmountValue>
           <S.AmountLabel>
-            {isOverdue ? 'Overdue' : `Due ${dateLabel(invoice.dueDate)}`}
+            {isOverdue ? 'Overdue' : `Due ${formatTimestamp(invoice.dueDate)}`}
           </S.AmountLabel>
         </S.AmountBlock>
 

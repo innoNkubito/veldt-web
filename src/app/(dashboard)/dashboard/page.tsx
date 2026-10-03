@@ -9,6 +9,7 @@ import { useProfileStore } from '@/stores/profileStore'
 import { T } from '@/lib/theme'
 import { STATUS_META } from '@/lib/itinerary-constants'
 import * as S from './page.styled'
+import { formatTimestamp } from '@/lib/dates'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -27,12 +28,7 @@ export default function DashboardPage() {
   const hour = new Date().getHours()
   const greeting =
     hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-  const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  const today = formatTimestamp(new Date(), 'full')
 
   const recent = itineraries.slice(0, 6)
   const total = itineraries.length

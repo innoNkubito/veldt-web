@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { GraphQLClient, gql } from 'graphql-request'
 import { gqlErrorMessage } from '@/lib/gql-error'
+import { formatDate } from '@/lib/dates'
 
 /**
  * Client-facing booking store — used on /view/[slug] and /pay/[token].
@@ -270,7 +271,7 @@ export function previewInstallments(
       dueLabel: item.dueAtBooking
         ? 'At booking'
         : item.dueDate
-          ? new Date(item.dueDate).toLocaleDateString()
+          ? formatDate(item.dueDate)
           : 'TBD',
       amount: resolved[index] / 100,
     }))

@@ -1,5 +1,6 @@
 import { formatFlightLocal, zoneCity } from '@/lib/flight-time'
-import { DAY_MS, DEFAULT_ROW_NIGHTS, LOCALE, RANGE_FORMAT } from './TravelDashboard.constants'
+import { DAY_MS, DEFAULT_ROW_NIGHTS } from './TravelDashboard.constants'
+import { formatDate } from '@/lib/dates'
 import type {
   EmergencyContact,
   TonightStay,
@@ -67,7 +68,7 @@ export function flightTime(local: string | null, zone: string | null, fallback: 
 }
 
 export function formatTripRange(start: string, end: string): string {
-  const format = (d: string) => new Date(dayValue(d)).toLocaleDateString(LOCALE, RANGE_FORMAT)
+  const format = (d: string) => formatDate(dayValue(d))
   return `${format(start)} – ${format(end)}`
 }
 

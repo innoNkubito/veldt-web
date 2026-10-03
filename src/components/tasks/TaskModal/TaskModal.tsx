@@ -11,6 +11,7 @@ import {
 import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import * as S from './TaskModal.styled'
 import { parseOption } from '@/lib/guards'
+import { formatDate } from '@/lib/dates'
 
 // ── Generic dropdown ────────────────────────────────────────────
 
@@ -346,9 +347,7 @@ export default function TaskModal({
               onClick={() => setCalendarOpen((o) => !o)}
             >
               {manualDate
-                ? new Date(`${manualDate}T12:00:00`).toLocaleDateString('en-US', {
-                    month: 'long', day: 'numeric', year: 'numeric',
-                  })
+                ? formatDate(manualDate, 'long')
                 : 'Or, Manually Select Due Date'}
               <S.DropdownChevron>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

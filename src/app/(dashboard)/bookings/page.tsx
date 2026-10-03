@@ -14,6 +14,7 @@ import {
 } from '@/stores/bookingsStore'
 import * as S from './page.styled'
 import { recordFrom } from '@/lib/guards'
+import { formatDate, formatTimestamp } from '@/lib/dates'
 import { T } from '@/lib/theme'
 
 type TabKey = 'ALL' | 'REQUESTS' | 'AWAITING' | 'CONFIRMED' | 'OVERDUE' | 'CANCELLED'
@@ -144,7 +145,7 @@ function BookingDrawer({ booking, onClose }: { booking: Booking; onClose: () => 
           )}
           <S.DetailRow>
             <div>Booked</div>
-            <div>{new Date(booking.createdAt).toLocaleDateString()}</div>
+            <div>{formatTimestamp(booking.createdAt)}</div>
           </S.DetailRow>
         </S.Section>
 
@@ -200,9 +201,9 @@ function BookingDrawer({ booking, onClose }: { booking: Booking; onClose: () => 
                 <S.InstallmentMain>
                   <S.InstallmentName>{installment.description}</S.InstallmentName>
                   <S.InstallmentDue>
-                    Due {new Date(installment.dueDate).toLocaleDateString()}
+                    Due {formatDate(installment.dueDate)}
                     {installment.paidAt &&
-                      ` · paid ${new Date(installment.paidAt).toLocaleDateString()}`}
+                      ` · paid ${formatTimestamp(installment.paidAt)}`}
                     {installment.paymentMethod && ` · ${installment.paymentMethod.toLowerCase()}`}
                   </S.InstallmentDue>
                 </S.InstallmentMain>
@@ -405,10 +406,10 @@ export default function BookingsPage() {
                       {next ? (
                         overdue ? (
                           <S.OverdueText>
-                            {new Date(next.dueDate).toLocaleDateString()}
+                            {formatDate(next.dueDate)}
                           </S.OverdueText>
                         ) : (
-                          new Date(next.dueDate).toLocaleDateString()
+                          formatDate(next.dueDate)
                         )
                       ) : (
                         '—'

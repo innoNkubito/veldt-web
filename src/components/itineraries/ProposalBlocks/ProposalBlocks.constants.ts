@@ -52,13 +52,3 @@ export const NO_ROOMS_MESSAGE = 'No rooms added for this property.'
 export const ROOM_GRID_PHOTO_COUNT = 2
 
 export const LOCALE = 'en-US'
-/**
- * Row dates are calendar dates stored at UTC midnight. Formatting them in the
- * viewer's zone shows the previous day anywhere west of UTC, so format in UTC.
- */
-export const DAY_LABEL_FORMAT: Intl.DateTimeFormatOptions = {
-  weekday: 'short',
-  day: 'numeric',
-  month: 'short',
-  timeZone: 'UTC',
-}

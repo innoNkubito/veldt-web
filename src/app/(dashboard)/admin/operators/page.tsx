@@ -16,6 +16,7 @@ import type { BillingInterval, SubscriptionTier } from '@/stores/onboardingStore
 import * as S from '../requests/page.styled'
 import { parseOption } from '@/lib/guards'
 import { T } from '@/lib/theme'
+import { formatTimestamp } from '@/lib/dates'
 
 const TIERS: SubscriptionTier[] = ['SOLO', 'STUDIO', 'AGENCY', 'ENTERPRISE']
 const INTERVALS: BillingInterval[] = ['MONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL']
@@ -32,10 +33,6 @@ function money(amount: number, currency: string): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`
-}
-
-function dateLabel(iso: string | null): string {
-  return iso ? new Date(iso).toLocaleDateString() : '—'
 }
 
 // ── Drawer ──────────────────────────────────────────────────────
@@ -143,7 +140,7 @@ function SubscriptionDrawer({
           <div>
             <S.DrawerTitle>{subscription.operatorName}</S.DrawerTitle>
             <S.DrawerMeta>
-              {subscription.operatorSlug} · since {dateLabel(subscription.createdAt)}
+              {subscription.operatorSlug} · since {formatTimestamp(subscription.createdAt)}
             </S.DrawerMeta>
           </div>
           <S.DrawerClose onClick={onClose}>✕</S.DrawerClose>
@@ -167,18 +164,18 @@ function SubscriptionDrawer({
           </S.DetailRow>
           <S.DetailRow>
             <div>Period ends</div>
-            <S.DetailValue>{dateLabel(subscription.currentPeriodEnd)}</S.DetailValue>
+            <S.DetailValue>{formatTimestamp(subscription.currentPeriodEnd)}</S.DetailValue>
           </S.DetailRow>
           {subscription.trialEndsAt && (
             <S.DetailRow>
               <div>Trial until</div>
-              <S.DetailValue>{dateLabel(subscription.trialEndsAt)}</S.DetailValue>
+              <S.DetailValue>{formatTimestamp(subscription.trialEndsAt)}</S.DetailValue>
             </S.DetailRow>
           )}
           {subscription.gracePeriodEndsAt && (
             <S.DetailRow>
               <div>Grace ends</div>
-              <S.DetailValue>{dateLabel(subscription.gracePeriodEndsAt)}</S.DetailValue>
+              <S.DetailValue>{formatTimestamp(subscription.gracePeriodEndsAt)}</S.DetailValue>
             </S.DetailRow>
           )}
         </S.Section>
@@ -269,9 +266,9 @@ function SubscriptionDrawer({
                   <S.InvoiceMain>
                     <S.InvoiceNumber>{invoice.number}</S.InvoiceNumber>
                     <S.InvoiceMeta>
-                      {dateLabel(invoice.periodStart)} – {dateLabel(invoice.periodEnd)} · due{' '}
-                      {dateLabel(invoice.dueDate)}
-                      {invoice.paidAt && ` · paid ${dateLabel(invoice.paidAt)}`}
+                      {formatTimestamp(invoice.periodStart)} – {formatTimestamp(invoice.periodEnd)} · due{' '}
+                      {formatTimestamp(invoice.dueDate)}
+                      {invoice.paidAt && ` · paid ${formatTimestamp(invoice.paidAt)}`}
                       {invoice.paymentMethod && ` (${invoice.paymentMethod.toLowerCase()})`}
                     </S.InvoiceMeta>
                   </S.InvoiceMain>
@@ -413,7 +410,7 @@ export default function AdminOperatorsPage() {
                       {subscription.seatLimit == null ? '∞' : subscription.seatLimit}
                     </S.Td>
                     <S.Td $right $muted>
-                      {dateLabel(subscription.currentPeriodEnd)}
+                      {formatTimestamp(subscription.currentPeriodEnd)}
                     </S.Td>
                   </S.Tr>
                 )
