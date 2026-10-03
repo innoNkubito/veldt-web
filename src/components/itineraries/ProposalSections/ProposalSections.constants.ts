@@ -69,3 +69,8 @@ export const COSTS_LABELS = {
   excludes: 'Excludes',
 } as const
 export const MISC_NOTE_STYLE = { fontStyle: 'italic' } as const
+
+// ── Day dates ──
+export const DAY_MS = 24 * 60 * 60 * 1000
+/** A row with no night count is taken to be one night. */
+export const DEFAULT_ROW_NIGHTS = 1

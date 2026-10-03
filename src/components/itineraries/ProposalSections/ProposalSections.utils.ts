@@ -3,7 +3,9 @@ import {
   COVER_ATTRIBUTE,
   COVER_DETECTION_RATIO,
   COVER_PAGE_ID,
+  DAY_MS,
   DEFAULT_COVER_LABEL,
+  DEFAULT_ROW_NIGHTS,
   EXPERIENCE_CONTENT_TYPE,
   INFO_SLOT_PREFIX,
   SECTION_COVERS,
@@ -146,3 +148,24 @@ export function activeCoverId(container: HTMLElement): string | null {
 }
 
 export const coverKey = (cover: CoverInfo) => `${cover.label}::${cover.title}`
+
+const utcDay = (date: string) => Date.parse(`${date.slice(0, 10)}T00:00:00.000Z`)
+
+/**
+ * Gives every row a date. A row's own date wins; any other row starts where
+ * the previous one ended — the trip start for the first — and runs for its
+ * night count. Rows must already be in order. Without a trip start date the
+ * rows are returned as they are.
+ */
+export function resolveRowDates<R extends { startDate: string | null; numNights?: number | null }>(
+  rows: readonly R[],
+  tripStart: string | null | undefined,
+): R[] {
+  if (!tripStart) return [...rows]
+  let cursor = utcDay(tripStart)
+  return rows.map((row) => {
+    const start = row.startDate ? utcDay(row.startDate) : cursor
+    cursor = start + (row.numNights ?? DEFAULT_ROW_NIGHTS) * DAY_MS
+    return row.startDate ? row : { ...row, startDate: new Date(start).toISOString() }
+  })
+}

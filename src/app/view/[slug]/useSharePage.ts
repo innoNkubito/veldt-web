@@ -6,6 +6,7 @@ import { routeParam } from '@/lib/guards'
 import {
   collectTaggedPages,
   hasCosts,
+  resolveRowDates,
   slotsFor,
   sortByPosition,
   tripGlance,
@@ -66,7 +67,8 @@ export function useSharePage() {
 
   const view = useMemo(() => {
     if (!itinerary) return null
-    const rows = sortByPosition(itinerary.rows)
+    // Undated rows get a date from the trip start, so headings read as real days.
+    const rows = resolveRowDates(sortByPosition(itinerary.rows), itinerary.startDate)
     return {
       rows,
       tripMode: isTripMode(itinerary.status),

@@ -3,6 +3,7 @@ import { useBuilderStore } from '@/stores/builderStore'
 import {
   collectTaggedPages,
   hasCosts,
+  resolveRowDates,
   slotsFor,
   sortByPosition,
   tripGlance,
@@ -17,7 +18,8 @@ export function usePreviewTab() {
 
   const view = useMemo(() => {
     if (!itinerary) return null
-    const rows = sortByPosition(itinerary.rows)
+    // Undated rows get a date from the trip start, so headings read as real days.
+    const rows = resolveRowDates(sortByPosition(itinerary.rows), itinerary.startDate)
     const taggedPages = collectTaggedPages(rows)
     const costs = hasCosts(itinerary.costs) ? itinerary.costs : null
     return {
