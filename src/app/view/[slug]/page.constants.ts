@@ -17,6 +17,7 @@ export const GET_BY_SLUG = gql`
         id direction airline flightNumber departureAirport arrivalAirport
         departsLocal departsZone departsAt arrivesLocal arrivesZone
         bookingReference travellerName
+        liveStatus estDepartsLocal estArrivesLocal departureDelayMinutes liveCheckedAt trackable
       }
       infoPageSlots {
         id slot position

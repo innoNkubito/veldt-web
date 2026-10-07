@@ -1,5 +1,6 @@
 'use client'
 
+import FlightLiveStatus from '@/components/itineraries/FlightLiveStatus'
 import * as S from './TravelDashboard.styled'
 import { useTravelDashboard } from './useTravelDashboard'
 import { COPY, DIRECTION_LABELS, TRIP_SECTION_ID } from './TravelDashboard.constants'
@@ -26,6 +27,7 @@ function FlightSummary({ flight }: { flight: TripFlight }) {
         {flightTime(flight.arrivesLocal, flight.arrivesZone, COPY.timeTbc)}
         {flight.bookingReference && <><br />{COPY.bookingRef} {flight.bookingReference}</>}
       </S.CardText>
+      <FlightLiveStatus flight={flight} audience="traveller" />
     </>
   )
 }
@@ -130,11 +132,14 @@ export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
               <S.FlightRow key={flight.id}>
                 <S.FlightDirection>{DIRECTION_LABELS[flight.direction]}</S.FlightDirection>
                 <S.FlightCode>{flight.flightNumber}</S.FlightCode>
-                <S.CardText>
-                  {flight.departureAirport} → {flight.arrivalAirport} ·{' '}
-                  {flightTime(flight.departsLocal, flight.departsZone, COPY.timeTbc)}
-                  {flight.travellerName && ` · ${flight.travellerName}`}
-                </S.CardText>
+                <div>
+                  <S.CardText>
+                    {flight.departureAirport} → {flight.arrivalAirport} ·{' '}
+                    {flightTime(flight.departsLocal, flight.departsZone, COPY.timeTbc)}
+                    {flight.travellerName && ` · ${flight.travellerName}`}
+                  </S.CardText>
+                  <FlightLiveStatus flight={flight} audience="traveller" />
+                </div>
               </S.FlightRow>
             ))}
           </S.FlightList>

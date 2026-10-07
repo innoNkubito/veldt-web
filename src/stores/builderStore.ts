@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import { gqlErrorMessage } from '@/lib/gql-error'
+import type { LiveFlightFields } from '@/components/itineraries/FlightLiveStatus'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -36,7 +37,7 @@ export interface ItineraryFull {
 export type FlightDirection = 'ARRIVAL' | 'DEPARTURE' | 'INTERNAL'
 
 /** Times are as printed on the ticket: local wall-clock at the airport + its zone. */
-export interface FlightSegment {
+export interface FlightSegment extends LiveFlightFields {
   id: string
   direction: FlightDirection
   airline: string
@@ -218,6 +219,7 @@ const FLIGHT_FIELDS = `
   id direction airline flightNumber departureAirport arrivalAirport
   departsLocal departsZone departsAt arrivesLocal arrivesZone arrivesAt
   bookingReference travellerName notes source confirmedByOperator position updatedAt
+  liveStatus estDepartsLocal estArrivesLocal departureDelayMinutes liveCheckedAt trackable
 `
 
 const GET_ITINERARY = gql`

@@ -1,5 +1,7 @@
+import type { LiveFlightFields } from '@/components/itineraries/FlightLiveStatus'
+
 /** A confirmed flight as the share link returns it. Times are airport-local. */
-export interface TripFlight {
+export interface TripFlight extends LiveFlightFields {
   id: string
   direction: 'ARRIVAL' | 'DEPARTURE' | 'INTERNAL'
   airline: string

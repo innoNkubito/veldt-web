@@ -14,6 +14,7 @@ import {
 } from '@/components/itineraries/shared/FieldPrimitives'
 import FlightModal from '@/components/itineraries/FlightModal'
 import FlightReviewQueue from '@/components/itineraries/FlightReviewQueue'
+import FlightLiveStatus from '@/components/itineraries/FlightLiveStatus'
 import { formatFlightLocal, zoneCity } from '@/lib/flight-time'
 import * as S from './TripTab.styled'
 
@@ -118,6 +119,7 @@ export default function TripTab() {
                   <FlightItem
                     key={flight.id}
                     flight={flight}
+                    showLiveStatus={itinerary.status !== 'COMPLETED'}
                     onEdit={() => setModal({ flight })}
                     onDelete={() => handleDeleteFlight(flight)}
                   />
@@ -144,10 +146,13 @@ export default function TripTab() {
 
 function FlightItem({
   flight,
+  showLiveStatus,
   onEdit,
   onDelete,
 }: {
   flight: FlightSegment
+  /** Live status is tracked on confirmed and travelling trips only. */
+  showLiveStatus: boolean
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -173,6 +178,9 @@ function FlightItem({
           {endpoint(flight.arrivesLocal, flight.arrivesZone, 'arrival time to be confirmed')}
         </S.Times>
         {meta.length > 0 && <S.Meta>{meta.join(' · ')}</S.Meta>}
+        {showLiveStatus && flight.confirmedByOperator && (
+          <FlightLiveStatus flight={flight} audience="operator" />
+        )}
       </div>
       <S.RowActions>
         <ActionButton $variant="ghost" onClick={onEdit}>
