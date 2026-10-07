@@ -189,7 +189,7 @@ export default function AreaPageContentTab({ area }: Props) {
           </S.PageViewSectionsHeader>
 
           {editing ? (
-            <AreaRichContentTab area={area} onSaved={() => setEditing(false)} />
+            <AreaRichContentTab key={area.id} area={area} onSaved={() => setEditing(false)} />
           ) : (
             overview ? (
               <OverviewView section={overview} />

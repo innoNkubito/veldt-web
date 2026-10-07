@@ -77,11 +77,6 @@ export default function AreaRichContentTab({ area, onSaved }: Props) {
   const [section, setSection] = useState<TextImageSection>(() => parseOverview(area))
   const [dirty, setDirty] = useState(false)
 
-  useEffect(() => {
-    setSection(parseOverview(area))
-    setDirty(false)
-  }, [area.id])
-
   function update(patch: Partial<TextImageSection>) {
     setSection((s) => ({ ...s, ...patch }))
     setDirty(true)

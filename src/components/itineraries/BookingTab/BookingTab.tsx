@@ -156,8 +156,13 @@ export default function BookingTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, itinerary?.id])
 
-  useEffect(() => {
-    if (!config) return
+  // Load the form whenever a different (or newly saved) config arrives —
+  // adjusted during render rather than in an effect, so there is no frame
+  // showing the stale form.
+  const configVersion = config ? `${config.id}:${config.updatedAt}` : null
+  const [loadedVersion, setLoadedVersion] = useState<string | null>(null)
+  if (config && configVersion !== loadedVersion) {
+    setLoadedVersion(configVersion)
     setForm({
       bookingMode: config.bookingMode,
       externalUrl: config.externalUrl ?? '',
@@ -176,7 +181,7 @@ export default function BookingTab() {
     setSchedule(config.scheduleItems.map(toDraft))
     setDirty(false)
     setScheduleDirty(false)
-  }, [config?.id, config?.updatedAt])
+  }
 
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))

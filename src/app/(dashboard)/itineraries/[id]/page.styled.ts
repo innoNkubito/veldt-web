@@ -136,3 +136,12 @@ export const ErrorBanner = styled.div`
   font-size: 13px;
   margin-bottom: 20px;
 `
+
+export const DismissButton = styled.button`
+  margin-left: 8px;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${T.danger};
+`

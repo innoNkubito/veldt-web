@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { T } from '@/lib/theme'
+import { FieldInput } from '@/components/itineraries/shared/FieldPrimitives'
 
 export const Grid = styled.div`
   display: grid;
@@ -47,4 +48,14 @@ export const SaveError = styled.div`
   line-height: 1.5;
   color: ${T.dangerDk};
   margin: 14px 0 10px;
+`
+
+/** A card spanning both grid columns. */
+export const WideCard = styled(Card)`
+  grid-column: 1 / -1;
+`
+
+export const ShareInput = styled(FieldInput)`
+  flex: 1;
+  color: ${T.muted};
 `

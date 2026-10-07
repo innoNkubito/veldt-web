@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { T } from '@/lib/theme'
 import { useBuilderStore } from '@/stores/builderStore'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
@@ -38,26 +38,6 @@ export default function CostsTab() {
   const [dirty, setDirty] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (existing) {
-      setForm({
-        pricePerPerson: existing.pricePerPerson != null ? String(existing.pricePerPerson) : '',
-        numGuests: String(existing.numGuests),
-        accommodationType: existing.accommodationType ?? '',
-        currency: existing.currency,
-        costsToBeDetetermined: existing.costsToBeDetetermined,
-        costIncludes: existing.costIncludes ?? '',
-        costExcludes: existing.costExcludes ?? '',
-        costNotes: existing.costNotes ?? '',
-        notesVisible: existing.notesVisible,
-        miscText: existing.miscText ?? '',
-        miscVisible: existing.miscVisible,
-        priceVisible: existing.priceVisible,
-        accuracyConfirmed: existing.accuracyConfirmed,
-      })
-      setDirty(false)
-    }
-  }, [itinerary?.id])
 
   function setF(key: keyof typeof form, value: string | boolean) {
     setForm((f) => ({ ...f, [key]: value }))

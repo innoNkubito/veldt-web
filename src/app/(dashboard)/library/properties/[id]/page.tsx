@@ -98,7 +98,7 @@ export default function PropertyDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <DetailsTab property={property!} getToken={getToken} />
+            <DetailsTab key={property!.id} property={property!} getToken={getToken} />
           </S.TabBody>
         )}
         {activeTab === 'rooms' && (

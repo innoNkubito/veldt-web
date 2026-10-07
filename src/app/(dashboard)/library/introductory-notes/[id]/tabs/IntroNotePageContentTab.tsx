@@ -175,7 +175,7 @@ export default function IntroNotePageContentTab({ introductoryNote }: Props) {
           </S.PageViewSectionsHeader>
 
           {editing ? (
-            <IntroNoteRichContentTab introductoryNote={introductoryNote} onSaved={() => setEditing(false)} />
+            <IntroNoteRichContentTab key={introductoryNote.id} introductoryNote={introductoryNote} onSaved={() => setEditing(false)} />
           ) : (
             overview ? (
               <OverviewView section={overview} />

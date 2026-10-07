@@ -69,11 +69,6 @@ export default function AboutUsRichContentTab({ aboutUs, onSaved }: Props) {
   const [section, setSection] = useState<TextImageSection>(() => parseOverview(aboutUs))
   const [dirty, setDirty] = useState(false)
 
-  useEffect(() => {
-    setSection(parseOverview(aboutUs))
-    setDirty(false)
-  }, [aboutUs.id])
-
   function update(patch: Partial<TextImageSection>) {
     setSection((s) => ({ ...s, ...patch }))
     setDirty(true)

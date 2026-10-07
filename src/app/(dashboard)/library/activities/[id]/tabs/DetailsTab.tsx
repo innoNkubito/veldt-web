@@ -27,18 +27,6 @@ export default function ActivityDetailsTab({ activity }: Props) {
 
   useEffect(() => { fetchAreas() }, [])
 
-  useEffect(() => {
-    setForm({
-      name: activity.name,
-      country: activity.country ?? '',
-      locationName: activity.locationName ?? '',
-      areaId: activity.area?.id ?? '',
-      tags: activity.tags,
-    })
-    setAreaQuery(activity.area?.name ?? '')
-    setDirty(false)
-  }, [activity.id])
-
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))
     setDirty(true)

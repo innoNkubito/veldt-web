@@ -87,7 +87,7 @@ export default function AreaDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <AreaDetailsTab area={area!} />
+            <AreaDetailsTab key={area!.id} area={area!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (

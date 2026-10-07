@@ -462,11 +462,6 @@ export default function RichContentTab({ property, onSaved }: Props) {
   const [dirty, setDirty] = useState(false)
   const [newSectionType, setNewSectionType] = useState<SectionType>('overview')
 
-  useEffect(() => {
-    setContent(parseContent(property))
-    setDirty(false)
-  }, [property.id])
-
   function updateSection(idx: number, updated: PropertySection) {
     setContent((c) => ({
       sections: c.sections.map((s, i) => (i === idx ? updated : s)),

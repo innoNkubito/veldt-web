@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAboutUsStore, type AboutUsFull, type UpdateAboutUsInput } from '@/stores/aboutUsStore'
 import * as S from '../page.styled'
 
@@ -17,11 +17,6 @@ export default function AboutUsDetailsTab({ aboutUs }: Props) {
   })
   const [tagInput, setTagInput] = useState('')
   const [dirty, setDirty] = useState(false)
-
-  useEffect(() => {
-    setForm({ name: aboutUs.name, tags: aboutUs.tags })
-    setDirty(false)
-  }, [aboutUs.id])
 
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))

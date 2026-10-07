@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTermsAndConditionsStore, type TermsFull, type UpdateTermsInput } from '@/stores/termsAndConditionsStore'
 import * as S from '../page.styled'
 
@@ -14,11 +14,6 @@ export default function TermsDetailsTab({ terms }: Props) {
   const [form, setForm] = useState({ name: terms.name, tags: terms.tags })
   const [tagInput, setTagInput] = useState('')
   const [dirty, setDirty] = useState(false)
-
-  useEffect(() => {
-    setForm({ name: terms.name, tags: terms.tags })
-    setDirty(false)
-  }, [terms.id])
 
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))

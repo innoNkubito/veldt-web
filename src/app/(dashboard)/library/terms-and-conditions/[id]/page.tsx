@@ -83,11 +83,11 @@ export default function TermsDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <TermsDetailsTab terms={terms!} />
+            <TermsDetailsTab key={terms!.id} terms={terms!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (
-          <TermsRichContentTab terms={terms!} onSaved={() => setActiveTab('details')} />
+          <TermsRichContentTab key={terms!.id} terms={terms!} onSaved={() => setActiveTab('details')} />
         )}
       </S.EditorBody>
     </S.EditorRoot>

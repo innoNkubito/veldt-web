@@ -62,6 +62,8 @@ function matchesTab(booking: Booking, tab: TabKey): boolean {
 function BookingDrawer({ booking, onClose }: { booking: Booking; onClose: () => void }) {
   const { approveRequest, cancelBooking, markPaid, saving } = useBookingsStore()
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  // "Overdue" is judged against when the drawer opened — render stays pure
+  const [now] = useState(() => Date.now())
 
   const statusMeta = BOOKING_STATUS_CONFIG[booking.status]
 
@@ -195,7 +197,7 @@ function BookingDrawer({ booking, onClose }: { booking: Booking; onClose: () => 
             const overdue =
               installment.status !== 'PAID' &&
               installment.status !== 'VOID' &&
-              new Date(installment.dueDate).getTime() < Date.now()
+              new Date(installment.dueDate).getTime() < now
             return (
               <S.InstallmentRow key={installment.id}>
                 <S.InstallmentMain>
@@ -263,6 +265,8 @@ export default function BookingsPage() {
   const [sortKey, setSortKey] = useState<SortKey>('createdAt')
   const [sortAsc, setSortAsc] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  // "Overdue" is judged against when the page loaded — render stays pure
+  const [now] = useState(() => Date.now())
 
   useEffect(() => {
     if (client) fetchBookings()
@@ -384,7 +388,7 @@ export default function BookingsPage() {
                 const statusMeta = BOOKING_STATUS_CONFIG[booking.status]
                 const next = nextDueInstallment(booking)
                 const overdue =
-                  next != null && new Date(next.dueDate).getTime() < Date.now() &&
+                  next != null && new Date(next.dueDate).getTime() < now &&
                   booking.status !== 'CANCELLED'
 
                 return (

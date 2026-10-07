@@ -36,32 +36,27 @@ export default function Sidebar({ activePath }: SidebarProps) {
     return item.subItems?.some((s) => activePath.startsWith(s.href)) ?? false;
   }
 
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
+  /** Sections holding the active route, opened on top of whatever the user opened. */
+  function withActiveExpanded(prev: Record<string, boolean>): Record<string, boolean> {
+    const next = { ...prev };
     for (const section of NAV_SECTIONS) {
       for (const item of section.items) {
         if (item.subItems && item.subItems.some((s) => activePath.startsWith(s.href))) {
-          initial[item.label] = true;
+          next[item.label] = true;
         }
       }
     }
-    return initial;
-  });
+    return next;
+  }
 
-  // Keep auto-expanded when route changes
-  useEffect(() => {
-    setExpanded((prev) => {
-      const next = { ...prev };
-      for (const section of NAV_SECTIONS) {
-        for (const item of section.items) {
-          if (item.subItems && item.subItems.some((s) => activePath.startsWith(s.href))) {
-            next[item.label] = true;
-          }
-        }
-      }
-      return next;
-    });
-  }, [activePath]);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => withActiveExpanded({}));
+
+  // Keep auto-expanded when route changes (adjusted during render, not in an effect)
+  const [expandedFor, setExpandedFor] = useState(activePath);
+  if (expandedFor !== activePath) {
+    setExpandedFor(activePath);
+    setExpanded(withActiveExpanded);
+  }
 
   function toggle(label: string) {
     setExpanded((prev) => ({ ...prev, [label]: !prev[label] }));

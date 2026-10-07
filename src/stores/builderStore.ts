@@ -6,6 +6,17 @@ import type { LiveFlightFields } from '@/components/itineraries/FlightLiveStatus
 
 // ── Types ──────────────────────────────────────────────────────
 
+/** Undefined fields are left unchanged. */
+export interface UpdateItineraryInput {
+  proposalTitle?: string
+  preparedFor?: string
+  travelDates?: string
+  whiteLabel?: boolean
+  internalNotes?: string
+  assignedToId?: string
+  mobileAppChoice?: string
+}
+
 export interface ItineraryFull {
   id: string
   proposalTitle: string
@@ -515,15 +526,7 @@ interface BuilderState {
   refreshItinerary: (id: string) => Promise<void>
   fetchProperties: () => Promise<void>
   fetchAreaAndActivityPages: () => Promise<void>
-  updateItinerary: (id: string, input: {
-    proposalTitle?: string
-    preparedFor?: string
-    travelDates?: string
-    whiteLabel?: boolean
-    internalNotes?: string
-    assignedToId?: string
-    mobileAppChoice?: string
-  }) => Promise<string | null>
+  updateItinerary: (id: string, input: UpdateItineraryInput) => Promise<string | null>
   publishItinerary: (id: string) => Promise<string | null>
   /** Moves the itinerary to another status; returns an error message or null. */
   setItineraryStatus: (

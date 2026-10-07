@@ -29,20 +29,6 @@ export default function DetailsTab({ property, getToken }: Props) {
     fetchAreas()
   }, [])
 
-  // Reset when navigating to a different property
-  useEffect(() => {
-    setForm({
-      name: property.name,
-      country: property.country ?? '',
-      locationName: property.locationName ?? '',
-      areaId: property.area?.id ?? '',
-      areaName: property.area?.name ?? '',
-      tags: property.tags,
-    })
-    setAreaQuery(property.area?.name ?? '')
-    setDirty(false)
-  }, [property.id])
-
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))
     setDirty(true)

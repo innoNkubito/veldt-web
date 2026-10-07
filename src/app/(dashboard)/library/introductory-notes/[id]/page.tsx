@@ -80,7 +80,7 @@ export default function IntroductoryNoteDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <IntroNoteDetailsTab introductoryNote={introductoryNote!} />
+            <IntroNoteDetailsTab key={introductoryNote!.id} introductoryNote={introductoryNote!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (

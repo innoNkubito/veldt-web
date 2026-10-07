@@ -494,7 +494,7 @@ export default function PageContentTab({ property }: Props) {
           </S.PageViewSectionsHeader>
 
           {editing ? (
-            <RichContentTab property={property} onSaved={() => setEditing(false)} />
+            <RichContentTab key={property.id} property={property} onSaved={() => setEditing(false)} />
           ) : (
             <>
               {!content ? (

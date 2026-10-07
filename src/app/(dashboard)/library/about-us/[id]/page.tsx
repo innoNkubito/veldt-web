@@ -80,7 +80,7 @@ export default function AboutUsDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <AboutUsDetailsTab aboutUs={aboutUs!} />
+            <AboutUsDetailsTab key={aboutUs!.id} aboutUs={aboutUs!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (

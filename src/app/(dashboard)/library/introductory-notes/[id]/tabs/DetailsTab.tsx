@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useIntroductoryNoteStore, type IntroductoryNoteFull, type UpdateIntroductoryNoteInput } from '@/stores/introductoryNoteStore'
 import * as S from '../page.styled'
 
@@ -17,11 +17,6 @@ export default function IntroNoteDetailsTab({ introductoryNote }: Props) {
   })
   const [tagInput, setTagInput] = useState('')
   const [dirty, setDirty] = useState(false)
-
-  useEffect(() => {
-    setForm({ name: introductoryNote.name, tags: introductoryNote.tags })
-    setDirty(false)
-  }, [introductoryNote.id])
 
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))

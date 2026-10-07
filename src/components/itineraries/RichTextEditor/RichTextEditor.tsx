@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
-import { EditorContent, useEditor, type JSONContent } from '@tiptap/react'
+import { useEffect, useRef, useState } from 'react'
+import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Mention from '@tiptap/extension-mention'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -41,13 +41,22 @@ export default function RichTextEditor({
 
   // Keep a ref so the mention callbacks always have the latest state
   const suggestionRef = useRef<SuggestionState | null>(null)
-  suggestionRef.current = suggestion
 
   // Keep mentionOptions in a ref so the suggestion items() closure is always fresh
   const optionsRef = useRef(mentionOptions)
-  optionsRef.current = mentionOptions
 
-  const mentionExtension = useMemo(
+  // Refs are written after render, never during it; the mention callbacks only
+  // read them later, from editor events.
+  useEffect(() => {
+    suggestionRef.current = suggestion
+    optionsRef.current = mentionOptions
+  })
+
+  // Built once: the callbacks read the refs, so they never need rebuilding.
+  // The rule can't see that the refs are only read inside those callbacks —
+  // on editor events, after render — never while this initialiser runs.
+  const [mentionExtension] = useState(
+    // eslint-disable-next-line react-hooks/refs
     () =>
       Mention.configure({
         HTMLAttributes: { class: 'mention' },
@@ -119,8 +128,6 @@ export default function RichTextEditor({
           }),
         },
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
   )
 
   const editor = useEditor({

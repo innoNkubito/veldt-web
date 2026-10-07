@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAreaStore, type AreaFull, type UpdateAreaInput } from '@/stores/areaStore'
 import * as S from '../page.styled'
 
@@ -19,16 +19,6 @@ export default function AreaDetailsTab({ area }: Props) {
   })
   const [tagInput, setTagInput] = useState('')
   const [dirty, setDirty] = useState(false)
-
-  useEffect(() => {
-    setForm({
-      name: area.name,
-      country: area.country ?? '',
-      locationName: area.locationName ?? '',
-      tags: area.tags,
-    })
-    setDirty(false)
-  }, [area.id])
 
   function setF<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((f) => ({ ...f, [key]: value }))

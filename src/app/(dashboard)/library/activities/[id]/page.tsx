@@ -80,7 +80,7 @@ export default function ActivityDetailPage() {
       <S.EditorBody>
         {activeTab === 'details' && (
           <S.TabBody>
-            <ActivityDetailsTab activity={activity!} />
+            <ActivityDetailsTab key={activity!.id} activity={activity!} />
           </S.TabBody>
         )}
         {activeTab === 'content' && (

@@ -26,20 +26,16 @@ export default function OnboardingRequestPage() {
     contactPhone: '',
     notes: '',
   })
-  const [tier, setTier] = useState<SubscriptionTier | null>(null)
-  const [interval, setIntervalChoice] = useState<BillingInterval | null>(null)
+  // The user's picks; until they pick, the mid tier and the first interval
+  const [pickedTier, setTier] = useState<SubscriptionTier | null>(null)
+  const [pickedInterval, setIntervalChoice] = useState<BillingInterval | null>(null)
+  const tier = pickedTier ?? plans[1]?.tier ?? plans[0]?.tier ?? null
+  const interval = pickedInterval ?? intervals[0]?.interval ?? null
 
   useEffect(() => {
     fetchOptions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  // Default to the mid tier and monthly once options arrive
-  useEffect(() => {
-    if (!tier && plans.length > 0) setTier(plans[1]?.tier ?? plans[0].tier)
-    if (!interval && intervals.length > 0) setIntervalChoice(intervals[0].interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [plans, intervals])
 
   function setField(key: keyof typeof form, value: string) {
     setForm((f) => ({ ...f, [key]: value }))

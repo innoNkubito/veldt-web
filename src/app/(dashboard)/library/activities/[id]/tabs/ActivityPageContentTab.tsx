@@ -179,7 +179,7 @@ export default function ActivityPageContentTab({ activity }: Props) {
           </S.PageViewSectionsHeader>
 
           {editing ? (
-            <ActivityRichContentTab activity={activity} onSaved={() => setEditing(false)} />
+            <ActivityRichContentTab key={activity.id} activity={activity} onSaved={() => setEditing(false)} />
           ) : (
             overview ? (
               <OverviewView section={overview} />

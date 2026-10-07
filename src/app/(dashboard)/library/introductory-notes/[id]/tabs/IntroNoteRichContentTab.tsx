@@ -69,11 +69,6 @@ export default function IntroNoteRichContentTab({ introductoryNote, onSaved }: P
   const [section, setSection] = useState<TextImageSection>(() => parseOverview(introductoryNote))
   const [dirty, setDirty] = useState(false)
 
-  useEffect(() => {
-    setSection(parseOverview(introductoryNote))
-    setDirty(false)
-  }, [introductoryNote.id])
-
   function update(patch: Partial<TextImageSection>) {
     setSection((s) => ({ ...s, ...patch }))
     setDirty(true)

@@ -1,8 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { T } from '@/lib/theme'
-import { useBuilderStore } from '@/stores/builderStore'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import {
   FieldGroup,
@@ -12,79 +9,24 @@ import {
   FieldTextarea,
   CheckboxRow,
 } from '@/components/itineraries/shared/FieldPrimitives'
-import * as S from './OverviewTab.styled'
 import InfoPagesCard from '@/components/itineraries/InfoPagesCard'
-import { confirmDialog } from '@/stores/confirmStore'
 import { formatTimestamp } from '@/lib/dates'
+import * as S from './OverviewTab.styled'
+import { useOverviewTab } from './useOverviewTab'
+import { COPY, NOTES_ROWS } from './OverviewTab.constants'
+import { viewCountLabel } from './OverviewTab.utils'
 
 export default function OverviewTab() {
-  const { itinerary, updateItinerary, regenerateShareLink, saving } = useBuilderStore()
-  const [shareError, setShareError] = useState<string | null>(null)
-  const [form, setForm] = useState({
-    proposalTitle: itinerary?.proposalTitle ?? '',
-    preparedFor: itinerary?.preparedFor ?? '',
-    travelDates: itinerary?.travelDates ?? '',
-    internalNotes: itinerary?.internalNotes ?? '',
-    whiteLabel: itinerary?.whiteLabel ?? false,
-  })
-  const [dirty, setDirty] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (itinerary) {
-      setForm({
-        proposalTitle: itinerary.proposalTitle,
-        preparedFor: itinerary.preparedFor ?? '',
-        travelDates: itinerary.travelDates ?? '',
-        internalNotes: itinerary.internalNotes ?? '',
-        whiteLabel: itinerary.whiteLabel,
-      })
-      setDirty(false)
-    }
-  }, [itinerary?.id])
-
-  function set(key: keyof typeof form, value: string | boolean) {
-    setForm((f) => ({ ...f, [key]: value }))
-    setDirty(true)
-    setSaveError(null)
-  }
-
-  async function handleSave() {
-    if (!itinerary) return
-    const err = await updateItinerary(itinerary.id, {
-      proposalTitle: form.proposalTitle,
-      preparedFor: form.preparedFor || undefined,
-      travelDates: form.travelDates || undefined,
-      internalNotes: form.internalNotes || undefined,
-      whiteLabel: form.whiteLabel,
-    })
-    // On failure the edits stay in the form so they can be corrected and resaved.
-    setSaveError(err)
-    if (!err) setDirty(false)
-  }
-
-  async function handleNewLink() {
-    if (!itinerary) return
-    const ok = await confirmDialog({
-      title: 'Create a new share link?',
-      message:
-        'The current link stops working straight away. Send the new link to anyone who should still have access.',
-      confirmLabel: 'Create New Link',
-      danger: true,
-    })
-    if (!ok) return
-    setShareError(await regenerateShareLink(itinerary.id))
-  }
+  const {
+    itinerary, form, set, dirty, saving, saveError, save, canSave,
+    link, copyLink, newLink, shareError,
+  } = useOverviewTab()
 
   const saveButton = dirty ? (
     <>
       {saveError && <S.SaveError>{saveError}</S.SaveError>}
-      <ActionButton
-        $variant="primary"
-        onClick={handleSave}
-        $disabled={saving || !form.proposalTitle.trim()}
-      >
-        {saving ? 'Saving…' : 'Save Changes'}
+      <ActionButton $variant="primary" onClick={save} $disabled={!canSave}>
+        {saving ? COPY.saving : COPY.save}
       </ActionButton>
     </>
   ) : null
@@ -92,30 +34,30 @@ export default function OverviewTab() {
   return (
     <S.Grid>
       <S.Card>
-        <S.CardTitle>Trip Details</S.CardTitle>
+        <S.CardTitle>{COPY.tripDetails}</S.CardTitle>
         <FieldGroup>
           <Field>
-            <FieldLabel>Proposal Title *</FieldLabel>
+            <FieldLabel>{COPY.proposalTitle}</FieldLabel>
             <FieldInput
               value={form.proposalTitle}
               onChange={(e) => set('proposalTitle', e.target.value)}
-              placeholder="e.g. Kenya Safari — 7 Days"
+              placeholder={COPY.proposalTitlePlaceholder}
             />
           </Field>
           <Field>
-            <FieldLabel>Prepared For</FieldLabel>
+            <FieldLabel>{COPY.preparedFor}</FieldLabel>
             <FieldInput
               value={form.preparedFor}
               onChange={(e) => set('preparedFor', e.target.value)}
-              placeholder="e.g. James & Sarah Wilson"
+              placeholder={COPY.preparedForPlaceholder}
             />
           </Field>
           <Field>
-            <FieldLabel>Travel Dates</FieldLabel>
+            <FieldLabel>{COPY.travelDates}</FieldLabel>
             <FieldInput
               value={form.travelDates}
               onChange={(e) => set('travelDates', e.target.value)}
-              placeholder="e.g. September 2026"
+              placeholder={COPY.travelDatesPlaceholder}
             />
           </Field>
           <Field>
@@ -125,7 +67,7 @@ export default function OverviewTab() {
                 checked={form.whiteLabel}
                 onChange={(e) => set('whiteLabel', e.target.checked)}
               />
-              White-label (hide Veldt branding on share link)
+              {COPY.whiteLabel}
             </CheckboxRow>
           </Field>
         </FieldGroup>
@@ -133,15 +75,15 @@ export default function OverviewTab() {
       </S.Card>
 
       <S.Card>
-        <S.CardTitle>Internal Notes</S.CardTitle>
+        <S.CardTitle>{COPY.internalNotes}</S.CardTitle>
         <FieldGroup>
           <Field>
-            <FieldLabel>Notes (not visible to client)</FieldLabel>
+            <FieldLabel>{COPY.notesLabel}</FieldLabel>
             <FieldTextarea
               value={form.internalNotes}
               onChange={(e) => set('internalNotes', e.target.value)}
-              placeholder="Supplier contacts, commission details, special requests…"
-              rows={6}
+              placeholder={COPY.notesPlaceholder}
+              rows={NOTES_ROWS}
             />
           </Field>
         </FieldGroup>
@@ -151,43 +93,26 @@ export default function OverviewTab() {
       {/* Information pages — full width */}
       <InfoPagesCard />
 
-      {/* Share link — full width */}
-      <S.Card style={{ gridColumn: '1 / -1' }}>
-        <S.CardTitle>Share Link</S.CardTitle>
+      <S.WideCard>
+        <S.CardTitle>{COPY.shareLink}</S.CardTitle>
         <S.ShareInputRow>
-          <FieldInput
-            readOnly
-            value={
-              itinerary?.status === 'DRAFT'
-                ? 'Publish this itinerary to generate a share link'
-                : `${typeof window !== 'undefined' ? window.location.origin : ''}/view/${itinerary?.slug}`
-            }
-            style={{ color: T.muted, flex: 1 }}
-          />
-          {itinerary?.status !== 'DRAFT' && (
-            <ActionButton
-              onClick={() => {
-                if (itinerary)
-                  navigator.clipboard.writeText(`${window.location.origin}/view/${itinerary.slug}`)
-              }}
-            >
-              Copy
-            </ActionButton>
-          )}
-          {itinerary?.status !== 'DRAFT' && (
-            <ActionButton onClick={handleNewLink} $disabled={saving} disabled={saving}>
-              New Link
+          <S.ShareInput readOnly value={link ?? COPY.draftShareLink} />
+          {link && <ActionButton onClick={copyLink}>{COPY.copy}</ActionButton>}
+          {link && (
+            <ActionButton onClick={newLink} $disabled={saving} disabled={saving}>
+              {COPY.newLink}
             </ActionButton>
           )}
         </S.ShareInputRow>
         {shareError && <S.SaveError>{shareError}</S.SaveError>}
         {itinerary && (
           <S.ShareMeta>
-            {itinerary.viewCount} view{itinerary.viewCount !== 1 ? 's' : ''} · Created{' '}
-            {formatTimestamp(itinerary.createdAt)} · Last updated {formatTimestamp(itinerary.updatedAt)}
+            {viewCountLabel(itinerary.viewCount)} · {COPY.created}{' '}
+            {formatTimestamp(itinerary.createdAt)} · {COPY.lastUpdated}{' '}
+            {formatTimestamp(itinerary.updatedAt)}
           </S.ShareMeta>
         )}
-      </S.Card>
+      </S.WideCard>
     </S.Grid>
   )
 }

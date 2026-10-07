@@ -175,7 +175,7 @@ export default function AboutUsPageContentTab({ aboutUs }: Props) {
           </S.PageViewSectionsHeader>
 
           {editing ? (
-            <AboutUsRichContentTab aboutUs={aboutUs} onSaved={() => setEditing(false)} />
+            <AboutUsRichContentTab key={aboutUs.id} aboutUs={aboutUs} onSaved={() => setEditing(false)} />
           ) : (
             overview ? (
               <OverviewView section={overview} />
