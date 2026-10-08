@@ -1,4 +1,5 @@
 import type { LiveFlightFields } from '@/components/itineraries/FlightLiveStatus'
+import type { OperatorBrandMark } from '@/components/itineraries/OperatorMark'
 
 /** A confirmed flight as the share link returns it. Times are airport-local. */
 export interface TripFlight extends LiveFlightFields {
@@ -57,6 +58,7 @@ export interface EmergencyContact {
 }
 
 export interface TravelDashboardItinerary {
+  brand: OperatorBrandMark
   status: string
   startDate: string | null // YYYY-MM-DD
   endDate: string | null // YYYY-MM-DD

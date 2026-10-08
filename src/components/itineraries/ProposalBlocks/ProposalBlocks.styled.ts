@@ -13,6 +13,7 @@ export const AccomPhotoGrid = styled.div<{ $count: number }>`
   border-radius: 8px;
   overflow: hidden;
   aspect-ratio: 16/7;
+  position: relative;
 `
 
 export const AccomRoomBlock = styled.div`

@@ -10,6 +10,7 @@ export const GET_BY_SLUG = gql`
     itineraryBySlug(slug: $slug) {
       id proposalTitle preparedFor travelDates whiteLabel slug
       status startDate endDate
+      brand { name logoUrl } reference
       tripContact { name email }
       operatorContact { name phone whatsapp email }
       emergencyContacts { id pageId role name phone email }

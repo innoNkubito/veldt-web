@@ -6,6 +6,7 @@ import type {
   TripContact,
   TripFlight,
 } from '@/components/itineraries/TravelDashboard'
+import type { OperatorBrandMark } from '@/components/itineraries/OperatorMark'
 
 export interface Room {
   id: string
@@ -61,6 +62,10 @@ export interface PublicItinerary {
   travelDates: string | null
   whiteLabel: boolean
   slug: string
+  /** The operator's watermark — shown whatever `whiteLabel` says. */
+  brand: OperatorBrandMark
+  /** Printed on every page, e.g. VLD-4F2A9C. */
+  reference: string
   status: string
   startDate: string | null // YYYY-MM-DD
   endDate: string | null // YYYY-MM-DD

@@ -1,6 +1,7 @@
 'use client'
 
 import FlightLiveStatus from '@/components/itineraries/FlightLiveStatus'
+import OperatorMark from '@/components/itineraries/OperatorMark'
 import * as S from './TravelDashboard.styled'
 import { useTravelDashboard } from './useTravelDashboard'
 import { COPY, DIRECTION_LABELS, TRIP_SECTION_ID } from './TravelDashboard.constants'
@@ -46,6 +47,9 @@ export default function TravelDashboard({ itinerary }: TravelDashboardProps) {
 
   return (
     <S.Block id={TRIP_SECTION_ID} data-cover-id={TRIP_SECTION_ID}>
+      <S.Brand>
+        <OperatorMark brand={itinerary.brand} variant="inline" />
+      </S.Brand>
       <S.Pretitle>{COPY.pretitle}</S.Pretitle>
       <S.Heading>{COPY.headings[phase]}</S.Heading>
       {(dateRange || daysToGo != null) && (

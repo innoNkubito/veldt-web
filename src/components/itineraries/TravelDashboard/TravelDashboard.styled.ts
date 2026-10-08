@@ -10,6 +10,10 @@ export const Block = styled.section`
   }
 `
 
+export const Brand = styled.div`
+  margin-bottom: 18px;
+`
+
 export const Pretitle = styled.div`
   font-size: 11px;
   font-weight: 700;

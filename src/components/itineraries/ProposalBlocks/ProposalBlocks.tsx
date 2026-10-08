@@ -11,6 +11,7 @@ import React from 'react'
 import * as S from './ProposalBlocks.styled'
 import { toPMNode, attrString, attrNumber, headingTag, type PMNode } from '@/lib/prosemirror'
 import { usePhotoSlider } from './usePhotoSlider'
+import { PhotoMark } from '@/components/itineraries/OperatorMark'
 import {
   FACT_ICON_SIZE,
   NO_ROOMS_MESSAGE,
@@ -64,6 +65,7 @@ export function PhotoSlider({ images }: PhotoSliderProps) {
         <S.SliderTrack $index={0}>
           <S.SliderSlide $url={images[0]} />
         </S.SliderTrack>
+        <PhotoMark />
       </S.SliderWrap>
     )
   }
@@ -72,6 +74,7 @@ export function PhotoSlider({ images }: PhotoSliderProps) {
       <S.SliderTrack $index={index}>
         {images.map((url, i) => <S.SliderSlide key={i} $url={url} />)}
       </S.SliderTrack>
+      <PhotoMark />
       <S.SliderArrow $side="left" onClick={previous}>
         <SliderArrowIcon side="left" />
       </S.SliderArrow>
@@ -159,6 +162,7 @@ export function AccommodationView({ section, rooms, pageId }: AccommodationViewP
                 ) : (
                   <S.AccomPhotoGrid $count={photos.length}>
                     {photos.map((url, i) => <S.AccomPhoto key={i} $url={url} />)}
+                    <PhotoMark />
                   </S.AccomPhotoGrid>
                 )
               )}

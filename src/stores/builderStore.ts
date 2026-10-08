@@ -3,6 +3,7 @@ import { gql } from 'graphql-request'
 import { useClientStore } from './clientStore'
 import { gqlErrorMessage } from '@/lib/gql-error'
 import type { LiveFlightFields } from '@/components/itineraries/FlightLiveStatus'
+import type { OperatorBrandMark } from '@/components/itineraries/OperatorMark'
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -19,6 +20,9 @@ export interface UpdateItineraryInput {
 
 export interface ItineraryFull {
   id: string
+  /** The operator's watermark, as the client sees it. */
+  brand: OperatorBrandMark
+  reference: string
   proposalTitle: string
   preparedFor: string | null
   travelDates: string | null
@@ -237,6 +241,8 @@ const GET_ITINERARY = gql`
   query GetItinerary($id: ID!) {
     itinerary(id: $id) {
       id
+      brand { name logoUrl }
+      reference
       proposalTitle
       preparedFor
       travelDates

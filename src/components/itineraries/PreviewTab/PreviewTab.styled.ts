@@ -177,3 +177,11 @@ export const PreviewContent = styled.div`
 
 // ── Empty / misc ────────────────────────────────────────────────
 
+
+export const OperatorFooter = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 32px 0 40px;
+  margin-top: 24px;
+  border-top: 1px solid ${T.border};
+`

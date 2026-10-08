@@ -270,3 +270,15 @@ export const FlightsPromptLink = styled.a`
     text-decoration: underline;
   }
 `
+
+export const OperatorFooter = styled.div`
+  display: flex;
+  justify-content: center;
+  padding: 32px 64px 0;
+  margin-top: 24px;
+  border-top: 1px solid ${T.border};
+
+  @media (max-width: 900px) {
+    padding: 24px 24px 0;
+  }
+`
