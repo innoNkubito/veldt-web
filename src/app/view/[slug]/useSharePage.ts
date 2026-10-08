@@ -20,6 +20,7 @@ import {
   isBookable,
   isTripMode,
   lowestPackagePrice,
+  sharePath,
 } from './page.utils'
 import type { PublicItinerary } from './page.types'
 
@@ -90,5 +91,9 @@ export function useSharePage() {
       }
     : null
 
-  return { loading, notFound, itinerary, view, booking, ...crossfade }
+  // For the print footer: the link the copy came from
+  const shareUrl =
+    itinerary && typeof window !== 'undefined' ? `${window.location.origin}${sharePath(itinerary.slug)}` : ''
+
+  return { loading, notFound, itinerary, view, booking, shareUrl, ...crossfade }
 }

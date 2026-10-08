@@ -188,6 +188,10 @@ export const SliderArrow = styled.button<{ $side: 'left' | 'right' }>`
   z-index: 2;
   transition: background 0.15s;
   &:hover { background: rgba(0, 0, 0, 0.65); }
+
+  @media print {
+    display: none;
+  }
 `
 
 export const SliderDot = styled.button<{ $active: boolean }>`
@@ -210,6 +214,10 @@ export const SliderDots = styled.div`
   align-items: center;
   justify-content: center;
   gap: 6px;
+
+  @media print {
+    display: none;
+  }
 `
 
 export const SliderSlide = styled.div<{ $url: string }>`

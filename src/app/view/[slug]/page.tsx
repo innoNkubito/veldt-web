@@ -15,6 +15,7 @@ import {
 } from '@/components/itineraries/ProposalSections'
 import TravelDashboard from '@/components/itineraries/TravelDashboard'
 import OperatorMark, { OperatorBrandProvider } from '@/components/itineraries/OperatorMark'
+import PrintWatermark from '@/components/itineraries/PrintWatermark'
 import { useSharePage } from './useSharePage'
 import {
   BOOK_SECTION_ID,
@@ -28,7 +29,7 @@ import {
 /** The public share link: the proposal, and the way to book it. */
 export default function SharePage() {
   const {
-    loading, notFound, itinerary, view, booking,
+    loading, notFound, itinerary, view, booking, shareUrl,
     contentRef, layerA, layerB, showA, cover,
   } = useSharePage()
 
@@ -53,6 +54,7 @@ export default function SharePage() {
 
   return (
     <OperatorBrandProvider value={itinerary.brand}>
+      <PrintWatermark brand={itinerary.brand} reference={itinerary.reference} shareUrl={shareUrl} />
       <S.ViewLayout>
         <S.CoverPanel>
           <S.CoverBgLayer $url={layerA.url} $visible={showA} />

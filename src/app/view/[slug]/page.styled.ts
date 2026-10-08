@@ -39,6 +39,13 @@ export const ViewLayout = styled.div`
   background: ${T.bg};
   font-family: 'DM Sans', sans-serif;
 
+  /* On paper the proposal flows top to bottom: cover page, then content */
+  @media print {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
   @media (max-width: 900px) {
     display: flex;
     flex-direction: column;
@@ -53,6 +60,11 @@ export const CoverPanel = styled.div`
   position: relative;
   height: 100vh;
   overflow: hidden;
+
+  @media print {
+    height: 240mm;
+    break-after: page;
+  }
 
   @media (max-width: 900px) {
     height: 320px;
@@ -129,6 +141,12 @@ export const ViewContent = styled.div`
   height: 100vh;
   border-left: 1px solid ${T.border};
 
+  @media print {
+    height: auto;
+    overflow: visible;
+    border-left: none;
+  }
+
   @media (max-width: 900px) {
     height: auto;
     overflow-y: visible;
@@ -163,6 +181,10 @@ export const BookBlock = styled.div`
 
   @media (max-width: 900px) {
     padding: 36px 24px 44px;
+  }
+
+  @media print {
+    display: none;
   }
 `
 
@@ -257,6 +279,10 @@ export const FlightsPrompt = styled.div`
 
   @media (max-width: 900px) {
     padding: 14px 24px;
+  }
+
+  @media print {
+    display: none;
   }
 `
 
