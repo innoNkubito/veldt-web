@@ -15,6 +15,7 @@ import {
   type UserRole,
 } from '@/stores/teamStore'
 import OperatorContactCard from './OperatorContactCard'
+import OperatorBrandCard from './OperatorBrandCard'
 import * as S from './page.styled'
 import { formatTimestamp } from '@/lib/dates'
 
@@ -473,6 +474,7 @@ export default function TeamPage() {
         </S.Card>
       </S.Section>
 
+      <OperatorBrandCard canEdit={canManage} />
       <OperatorContactCard canEdit={canManage} />
 
       {invitations.length > 0 && (

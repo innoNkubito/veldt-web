@@ -37,15 +37,18 @@ export async function uploadFile(
     { filename: file.name, contentType: file.type || 'application/octet-stream' },
   )
 
-  const res = await fetch(getUploadUrl.uploadUrl, {
+  await putFile(getUploadUrl.uploadUrl, file)
+  return getUploadUrl.publicUrl
+}
+
+/** PUTs a file to a presigned S3 URL; throws if S3 refuses it. */
+export async function putFile(uploadUrl: string, file: File): Promise<void> {
+  const res = await fetch(uploadUrl, {
     method: 'PUT',
     headers: { 'Content-Type': file.type || 'application/octet-stream' },
     body: file,
   })
-
   if (!res.ok) {
     throw new Error(`S3 upload failed: ${res.status} ${res.statusText}`)
   }
-
-  return getUploadUrl.publicUrl
 }

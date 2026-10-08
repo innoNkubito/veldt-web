@@ -17,6 +17,7 @@ import * as S from '../requests/page.styled'
 import { parseOption } from '@/lib/guards'
 import { T } from '@/lib/theme'
 import { formatTimestamp } from '@/lib/dates'
+import OperatorBrandEditor from './OperatorBrandEditor'
 
 const TIERS: SubscriptionTier[] = ['SOLO', 'STUDIO', 'AGENCY', 'ENTERPRISE']
 const INTERVALS: BillingInterval[] = ['MONTHLY', 'QUARTERLY', 'SEMIANNUAL', 'ANNUAL']
@@ -46,7 +47,7 @@ function SubscriptionDrawer({
 }) {
   const {
     updateSubscription, createInvoice, sendInvoice, voidInvoice, markInvoicePaid,
-    savingBilling,
+    savingBilling, fetchSubscriptions,
   } = useBillingAdminStore()
 
   const [tier, setTier] = useState<SubscriptionTier>(subscription.tier)
@@ -152,6 +153,12 @@ function SubscriptionDrawer({
             <S.StatusChip $color={T.gold} $bg={T.goldLt}>Auto-renew off</S.StatusChip>
           )}
         </div>
+
+        <OperatorBrandEditor
+          key={subscription.operatorId}
+          operatorId={subscription.operatorId}
+          onSaved={fetchSubscriptions}
+        />
 
         <S.Section>
           <S.SectionTitle>Current state</S.SectionTitle>
