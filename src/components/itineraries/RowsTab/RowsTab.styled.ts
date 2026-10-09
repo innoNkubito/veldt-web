@@ -251,6 +251,11 @@ export const ActionBackdrop = styled.div`
 
 // ── Add row ───────────────────────────────────────────────────────
 
+export const AddRowActions = styled.div`
+  display: flex;
+  gap: 10px;
+`
+
 export const AddRowButton = styled.button`
   display: flex;
   align-items: center;

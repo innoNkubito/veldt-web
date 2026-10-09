@@ -77,6 +77,14 @@ const CREATE_FROM_TEMPLATE = gql`
   }
 `
 
+const INSERT_TEMPLATE_DAYS = gql`
+  mutation InsertTemplateDays($itineraryId: ID!, $templateId: ID!, $position: Int) {
+    insertTemplateDays(itineraryId: $itineraryId, templateId: $templateId, position: $position) {
+      id
+    }
+  }
+`
+
 const UPDATE_TEMPLATE_DETAILS = gql`
   mutation UpdateTemplateDetails($id: ID!, $input: TemplateDetailsInput!) {
     updateTemplateDetails(id: $id, input: $input) { ${TEMPLATE_FIELDS} }
@@ -119,6 +127,11 @@ interface TemplateState {
   fetchPickerTemplates: () => Promise<TemplateListItem[]>
   saveAsTemplate: (itineraryId: string, input: TemplateDetailsInput) => Promise<Result<string>>
   createFromTemplate: (templateId: string, input: CreateFromTemplateInput) => Promise<Result<string>>
+  /**
+   * Copies a template's days into an itinerary at `position` (index among its
+   * days; null = at the end). The caller reloads the itinerary.
+   */
+  insertDays: (itineraryId: string, templateId: string, position: number | null) => Promise<string | null>
   updateDetails: (id: string, input: TemplateDetailsInput) => Promise<string | null>
   setArchived: (id: string, archived: boolean) => Promise<string | null>
   duplicate: (id: string) => Promise<string | null>
@@ -225,6 +238,20 @@ export const useTemplateStore = create<TemplateState>((set, get) => {
       } catch (err) {
         set({ saving: false })
         return { ok: false, error: gqlErrorMessage(err, 'Could not create the itinerary.') }
+      }
+    },
+
+    insertDays: async (itineraryId, templateId, position) => {
+      const client = useClientStore.getState().client
+      if (!client) return 'Not connected.'
+      set({ saving: true })
+      try {
+        await client.request(INSERT_TEMPLATE_DAYS, { itineraryId, templateId, position })
+        set({ saving: false })
+        return null
+      } catch (err) {
+        set({ saving: false })
+        return gqlErrorMessage(err, 'Could not add the template days.')
       }
     },
 

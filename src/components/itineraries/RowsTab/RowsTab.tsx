@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useBuilderStore, type ItineraryRow, type PropertyOption } from '@/stores/builderStore'
 import { confirmDialog } from '@/stores/confirmStore'
 import RichTextEditor from '@/components/itineraries/RichTextEditor'
+import InsertTemplateDaysModal from '@/components/itineraries/InsertTemplateDaysModal'
 import * as S from './RowsTab.styled'
 
 // ── Row action menu ───────────────────────────────────────────────
@@ -411,6 +412,7 @@ export default function RowsTab() {
   } = useBuilderStore()
 
   const [addingNew, setAddingNew] = useState(false)
+  const [insertingTemplate, setInsertingTemplate] = useState(false)
 
   // Combined area + activity options for the activities column @mentions
   const activityMentionOptions = [...areaPages, ...activityPages]
@@ -474,6 +476,15 @@ export default function RowsTab() {
     reorderRows(itinerary.id, next.map((r) => r.id))
   }
 
+  const templateModal =
+    insertingTemplate && itinerary ? (
+      <InsertTemplateDaysModal
+        itineraryId={itinerary.id}
+        rows={rows}
+        onClose={() => setInsertingTemplate(false)}
+      />
+    ) : null
+
   if (rows.length === 0 && !addingNew) {
     return (
       <S.Root>
@@ -487,7 +498,13 @@ export default function RowsTab() {
           <div>No rows yet</div>
           <div style={{ fontSize: 12 }}>Add your first day to start building the itinerary</div>
         </S.EmptyState>
-        <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
+        <S.AddRowActions>
+          <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
+          <S.AddRowButton onClick={() => setInsertingTemplate(true)}>
+            + Add Days from Template
+          </S.AddRowButton>
+        </S.AddRowActions>
+        {templateModal}
       </S.Root>
     )
   }
@@ -567,8 +584,14 @@ export default function RowsTab() {
       {addingNew ? (
         <AddRowForm onSave={handleAddRow} onCancel={() => setAddingNew(false)} />
       ) : (
-        <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
+        <S.AddRowActions>
+          <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
+          <S.AddRowButton onClick={() => setInsertingTemplate(true)}>
+            + Add Days from Template
+          </S.AddRowButton>
+        </S.AddRowActions>
       )}
+      {templateModal}
     </S.Root>
   )
 }
