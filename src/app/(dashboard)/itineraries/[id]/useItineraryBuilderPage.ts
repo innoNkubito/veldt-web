@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useBuilderStore } from '@/stores/builderStore'
 import type { TripDetailsInput } from '@/stores/builderStore'
 import { useClientStore } from '@/stores/clientStore'
+import { useProfileStore } from '@/stores/profileStore'
+import { useTemplateStore, type TemplateDetailsInput } from '@/stores/templateStore'
 import { confirmDialog } from '@/stores/confirmStore'
 import { routeParam } from '@/lib/guards'
 import { ARCHIVE_DIALOG, COMPLETE_TRIP_DIALOG, UNDO_CONFIRM_DIALOG } from './page.constants'
@@ -15,8 +17,11 @@ import type { BuilderTab } from './page.types'
  */
 export function useItineraryBuilderPage() {
   const params = useParams()
+  const router = useRouter()
   const id = routeParam(params?.id)
   const client = useClientStore((s) => s.client)
+  const role = useProfileStore((s) => s.profile?.role)
+  const saveAsTemplate = useTemplateStore((s) => s.saveAsTemplate)
   const {
     itinerary,
     loading,
@@ -34,6 +39,8 @@ export function useItineraryBuilderPage() {
   const [showConfirmTrip, setShowConfirmTrip] = useState(false)
   const [showStartTrip, setShowStartTrip] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false)
+  const [showUseTemplate, setShowUseTemplate] = useState(false)
 
   useEffect(() => {
     if (client && id) fetchItinerary(id)
@@ -98,11 +105,25 @@ export function useItineraryBuilderPage() {
     await changeStatus(() => restoreItinerary(itinerary.id))
   }
 
+  /** Saves a copy as a template and opens it; errors stay in the modal. */
+  async function saveTemplate(input: TemplateDetailsInput) {
+    if (!itinerary) return null
+    const result = await saveAsTemplate(itinerary.id, input)
+    if (!result.ok) return result.error
+    setShowSaveTemplate(false)
+    router.push(`/itineraries/${result.value}`)
+    return null
+  }
+
   function copyShareLink() {
     if (itinerary) navigator.clipboard.writeText(shareLinkUrl(window.location.origin, itinerary.slug))
   }
 
   const status = itinerary?.status
+  const isTemplate = itinerary?.kind === 'TEMPLATE'
+  // Calendar itineraries have no relative-date form yet; viewers only use templates.
+  const canSaveTemplate =
+    !!itinerary && !isTemplate && itinerary.builderMode !== 'CALENDAR' && role !== 'VIEWER'
 
   return {
     itinerary,
@@ -110,6 +131,8 @@ export function useItineraryBuilderPage() {
     error,
     saving,
     status,
+    isTemplate,
+    canSaveTemplate,
     tabs: visibleTabs(status),
     currentTab: resolveTab(activeTab, status),
     setActiveTab,
@@ -134,6 +157,17 @@ export function useItineraryBuilderPage() {
       show: () => setShowStartTrip(true),
       close: () => setShowStartTrip(false),
       startTrip,
+    },
+    saveTemplateModal: {
+      open: showSaveTemplate,
+      show: () => setShowSaveTemplate(true),
+      close: () => setShowSaveTemplate(false),
+      save: saveTemplate,
+    },
+    useTemplateModal: {
+      open: showUseTemplate,
+      show: () => setShowUseTemplate(true),
+      close: () => setShowUseTemplate(false),
     },
     undoConfirm,
     archive,

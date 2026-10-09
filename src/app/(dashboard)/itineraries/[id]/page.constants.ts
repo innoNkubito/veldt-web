@@ -10,6 +10,7 @@ export const TABS: { key: BuilderTab; label: string }[] = [
 ]
 
 export const ITINERARIES_PATH = '/itineraries'
+export const TEMPLATES_PATH = '/templates'
 
 export const COPY = {
   loading: 'Loading itinerary…',
@@ -27,6 +28,13 @@ export const COPY = {
   markConfirmed: 'Mark Confirmed',
   restore: 'Restore',
   dismiss: 'Dismiss',
+  saveAsTemplate: 'Save as Template',
+  useTemplate: 'Use Template',
+  templatesBackLink: '← Templates',
+  templateBadge: 'Template',
+  templateBanner:
+    'You are editing a template. Changes apply to itineraries created from it from now on — ' +
+    'not to ones already created. Templates are never published or shared with clients.',
 } as const
 
 export const UNDO_CONFIRM_DIALOG = {

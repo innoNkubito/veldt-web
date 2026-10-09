@@ -9,6 +9,7 @@ import { T } from '@/lib/theme'
 import { STATUS_TABS, StatusTab } from '@/lib/itinerary-constants'
 import ItineraryStatusBadge from '@/components/itineraries/ItineraryStatusBadge'
 import CreateItineraryModal from '@/components/itineraries/CreateItineraryModal'
+import UseTemplateModal from '@/components/itineraries/UseTemplateModal'
 import ItineraryRowMenu from '@/components/itineraries/ItineraryRowMenu'
 import ItineraryEmptyState from '@/components/itineraries/ItineraryEmptyState'
 import { Box } from '@mui/material'
@@ -46,6 +47,7 @@ function ItinerariesPageInner() {
   const [activeTab, setActiveTab] = useState<StatusTab>('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [showCreate, setShowCreate] = useState(() => searchParams.get('create') === '1')
+  const [showUseTemplate, setShowUseTemplate] = useState(false)
   const [sortField, setSortField] = useState<'proposalTitle' | 'createdAt' | 'travelDates'>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
@@ -221,7 +223,17 @@ function ItinerariesPageInner() {
       </S.TableWrapper>
 
       {showCreate && (
-        <CreateItineraryModal onClose={() => setShowCreate(false)} onCreate={handleCreate} />
+        <CreateItineraryModal
+          onClose={() => setShowCreate(false)}
+          onCreate={handleCreate}
+          onUseTemplate={() => {
+            setShowCreate(false)
+            setShowUseTemplate(true)
+          }}
+        />
+      )}
+      {showUseTemplate && (
+        <UseTemplateModal onClose={() => setShowUseTemplate(false)} />
       )}
     </Box>
   )

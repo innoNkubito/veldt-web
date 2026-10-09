@@ -95,3 +95,19 @@ export const PrimaryButton = styled.button<{ $disabled?: boolean }>`
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   font-family: 'DM Sans', sans-serif;
 `
+
+export const TemplateLink = styled.button`
+  margin-top: 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: ${T.terra};
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+
+  &:hover {
+    color: ${T.terraDk};
+  }
+`

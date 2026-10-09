@@ -69,7 +69,8 @@ const MODES: { key: BookingMode; name: string; desc: string }[] = [
 interface ScheduleDraft {
   description: string
   dueAtBooking: boolean
-  dueDate: string // yyyy-mm-dd
+  dueDate: string // yyyy-mm-dd — trips
+  dueDays: string // days before the trip starts — templates
   amountType: ScheduleAmountType
   amountValue: string
 }
@@ -78,6 +79,7 @@ function toDraft(item: {
   description: string
   dueAtBooking: boolean
   dueDate: string | null
+  dueDaysBeforeStart: number | null
   amountType: ScheduleAmountType
   amountValue: number | null
 }): ScheduleDraft {
@@ -85,6 +87,7 @@ function toDraft(item: {
     description: item.description,
     dueAtBooking: item.dueAtBooking,
     dueDate: item.dueDate ? item.dueDate.slice(0, 10) : '',
+    dueDays: item.dueDaysBeforeStart != null ? String(item.dueDaysBeforeStart) : '',
     amountType: item.amountType,
     amountValue: item.amountValue != null ? String(item.amountValue) : '',
   }
@@ -94,6 +97,7 @@ const BLANK_FIRST: ScheduleDraft = {
   description: 'Deposit',
   dueAtBooking: true,
   dueDate: '',
+  dueDays: '',
   amountType: 'PERCENT_OF_TOTAL',
   amountValue: '30',
 }
@@ -113,6 +117,7 @@ export default function BookingTab() {
   const { connections, fetchConnections } = useIntegrationsStore()
 
   const isOwner = profile?.role === 'OWNER'
+  const isTemplate = itinerary?.kind === 'TEMPLATE'
   // The quote's currency; the API copies it to the booking config
   const currency = config?.currency ?? itinerary?.costs?.currency ?? 'USD'
   const quotePackage = packageFromQuote(itinerary?.costs ?? null)
@@ -271,6 +276,7 @@ export default function BookingTab() {
               description: `Payment ${rows.length + 1}`,
               dueAtBooking: false,
               dueDate: '',
+              dueDays: '',
               amountType: 'REMAINING_BALANCE',
               amountValue: '',
             },
@@ -285,7 +291,7 @@ export default function BookingTab() {
       // The first payment is always the one due at booking — re-anchor after a delete
       return next.map((row, i) =>
         i === 0
-          ? { ...row, dueAtBooking: true, dueDate: '' }
+          ? { ...row, dueAtBooking: true, dueDate: '', dueDays: '' }
           : { ...row, dueAtBooking: false },
       )
     })
@@ -296,7 +302,12 @@ export default function BookingTab() {
     const items: ScheduleItemInput[] = schedule.map((row) => ({
       description: row.description.trim(),
       dueAtBooking: row.dueAtBooking,
-      dueDate: row.dueAtBooking ? null : row.dueDate || null,
+      // A template's payments are due relative to the trip start; a trip's on dates.
+      dueDate: row.dueAtBooking || isTemplate ? null : row.dueDate || null,
+      dueDaysBeforeStart:
+        row.dueAtBooking || !isTemplate || row.dueDays.trim() === ''
+          ? null
+          : Number.parseInt(row.dueDays, 10),
       amountType: row.amountType,
       amountValue:
         row.amountType === 'REMAINING_BALANCE' || !row.amountValue
@@ -618,6 +629,9 @@ export default function BookingTab() {
           <S.CardHint>
             The first payment is always due at booking. Later payments can be a fixed amount, a
             percentage of the total, or whatever balance remains.
+            {isTemplate &&
+              ' On a template, later payments are due a number of days before the trip starts; ' +
+                'they become real dates when an itinerary is created with a start date.'}
           </S.CardHint>
 
           {!configSaved ? (
@@ -631,7 +645,9 @@ export default function BookingTab() {
               <S.ScheduleHeaderRow>
                 <S.ScheduleHeaderCell>#</S.ScheduleHeaderCell>
                 <S.ScheduleHeaderCell>Description</S.ScheduleHeaderCell>
-                <S.ScheduleHeaderCell>Due</S.ScheduleHeaderCell>
+                <S.ScheduleHeaderCell>
+                  {isTemplate ? 'Days before trip' : 'Due'}
+                </S.ScheduleHeaderCell>
                 <S.ScheduleHeaderCell>Amount Type</S.ScheduleHeaderCell>
                 <S.ScheduleHeaderCell>Amount</S.ScheduleHeaderCell>
                 <S.ScheduleHeaderCell />
@@ -649,6 +665,15 @@ export default function BookingTab() {
 
                   {index === 0 ? (
                     <S.ScheduleLockNote>At booking</S.ScheduleLockNote>
+                  ) : isTemplate ? (
+                    <FieldInput
+                      type="number"
+                      step={1}
+                      value={row.dueDays}
+                      placeholder="e.g. 60"
+                      title="Days before the trip starts. Use a negative number for after."
+                      onChange={(e) => updateScheduleRow(index, { dueDays: e.target.value })}
+                    />
                   ) : (
                     <FieldInput
                       type="date"

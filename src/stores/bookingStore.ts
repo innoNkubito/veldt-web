@@ -35,6 +35,8 @@ export interface PaymentScheduleItem {
   description: string
   dueAtBooking: boolean
   dueDate: string | null
+  /** Templates only: due this many days before the trip starts (negative = after). */
+  dueDaysBeforeStart: number | null
   amountType: ScheduleAmountType
   amountValue: number | null
   position: number
@@ -100,7 +102,10 @@ export interface AddonInput {
 export interface ScheduleItemInput {
   description: string
   dueAtBooking: boolean
+  /** Trips: required for payments after booking. */
   dueDate?: string | null
+  /** Templates: required for payments after booking, instead of dueDate. */
+  dueDaysBeforeStart?: number | null
   amountType: ScheduleAmountType
   amountValue?: number | null
 }
@@ -131,7 +136,7 @@ const CONFIG_FIELDS = `
   reminderDaysBefore
   packages { id name description price totalAvailable peopleIncluded position }
   addons { id name description perPersonPrice limitCount position }
-  scheduleItems { id description dueAtBooking dueDate amountType amountValue position }
+  scheduleItems { id description dueAtBooking dueDate dueDaysBeforeStart amountType amountValue position }
   updatedAt
 `
 
@@ -149,7 +154,7 @@ const UPSERT_BOOKING_CONFIG = gql`
 
 const PACKAGE_FIELDS = `id name description price totalAvailable peopleIncluded position`
 const ADDON_FIELDS = `id name description perPersonPrice limitCount position`
-const SCHEDULE_FIELDS = `id description dueAtBooking dueDate amountType amountValue position`
+const SCHEDULE_FIELDS = `id description dueAtBooking dueDate dueDaysBeforeStart amountType amountValue position`
 
 const CREATE_PACKAGE = gql`
   mutation CreateBookingPackage($bookingConfigId: ID!, $input: BookingPackageInput!) {

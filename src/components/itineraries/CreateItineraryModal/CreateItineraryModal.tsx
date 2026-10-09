@@ -12,9 +12,11 @@ export interface CreateItineraryInput {
 interface Props {
   onClose: () => void
   onCreate: (data: CreateItineraryInput) => Promise<void>
+  /** Switches to starting from a template instead of a blank itinerary. */
+  onUseTemplate?: () => void
 }
 
-export default function CreateItineraryModal({ onClose, onCreate }: Props) {
+export default function CreateItineraryModal({ onClose, onCreate, onUseTemplate }: Props) {
   const [title, setTitle] = useState('')
   const [client, setClient] = useState('')
   const [dates, setDates] = useState('')
@@ -54,6 +56,11 @@ export default function CreateItineraryModal({ onClose, onCreate }: Props) {
         <S.Header>
           <S.Title>New Itinerary</S.Title>
           <S.Subtitle>Fill in the basics — you can complete the rest in the builder</S.Subtitle>
+          {onUseTemplate && (
+            <S.TemplateLink type="button" onClick={onUseTemplate}>
+              Start from a template instead →
+            </S.TemplateLink>
+          )}
         </S.Header>
 
         <S.FieldGroup>

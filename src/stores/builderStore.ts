@@ -47,7 +47,13 @@ export interface ItineraryFull {
   rows: ItineraryRow[]
   infoPageSlots: ItineraryInfoPageSlot[]
   costs: ItineraryCosts | null
+  /** TEMPLATE itineraries are reusable starting points, never published. */
+  kind: ItineraryKind
+  templateName: string | null
+  sourceTemplateId: string | null
 }
+
+export type ItineraryKind = 'ITINERARY' | 'TEMPLATE'
 
 export type FlightDirection = 'ARRIVAL' | 'DEPARTURE' | 'INTERNAL'
 
@@ -252,6 +258,9 @@ const GET_ITINERARY = gql`
       builderMode
       aiGenerated
       slug
+      kind
+      templateName
+      sourceTemplateId
       createdAt
       updatedAt
       ${STATUS_FIELDS}

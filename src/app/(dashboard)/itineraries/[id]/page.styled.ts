@@ -145,3 +145,28 @@ export const DismissButton = styled.button`
   cursor: pointer;
   color: ${T.danger};
 `
+
+// ── Template mode ─────────────────────────────────────────────
+
+export const TemplateBadge = styled.span`
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: ${T.teal};
+  background: ${T.tealLt};
+  border: 1px solid ${T.infoBd};
+  border-radius: 999px;
+  padding: 3px 9px;
+`
+
+export const TemplateBanner = styled.div`
+  background: ${T.infoLt};
+  color: ${T.infoDk};
+  border: 1px solid ${T.infoBd};
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+`

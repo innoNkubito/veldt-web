@@ -30,6 +30,11 @@ export const NAV_SECTIONS: NavSectionConfig[] = [
         icon: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z",
       },
       {
+        label: "Templates",
+        href: "/templates",
+        icon: "M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3M7 12h10M12 7v10",
+      },
+      {
         label: "Bookings",
         href: "/bookings",
         icon: "M2 9h20M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM6 14h4",

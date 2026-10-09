@@ -23,3 +23,8 @@ export function shareLinkUrl(origin: string, slug: string): string {
 export function headerStats(days: number, views: number): string {
   return `${days} days · ${views} views`
 }
+
+/** A template has no client, dates or views — just its days. */
+export function templateStats(days: number): string {
+  return `${days} ${days === 1 ? 'day' : 'days'}`
+}
