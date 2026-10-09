@@ -16,6 +16,7 @@ import {
 } from '@/stores/teamStore'
 import OperatorContactCard from './OperatorContactCard'
 import OperatorBrandCard from './OperatorBrandCard'
+import RemoveMemberModal from './RemoveMemberModal'
 import * as S from './page.styled'
 import { formatTimestamp } from '@/lib/dates'
 
@@ -292,7 +293,16 @@ function RequestSeatsModal({
 
 // ── Rows ────────────────────────────────────────────────────────
 
-function MemberRow({ member }: { member: TeamMember }) {
+function MemberRow({
+  member,
+  canManage,
+  onRemove,
+}: {
+  member: TeamMember
+  canManage: boolean
+  onRemove: (member: TeamMember) => void
+}) {
+  const saving = useTeamStore((s) => s.saving)
   const name = displayName(member)
   return (
     <S.Row>
@@ -308,6 +318,11 @@ function MemberRow({ member }: { member: TeamMember }) {
       </S.RowMain>
       <S.RowActions>
         <S.RoleBadge>{ROLE_LABELS[member.role]}</S.RoleBadge>
+        {canManage && !member.isYou && (
+          <S.DangerButton type="button" disabled={saving} onClick={() => onRemove(member)}>
+            Remove
+          </S.DangerButton>
+        )}
       </S.RowActions>
     </S.Row>
   )
@@ -368,9 +383,11 @@ export default function TeamPage() {
   const fetchTeam = useTeamStore((s) => s.fetchTeam)
   const resend = useTeamStore((s) => s.resend)
   const revoke = useTeamStore((s) => s.revoke)
+  const clearError = useTeamStore((s) => s.clearError)
 
   const [inviteOpen, setInviteOpen] = useState(false)
   const [seatsOpen, setSeatsOpen] = useState(false)
+  const [removing, setRemoving] = useState<TeamMember | null>(null)
   const [outcome, setOutcome] = useState<InviteOutcome | null>(null)
   const [notice, setNotice] = useState<{ message: string; ok: boolean } | null>(null)
 
@@ -467,7 +484,19 @@ export default function TeamPage() {
           {loading && !team ? (
             <S.EmptyState>Loading…</S.EmptyState>
           ) : team && team.members.length > 0 ? (
-            team.members.map((member) => <MemberRow key={member.id} member={member} />)
+            team.members.map((member) => (
+              <MemberRow
+                key={member.id}
+                member={member}
+                canManage={canManage}
+                onRemove={(target) => {
+                  setOutcome(null)
+                  setNotice(null)
+                  clearError()
+                  setRemoving(target)
+                }}
+              />
+            ))
           ) : (
             <S.EmptyState>Nobody here yet.</S.EmptyState>
           )}
@@ -503,6 +532,18 @@ export default function TeamPage() {
           onDone={(result) => {
             setInviteOpen(false)
             setOutcome(result)
+          }}
+        />
+      )}
+
+      {removing && team && (
+        <RemoveMemberModal
+          member={removing}
+          members={team.members}
+          onClose={() => setRemoving(null)}
+          onDone={(message) => {
+            setRemoving(null)
+            setNotice({ message, ok: true })
           }}
         />
       )}

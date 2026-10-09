@@ -160,6 +160,19 @@ const REQUEST_ADDITIONAL_SEATS = gql`
   }
 `
 
+const REMOVE_TEAM_MEMBER = gql`
+  mutation RemoveTeamMember($input: RemoveTeamMemberInput!) {
+    removeTeamMember(input: $input) { itineraries aboutUsPages tasks }
+  }
+`
+
+/** What moved to the colleague who took over a removed member's work. */
+export interface RemovalHandover {
+  itineraries: number
+  aboutUsPages: number
+  tasks: number
+}
+
 /** What the page shows after an invite or resend — the link matters most. */
 export interface InviteOutcome {
   ok: boolean
@@ -182,6 +195,8 @@ interface State {
     additionalSeats: number,
     note?: string,
   ) => Promise<{ sent: boolean; message: string }>
+  /** Returns what was handed over, or null on failure (message in `error`). */
+  removeMember: (memberId: string, reassignToId: string) => Promise<RemovalHandover | null>
   clearError: () => void
 
   operatorContact: OperatorContact | null
@@ -311,6 +326,25 @@ export const useTeamStore = create<State>((set, get) => ({
     } catch (err) {
       set({ saving: false, error: gqlErrorMessage(err, 'Could not revoke that invitation.') })
       return false
+    }
+  },
+
+  removeMember: async (memberId, reassignToId) => {
+    const client = useClientStore.getState().client
+    if (!client) return null
+
+    set({ saving: true, error: null })
+    try {
+      const data = await client.request<{ removeTeamMember: RemovalHandover }>(
+        REMOVE_TEAM_MEMBER,
+        { input: { memberId, reassignToId } },
+      )
+      set({ saving: false })
+      await get().fetchTeam()
+      return data.removeTeamMember
+    } catch (err) {
+      set({ saving: false, error: gqlErrorMessage(err, 'Could not remove that member.') })
+      return null
     }
   },
 
