@@ -36,6 +36,16 @@ export interface CreateFromTemplateInput {
   preparedFor: string | null
   /** YYYY-MM-DD; null leaves the days undated */
   startDate: string | null
+  /** An owner or advisor; null = the person creating it */
+  assignedToId: string | null
+}
+
+/** Someone who can be the advisor on a new itinerary (owners and advisors). */
+export interface AdvisorOption {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  isYou: boolean
 }
 
 export interface TemplateFilters {
@@ -74,6 +84,12 @@ const SAVE_AS_TEMPLATE = gql`
 const CREATE_FROM_TEMPLATE = gql`
   mutation CreateItineraryFromTemplate($templateId: ID!, $input: CreateFromTemplateInput!) {
     createItineraryFromTemplate(templateId: $templateId, input: $input) { id }
+  }
+`
+
+const TEAM_MEMBERS = gql`
+  query TemplateAdvisors {
+    teamMembers { id firstName lastName role isYou }
   }
 `
 
@@ -125,6 +141,8 @@ interface TemplateState {
   fetchTemplates: () => Promise<void>
   /** Picker data: every live template, ignoring the page's filters. */
   fetchPickerTemplates: () => Promise<TemplateListItem[]>
+  /** Owners and advisors on the team — viewers can't be assigned an itinerary. */
+  fetchAdvisors: () => Promise<AdvisorOption[]>
   saveAsTemplate: (itineraryId: string, input: TemplateDetailsInput) => Promise<Result<string>>
   createFromTemplate: (templateId: string, input: CreateFromTemplateInput) => Promise<Result<string>>
   /**
@@ -202,6 +220,21 @@ export const useTemplateStore = create<TemplateState>((set, get) => {
           { includeArchived: false },
         )
         return data.itineraryTemplates
+      } catch {
+        return []
+      }
+    },
+
+    fetchAdvisors: async () => {
+      const client = useClientStore.getState().client
+      if (!client) return []
+      try {
+        const data = await client.request<{
+          teamMembers: (AdvisorOption & { role: 'OWNER' | 'ADVISOR' | 'VIEWER' })[]
+        }>(TEAM_MEMBERS)
+        return data.teamMembers
+          .filter((member) => member.role !== 'VIEWER')
+          .map(({ id, firstName, lastName, isYou }) => ({ id, firstName, lastName, isYou }))
       } catch {
         return []
       }

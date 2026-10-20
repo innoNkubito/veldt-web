@@ -201,7 +201,7 @@ export default function CostsTab() {
           )}
         </S.ConfirmRow>
         <S.ConfirmNote>
-          Accuracy must be confirmed before publishing. It resets when a cost template is applied.
+          Accuracy must be confirmed before publishing. It resets when days are added from a template.
         </S.ConfirmNote>
       </S.Card>
 

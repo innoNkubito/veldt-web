@@ -13,6 +13,9 @@ export const COPY = {
   startDate: 'Trip start date',
   startDateHint:
     'Days and payment due dates are dated from this. Leave it blank to set dates later.',
+  advisor: 'Advisor',
+  advisorHint: 'Who works on this trip. It shows on the Itineraries list.',
+  you: ' (you)',
   cancel: 'Cancel',
   create: 'Create itinerary',
   creating: 'Creating…',

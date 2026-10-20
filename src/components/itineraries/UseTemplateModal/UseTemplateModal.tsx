@@ -11,10 +11,10 @@ import {
 } from '@/components/itineraries/shared/FieldPrimitives'
 import { useUseTemplateModal } from './useUseTemplateModal'
 import { COPY } from './UseTemplateModal.constants'
-import { nightsLabel, templateLabel } from './UseTemplateModal.utils'
+import { advisorLabel, nightsLabel, templateLabel } from './UseTemplateModal.utils'
 import type { UseTemplateModalProps } from './UseTemplateModal.types'
 
-/** Starts a new itinerary from a template: client, title and start date, then the builder. */
+/** Starts a new itinerary from a template: client, title, start date and advisor, then the builder. */
 export default function UseTemplateModal({ template, onClose }: UseTemplateModalProps) {
   const modal = useUseTemplateModal({ template })
   const noTemplates = modal.choices !== null && modal.choices.length === 0
@@ -82,6 +82,23 @@ export default function UseTemplateModal({ template, onClose }: UseTemplateModal
               />
               <S.Hint>{COPY.startDateHint}</S.Hint>
             </Field>
+            {modal.showAdvisorPicker && (
+              <Field>
+                <FieldLabel htmlFor="use-advisor">{COPY.advisor}</FieldLabel>
+                <FieldSelect
+                  id="use-advisor"
+                  value={modal.assignedToId}
+                  onChange={(e) => modal.setAssignedToId(e.target.value)}
+                >
+                  {modal.advisors.map((advisor) => (
+                    <option key={advisor.id} value={advisor.id}>
+                      {advisorLabel(advisor)}
+                    </option>
+                  ))}
+                </FieldSelect>
+                <S.Hint>{COPY.advisorHint}</S.Hint>
+              </Field>
+            )}
           </FieldGroup>
         )}
 
