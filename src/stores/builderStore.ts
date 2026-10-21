@@ -226,7 +226,6 @@ export interface ItineraryCosts {
   costIncludes: string | null
   costExcludes: string | null
   priceVisible: boolean
-  templateId: string | null
 }
 
 // ── GQL ────────────────────────────────────────────────────────
@@ -295,7 +294,7 @@ const GET_ITINERARY = gql`
         id pricePerPerson numGuests accommodationType currency
         costsToBeDetetermined accuracyConfirmed
         miscText miscVisible costNotes notesVisible
-        costIncludes costExcludes priceVisible templateId
+        costIncludes costExcludes priceVisible
       }
     }
   }
@@ -451,7 +450,7 @@ const UPSERT_COSTS = gql`
       id pricePerPerson numGuests accommodationType currency
       costsToBeDetetermined accuracyConfirmed
       miscText miscVisible costNotes notesVisible
-      costIncludes costExcludes priceVisible templateId
+      costIncludes costExcludes priceVisible
     }
   }
 `
