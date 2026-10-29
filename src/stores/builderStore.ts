@@ -373,6 +373,28 @@ const RESTORE_ITINERARY = gql`
   }
 `
 
+/** Something that stops an itinerary being published, and the tab it is fixed on. */
+export interface PublishIssue {
+  code:
+    | 'NO_DAYS'
+    | 'COSTS_UNCONFIRMED'
+    | 'BOOKING_NO_PROCESSOR'
+    | 'BOOKING_NO_PACKAGE'
+    | 'BOOKING_NO_SCHEDULE'
+    | 'BOOKING_NO_EXTERNAL_LINK'
+  message: string
+  tab: 'ROWS' | 'COSTS' | 'BOOKING'
+}
+
+const PUBLISH_ISSUES = gql`
+  query PublishIssues($id: ID!) {
+    itinerary(id: $id) {
+      id
+      publishIssues { code message tab }
+    }
+  }
+`
+
 const PUBLISH_ITINERARY = gql`
   mutation PublishItinerary($id: ID!) {
     publishItinerary(id: $id) {
@@ -542,6 +564,8 @@ interface BuilderState {
   fetchAreaAndActivityPages: () => Promise<void>
   updateItinerary: (id: string, input: UpdateItineraryInput) => Promise<string | null>
   publishItinerary: (id: string) => Promise<string | null>
+  /** What still blocks publishing — always fresh from the API. */
+  fetchPublishIssues: (id: string) => Promise<{ ok: true; issues: PublishIssue[] } | { ok: false; error: string }>
   /** Moves the itinerary to another status; returns an error message or null. */
   setItineraryStatus: (
     id: string,
@@ -713,6 +737,19 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
       const msg = gqlErrorMessage(err, 'Could not publish this itinerary')
       set({ saving: false })
       return msg
+    }
+  },
+
+  fetchPublishIssues: async (id) => {
+    const client = useClientStore.getState().client
+    if (!client) return { ok: false, error: 'Not connected.' }
+    try {
+      const data = await client.request<{ itinerary: { publishIssues: PublishIssue[] } | null }>(
+        PUBLISH_ISSUES, { id },
+      )
+      return { ok: true, issues: data.itinerary?.publishIssues ?? [] }
+    } catch (err) {
+      return { ok: false, error: gqlErrorMessage(err, 'Could not check this itinerary') }
     }
   },
 

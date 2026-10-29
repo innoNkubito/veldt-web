@@ -6,6 +6,7 @@ import { confirmDialog } from '@/stores/confirmStore'
 import RichTextEditor from '@/components/itineraries/RichTextEditor'
 import InsertTemplateDaysModal from '@/components/itineraries/InsertTemplateDaysModal'
 import * as S from './RowsTab.styled'
+import { BUILDER_SECTION } from '@/lib/builderSections'
 
 // ── Row action menu ───────────────────────────────────────────────
 
@@ -498,7 +499,7 @@ export default function RowsTab() {
           <div>No rows yet</div>
           <div style={{ fontSize: 12 }}>Add your first day to start building the itinerary</div>
         </S.EmptyState>
-        <S.AddRowActions>
+        <S.AddRowActions id={BUILDER_SECTION.days}>
           <S.AddRowButton onClick={() => setAddingNew(true)}>+ Add Day / Row</S.AddRowButton>
           <S.AddRowButton onClick={() => setInsertingTemplate(true)}>
             + Add Days from Template

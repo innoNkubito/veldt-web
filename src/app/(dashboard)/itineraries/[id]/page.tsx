@@ -168,6 +168,8 @@ export default function ItineraryBuilderPage() {
       {/* ── Modals ───────────────────────────────────────────── */}
       {publishModal.open && (
         <PublishModal
+          itineraryId={itinerary.id}
+          onFix={publishModal.fixIssue}
           onConfirm={publishModal.publish}
           onCancel={publishModal.close}
           loading={publishModal.publishing}

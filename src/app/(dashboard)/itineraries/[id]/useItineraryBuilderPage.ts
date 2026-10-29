@@ -7,6 +7,8 @@ import { useProfileStore } from '@/stores/profileStore'
 import { useTemplateStore, type TemplateDetailsInput } from '@/stores/templateStore'
 import { confirmDialog } from '@/stores/confirmStore'
 import { routeParam } from '@/lib/guards'
+import { focusSection } from '@/lib/focusSection'
+import type { FixTarget } from '@/components/itineraries/PublishModal/PublishModal.types'
 import { ARCHIVE_DIALOG, COMPLETE_TRIP_DIALOG, UNDO_CONFIRM_DIALOG } from './page.constants'
 import { resolveTab, shareLinkUrl, visibleTabs } from './page.utils'
 import type { BuilderTab } from './page.types'
@@ -62,6 +64,13 @@ export function useItineraryBuilderPage() {
     setPublishing(false)
     setShowPublish(false)
     setActionError(err ? err.replace('VALIDATION: ', '') : null)
+  }
+
+  /** From the Publish checklist: open the tab and point at what needs fixing. */
+  function fixIssue(target: FixTarget) {
+    setShowPublish(false)
+    setActiveTab(target.tab)
+    focusSection(target.section)
   }
 
   async function confirmTrip(trip: TripDetailsInput, notifyTraveller: boolean) {
@@ -145,6 +154,7 @@ export function useItineraryBuilderPage() {
       close: () => setShowPublish(false),
       publishing,
       publish,
+      fixIssue,
     },
     confirmTripModal: {
       open: showConfirmTrip,

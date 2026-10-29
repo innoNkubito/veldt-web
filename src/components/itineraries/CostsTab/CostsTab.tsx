@@ -13,6 +13,7 @@ import {
 } from '@/components/itineraries/shared/FieldPrimitives'
 import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import * as S from './CostsTab.styled'
+import { BUILDER_SECTION } from '@/lib/builderSections'
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'ZAR', 'KES', 'TZS']
 
@@ -182,7 +183,7 @@ export default function CostsTab() {
         </S.Grid>
       </S.Card>
 
-      <S.Card>
+      <S.Card id={BUILDER_SECTION.costsAccuracy}>
         <S.CardTitle>Accuracy Confirmation</S.CardTitle>
         <S.ConfirmRow
           $checked={form.accuracyConfirmed}
@@ -201,7 +202,8 @@ export default function CostsTab() {
           )}
         </S.ConfirmRow>
         <S.ConfirmNote>
-          Accuracy must be confirmed before publishing. It resets when days are added from a template.
+          Required to publish — tick the box, then save. It resets when days are added from a
+          template, so prices copied from elsewhere are always checked again.
         </S.ConfirmNote>
       </S.Card>
 

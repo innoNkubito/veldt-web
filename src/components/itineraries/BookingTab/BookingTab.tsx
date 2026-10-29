@@ -33,6 +33,9 @@ import AddonModal from './AddonModal'
 import * as S from './BookingTab.styled'
 import { packageFromQuote } from './BookingTab.utils'
 import { parseOption, keysOf } from '@/lib/guards'
+import { BUILDER_SECTION } from '@/lib/builderSections'
+import { focusSection } from '@/lib/focusSection'
+import BookingSetupChecklist, { nextSetupSection, setupSteps } from './BookingSetupChecklist'
 
 interface BookingForm {
   bookingMode: BookingMode
@@ -201,6 +204,35 @@ export default function BookingTab() {
     () => connections.find((c) => c.id === form.processorConnectionId) ?? null,
     [connections, form.processorConnectionId],
   )
+  // The setup tracker reads what is saved — the same thing publishing checks.
+  const savedConnection = useMemo(
+    () => connections.find((c) => c.id === config?.processorConnectionId) ?? null,
+    [connections, config?.processorConnectionId],
+  )
+  const steps = setupSteps({
+    processorReady: !!savedConnection && savedConnection.status !== 'DISABLED',
+    processorUnsaved:
+      !!form.processorConnectionId && form.processorConnectionId !== (config?.processorConnectionId ?? ''),
+    packageCount: config?.packages.length ?? 0,
+    scheduleCount: config?.scheduleItems.length ?? 0,
+  })
+
+  /** After a setup step is saved, point at the next one still missing. */
+  function promptNextStep() {
+    const saved = useBookingStore.getState().config
+    if (saved?.bookingMode !== 'VELDT') return
+    const processor = connections.find((c) => c.id === saved.processorConnectionId)
+    const next = nextSetupSection(
+      setupSteps({
+        processorReady: !!processor && processor.status !== 'DISABLED',
+        processorUnsaved: false,
+        packageCount: saved.packages.length,
+        scheduleCount: saved.scheduleItems.length,
+      }),
+    )
+    if (next) focusSection(next)
+  }
+
   const processorName = selectedConnection
     ? PROCESSOR_META[selectedConnection.type]?.name ?? selectedConnection.type
     : 'your payment processor'
@@ -210,6 +242,7 @@ export default function BookingTab() {
   async function handleCreateFromQuote(input: PackageInput) {
     const message = await addPackage(input)
     if (message) setError(message)
+    else promptNextStep()
   }
 
   // ── Save settings ──────────────────────────────────────────
@@ -234,7 +267,9 @@ export default function BookingTab() {
       achEnabled: form.achEnabled,
       reminderDaysBefore: form.reminderDaysBefore,
     })
-    if (!message) setDirty(false)
+    if (message) return
+    setDirty(false)
+    promptNextStep()
   }
 
   // ── Packages / addons ──────────────────────────────────────
@@ -366,7 +401,7 @@ export default function BookingTab() {
       {error && <S.ErrorBanner onClick={() => setError(null)}>{error}</S.ErrorBanner>}
 
       {/* ── Bookability ──────────────────────────────────── */}
-      <S.Card>
+      <S.Card id={BUILDER_SECTION.bookingMode}>
         <S.CardTitleRow>
           <S.CardTitle>Make Bookable</S.CardTitle>
         </S.CardTitleRow>
@@ -425,8 +460,10 @@ export default function BookingTab() {
 
       {showVeldtSections && (
         <>
+          <BookingSetupChecklist steps={steps} />
+
           {/* ── Packages ───────────────────────────────────── */}
-          <S.Card>
+          <S.Card id={BUILDER_SECTION.bookingPackages}>
             <S.CardTitleRow>
               <S.CardTitle>Packages</S.CardTitle>
               <S.TitleActions>
@@ -452,7 +489,10 @@ export default function BookingTab() {
             {!configSaved ? (
               <S.EmptyRow>Save your booking settings below to start adding packages.</S.EmptyRow>
             ) : config!.packages.length === 0 ? (
-              <S.EmptyRow>No packages yet. Clients need at least one to book.</S.EmptyRow>
+              <S.EmptyRow>
+                Required — clients need at least one package to book. Add one, or create it from
+                the quote.
+              </S.EmptyRow>
             ) : (
               <S.ItemList>
                 {config!.packages.map((pkg) => (
@@ -548,7 +588,7 @@ export default function BookingTab() {
           )}
 
           <S.Grid>
-            <Field>
+            <Field id={BUILDER_SECTION.bookingProcessor}>
               <FieldLabel>Payment Processor</FieldLabel>
               <FieldSelect
                 value={form.processorConnectionId}
@@ -614,7 +654,7 @@ export default function BookingTab() {
 
       {/* ── Payment schedule ──────────────────────────────── */}
       {showVeldtSections && (
-        <S.Card>
+        <S.Card id={BUILDER_SECTION.bookingSchedule}>
           <S.CardTitleRow>
             <S.CardTitle>Payment Schedule</S.CardTitle>
             <ActionButton
@@ -638,7 +678,7 @@ export default function BookingTab() {
             <S.EmptyRow>Save your booking settings below to set up a payment schedule.</S.EmptyRow>
           ) : schedule.length === 0 ? (
             <S.EmptyRow>
-              No payments configured — add one to start collecting at booking.
+              Required — add at least the payment due at booking, then Save Schedule.
             </S.EmptyRow>
           ) : (
             <>
@@ -886,11 +926,13 @@ export default function BookingTab() {
           existing={packageModal.existing}
           currency={currency}
           saving={saving}
-          onSave={(input) =>
-            packageModal.existing
-              ? editPackage(packageModal.existing.id, input)
-              : addPackage(input)
-          }
+          onSave={async (input) => {
+            if (packageModal.existing) return editPackage(packageModal.existing.id, input)
+            const message = await addPackage(input)
+            // The modal closes itself on success; the schedule comes next.
+            if (!message) promptNextStep()
+            return message
+          }}
           onClose={() => setPackageModal({ open: false, existing: null })}
         />
       )}
