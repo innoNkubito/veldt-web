@@ -20,6 +20,7 @@ const T = {
   card: P.white,
   cardAlt: P.sageWash,
   dim: P.haze,
+  inverse: P.ink, // dark feature panel (landing proof block)
   white: P.white,
 
   // ── Lines ───────────────────────────────────────────────────
@@ -31,6 +32,8 @@ const T = {
   sub: P.inkSoft,
   muted: P.inkFaint,
   onBrand: P.white, // text/icons sitting on a filled brand colour
+  onBrandMuted: P.glass, // secondary text on a filled brand colour
+  onBrandFaint: P.glassSoft, // hairlines / meta on a filled brand colour
 
   // ── Brand ───────────────────────────────────────────────────
   terra: P.forest,
@@ -81,6 +84,8 @@ const T = {
   // ── Composites ──────────────────────────────────────────────
   // Placeholder fill behind a cover image that hasn't loaded.
   coverGradient: `linear-gradient(160deg, ${P.eucalyptus} 0%, ${P.ink} 100%)`,
+  // Landing-page hero panel: brand green settling into ink.
+  heroGradient: `linear-gradient(180deg, ${P.forest} 0%, ${P.forestDeep} 55%, ${P.ink} 100%)`,
 } as const;
 
 // Categorical badge palette — for distinguishing CATEGORIES, not

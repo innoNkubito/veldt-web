@@ -1,8 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import { Library, Route, CreditCard } from 'lucide-react'
 import { T } from '@/lib/theme'
+import LandingHeader from '@/components/landing/LandingHeader'
+import LandingHero from '@/components/landing/LandingHero'
+import ProofSection from '@/components/landing/ProofSection'
+import AccessSection from '@/components/landing/AccessSection'
+import LandingFooter from '@/components/landing/LandingFooter'
 import * as S from './page.styled'
 
 // Public landing page. Signed-in users never reach it — the proxy in
@@ -38,59 +42,14 @@ const TILES = [
   },
 ]
 
-const STEPS = [
-  {
-    title: 'Tell us about your operation',
-    body: 'A short form — company, contact and the plan that fits. No card required.',
-  },
-  {
-    title: 'We review and set you up',
-    body: 'Our team confirms the details, agrees the plan with you and provisions your workspace.',
-  },
-  {
-    title: 'Your invitation arrives',
-    body: 'Create your account from the emailed invitation and start building the same day.',
-  },
-]
-
-const YEAR = new Date().getFullYear()
-
 export default function LandingPage() {
   return (
     <S.Root>
-      <S.Header>
-        <S.HeaderInner>
-          <S.Wordmark>
-            <S.WordmarkTitle>Veldt</S.WordmarkTitle>
-            <S.WordmarkSubtitle>Travel Operations</S.WordmarkSubtitle>
-          </S.Wordmark>
-          <S.HeaderActions>
-            <S.GhostLink href="/sign-in">Sign in</S.GhostLink>
-            <S.PrimaryLink href="/onboarding">Request access</S.PrimaryLink>
-          </S.HeaderActions>
-        </S.HeaderInner>
-      </S.Header>
+      <LandingHeader />
+      <LandingHero />
+      <ProofSection />
 
-      <S.Hero>
-        <S.Eyebrow>For safari operators</S.Eyebrow>
-        <S.HeroTitle>
-          Proposals worth <em>arriving</em> for.
-        </S.HeroTitle>
-        <S.HeroLead>
-          Veldt is where safari operators build, send and get paid for bespoke
-          itineraries — one library of your camps and experiences, assembled
-          into a proposal your client can read on any device and book from
-          directly.
-        </S.HeroLead>
-        <S.HeroActions>
-          <S.PrimaryLink href="/onboarding">Request access</S.PrimaryLink>
-          <S.GhostLink href="/sign-in">Sign in</S.GhostLink>
-        </S.HeroActions>
-        <S.InviteNote>
-          Have an invitation? <Link href="/sign-up">Create your account</Link>
-        </S.InviteNote>
-      </S.Hero>
-
+      {/* Replaced in phase 4 of the landing upgrade. */}
       <S.Section>
         <S.SectionLabel>What you get</S.SectionLabel>
         <S.TileGrid>
@@ -109,28 +68,9 @@ export default function LandingPage() {
         </S.TileGrid>
       </S.Section>
 
-      <S.Section>
-        <S.SectionLabel>How access works</S.SectionLabel>
-        <S.Steps>
-          {STEPS.map((step, index) => (
-            <S.Step key={step.title}>
-              <S.StepNumber>{String(index + 1).padStart(2, '0')}</S.StepNumber>
-              <S.StepTitle>{step.title}</S.StepTitle>
-              <S.StepBody>{step.body}</S.StepBody>
-            </S.Step>
-          ))}
-        </S.Steps>
-      </S.Section>
+      <AccessSection />
 
-      <S.Footer>
-        <S.FooterInner>
-          <span>© {YEAR} Veldt</span>
-          <S.FooterLinks>
-            <Link href="/onboarding">Request access</Link>
-            <Link href="/sign-in">Sign in</Link>
-          </S.FooterLinks>
-        </S.FooterInner>
-      </S.Footer>
+      <LandingFooter />
     </S.Root>
   )
 }
