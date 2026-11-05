@@ -11,7 +11,7 @@ export default function LandingHeader() {
         <S.Inner>
           <S.Wordmark>
             <S.WordmarkTitle>Veldt</S.WordmarkTitle>
-            <S.WordmarkSubtitle>Travel operations</S.WordmarkSubtitle>
+            <S.WordmarkSubtitle>Travel Operations</S.WordmarkSubtitle>
           </S.Wordmark>
           <S.Actions aria-label="Account">
             <GhostPill href={LANDING_ROUTES.signIn}>Sign in</GhostPill>

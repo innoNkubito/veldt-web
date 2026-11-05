@@ -20,26 +20,29 @@ export const Inner = styled.div`
   padding-bottom: 14px;
 `
 
+// Stacked uppercase wordmark, carried over from the original landing page.
 export const Wordmark = styled.div`
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
 `
 
 export const WordmarkTitle = styled.span`
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 21px;
+  font-weight: 700;
   color: ${T.text};
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
 `
 
 export const WordmarkSubtitle = styled.span`
-  font-size: 12px;
+  font-size: 8px;
+  font-weight: 700;
   color: ${T.muted};
-
-  @media (max-width: 560px) {
-    display: none;
-  }
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-top: 3px;
 `
 
 export const Actions = styled.nav`
