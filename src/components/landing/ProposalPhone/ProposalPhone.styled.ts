@@ -7,7 +7,6 @@ export const Frame = styled.figure`
   margin: 0;
   width: 100%;
   max-width: 340px;
-  min-height: 600px;
   background: ${T.card};
   border: 1px solid ${T.borderStrong};
   border-radius: 36px;

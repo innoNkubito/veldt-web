@@ -7,6 +7,7 @@ import LandingHero from '@/components/landing/LandingHero'
 import ProofSection from '@/components/landing/ProofSection'
 import AccessSection from '@/components/landing/AccessSection'
 import LandingFooter from '@/components/landing/LandingFooter'
+import { Container, Eyebrow, Section, SectionTitle } from '@/components/landing/landing.styled'
 import * as S from './page.styled'
 
 // Public landing page. Signed-in users never reach it — the proxy in
@@ -47,26 +48,30 @@ export default function LandingPage() {
     <S.Root>
       <LandingHeader />
       <LandingHero />
-      <ProofSection />
 
-      {/* Replaced in phase 4 of the landing upgrade. */}
-      <S.Section>
-        <S.SectionLabel>What you get</S.SectionLabel>
-        <S.TileGrid>
-          {TILES.map((tile) => {
-            const Icon = tile.icon
-            return (
-              <S.Tile key={tile.title}>
-                <S.TileIcon $tint={tile.tint} $fg={tile.fg}>
-                  <Icon size={17} strokeWidth={2} aria-hidden />
-                </S.TileIcon>
-                <S.TileTitle>{tile.title}</S.TileTitle>
-                <S.TileBody>{tile.body}</S.TileBody>
-              </S.Tile>
-            )
-          })}
-        </S.TileGrid>
-      </S.Section>
+      {/* Tile visuals arrive in phase 4 of the landing upgrade. */}
+      <Section aria-labelledby="features-title">
+        <Container>
+          <Eyebrow>What you get</Eyebrow>
+          <SectionTitle id="features-title">Three parts, one library.</SectionTitle>
+          <S.TileGrid>
+            {TILES.map((tile) => {
+              const Icon = tile.icon
+              return (
+                <S.Tile key={tile.title}>
+                  <S.TileIcon $tint={tile.tint} $fg={tile.fg}>
+                    <Icon size={17} strokeWidth={2} aria-hidden />
+                  </S.TileIcon>
+                  <S.TileTitle>{tile.title}</S.TileTitle>
+                  <S.TileBody>{tile.body}</S.TileBody>
+                </S.Tile>
+              )
+            })}
+          </S.TileGrid>
+        </Container>
+      </Section>
+
+      <ProofSection />
 
       <AccessSection />
 

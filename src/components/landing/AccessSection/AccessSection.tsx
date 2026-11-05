@@ -35,7 +35,9 @@ export default function AccessSection() {
             </S.Cta>
           </div>
 
-          <SpotsCard />
+          <S.CardSlot>
+            <SpotsCard />
+          </S.CardSlot>
         </S.Grid>
       </Container>
     </Section>

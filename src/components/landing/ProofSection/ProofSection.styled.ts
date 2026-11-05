@@ -22,6 +22,7 @@ export const Title = styled.h2`
   line-height: 1.08;
   margin: 0 0 48px;
   max-width: 14ch;
+  text-wrap: balance;
 `
 
 export const Columns = styled.div`

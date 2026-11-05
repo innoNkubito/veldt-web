@@ -28,7 +28,7 @@ export const Panel = styled.section`
   background: ${T.heroGradient};
   color: ${T.onBrand};
   border-radius: 0 0 50% 50% / 0 0 72px 72px;
-  padding: 72px 0 112px;
+  padding: 72px 0 80px;
 
   @media (max-width: 900px) {
     width: 100%;
@@ -98,6 +98,11 @@ export const LightPill = styled(Link)`
 
   &:hover {
     background: ${T.terraLt};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${T.onBrand};
+    outline-offset: 3px;
   }
 `
 

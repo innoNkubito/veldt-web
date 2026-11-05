@@ -1,18 +1,28 @@
 'use client'
 
-import { Container, GhostPill, PrimaryPill } from '../landing.styled'
+import {
+  Container,
+  GhostPill,
+  PrimaryPill,
+  Wordmark,
+  WordmarkSubtitle,
+  WordmarkTitle,
+} from '../landing.styled'
 import { LANDING_ROUTES } from '../constants'
+import { useLandingHeader } from './useLandingHeader'
 import * as S from './LandingHeader.styled'
 
 export default function LandingHeader() {
+  const { scrolled } = useLandingHeader()
+
   return (
-    <S.Bar>
+    <S.Bar $scrolled={scrolled}>
       <Container>
         <S.Inner>
-          <S.Wordmark>
-            <S.WordmarkTitle>Veldt</S.WordmarkTitle>
-            <S.WordmarkSubtitle>Travel Operations</S.WordmarkSubtitle>
-          </S.Wordmark>
+          <Wordmark>
+            <WordmarkTitle>Veldt</WordmarkTitle>
+            <WordmarkSubtitle>Travel Operations</WordmarkSubtitle>
+          </Wordmark>
           <S.Actions aria-label="Account">
             <GhostPill href={LANDING_ROUTES.signIn}>Sign in</GhostPill>
             <PrimaryPill href={LANDING_ROUTES.requestAccess}>Request access</PrimaryPill>

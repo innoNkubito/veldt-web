@@ -2,7 +2,6 @@
 
 import styled from '@emotion/styled'
 import { T } from '@/lib/theme'
-import { CONTENT_WIDTH } from '@/components/landing/constants'
 
 export const Root = styled.div`
   min-height: 100vh;
@@ -13,29 +12,8 @@ export const Root = styled.div`
 
 /* ── Capability tiles ────────────────────────────────────── */
 
-export const Section = styled.section`
-  max-width: ${CONTENT_WIDTH};
-  margin: 0 auto;
-  padding: 96px 24px 80px;
-  width: 100%;
-
-  & + & {
-    padding-top: 0;
-  }
-`
-
-export const SectionLabel = styled.div`
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: ${T.muted};
-  padding-bottom: 14px;
-  border-bottom: 1px solid ${T.border};
-  margin-bottom: 28px;
-`
-
 export const TileGrid = styled.div`
+  margin-top: 36px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;

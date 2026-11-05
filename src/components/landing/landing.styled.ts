@@ -26,6 +26,11 @@ const pill = `
   text-decoration: none;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid ${T.teal};
+    outline-offset: 3px;
+  }
 `
 
 export const PrimaryPill = styled(Link)`
@@ -52,13 +57,45 @@ export const GhostPill = styled(Link, {
   &:hover {
     border-color: ${(p) => (p.$onDark ? T.onBrand : T.text)};
   }
+
+  &:focus-visible {
+    outline-color: ${(p) => (p.$onDark ? T.onBrand : T.teal)};
+  }
 `
 
+// Uppercase tracked label — same voice as the wordmark subtitle.
 export const Eyebrow = styled.div`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${T.gold};
-  margin-bottom: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: ${T.muted};
+  margin-bottom: 16px;
+`
+
+// Stacked uppercase wordmark (header + footer).
+export const Wordmark = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+export const WordmarkTitle = styled.span`
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  color: ${T.text};
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.1;
+`
+
+export const WordmarkSubtitle = styled.span`
+  font-size: 8px;
+  font-weight: 700;
+  color: ${T.muted};
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-top: 3px;
 `
 
 export const SectionTitle = styled.h2`
@@ -69,6 +106,7 @@ export const SectionTitle = styled.h2`
   color: ${T.text};
   margin: 0 0 20px;
   max-width: 18ch;
+  text-wrap: balance;
 `
 
 export const Section = styled.section`

@@ -7,7 +7,7 @@ export const Grid = styled.div`
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 56px;
-  align-items: center;
+  align-items: start;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -26,35 +26,32 @@ export const Lead = styled.p`
 export const Steps = styled.ol`
   list-style: none;
   margin: 0 0 32px;
-  padding: 0 0 0 40px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
   counter-reset: step;
 
-  @media (max-width: 560px) {
-    padding-left: 0;
-  }
 `
 
 export const Step = styled.li`
   display: grid;
-  grid-template-columns: 28px 1fr;
-  column-gap: 12px;
+  grid-template-columns: 30px 1fr;
+  column-gap: 14px;
   counter-increment: step;
 
   &::before {
     content: counter(step);
     grid-row: span 2;
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     border: 1px solid ${T.text};
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-playfair), 'Playfair Display', serif;
-    font-size: 14px;
+    font-size: 15px;
     color: ${T.text};
   }
 `
@@ -86,5 +83,18 @@ export const InviteNote = styled.span`
 
   a {
     color: ${T.sub};
+  }
+`
+
+// Lines the card up with the title and keeps it in view while the steps
+// scroll past (desktop only).
+export const CardSlot = styled.div`
+  position: sticky;
+  top: 96px;
+  margin-top: 32px;
+
+  @media (max-width: 900px) {
+    position: static;
+    margin-top: 0;
   }
 `
