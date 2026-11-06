@@ -54,6 +54,9 @@ export const ARCHIVE_DIALOG = {
 
 export const COMPLETE_TRIP_DIALOG = {
   title: 'Mark this trip complete?',
-  message: 'The travel dashboard stays available to the traveller, read-only.',
+  message:
+    'The travel dashboard stays available to the traveller, read-only. ' +
+    'Guest form responses on this trip are permanently deleted when it is completed — ' +
+    'copy anything you still need from the Trip tab first.',
   confirmLabel: 'Complete Trip',
 } as const

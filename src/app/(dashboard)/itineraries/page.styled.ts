@@ -209,6 +209,17 @@ export const RowSubtext = styled.div`
   color: ${T.muted};
 `
 
+export const FormsPill = styled.span`
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: ${T.terra};
+  background: ${T.terraLt};
+  border-radius: 999px;
+  padding: 2px 8px;
+`
+
 export const RowCell = styled.div<{ $variant?: 'muted' }>`
   font-size: ${({ $variant }) => ($variant === 'muted' ? '12px' : '12.5px')};
   color: ${({ $variant }) => ($variant === 'muted' ? T.muted : T.sub)};

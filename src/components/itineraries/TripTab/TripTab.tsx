@@ -4,6 +4,7 @@ import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import { CheckboxRow } from '@/components/itineraries/shared/FieldPrimitives'
 import FlightModal from '@/components/itineraries/FlightModal'
 import FlightReviewQueue from '@/components/itineraries/FlightReviewQueue'
+import GuestFormResponsesCard from '@/components/itineraries/GuestFormResponsesCard'
 import * as S from './TripTab.styled'
 import FlightItem from './FlightItem'
 import TravellerCard from './TravellerCard'
@@ -27,6 +28,7 @@ export default function TripTab() {
     <S.Grid>
       {/* Full width above the two cards, so it is the first thing seen. */}
       {pending.length > 0 && <FlightReviewQueue flights={pending} />}
+      <GuestFormResponsesCard />
       <TravellerCard key={itinerary.id} />
 
       <S.Card>

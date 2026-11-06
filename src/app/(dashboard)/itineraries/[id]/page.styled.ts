@@ -113,6 +113,20 @@ export const Tab = styled.button<{ $active: boolean }>`
   &:hover { color: ${T.text}; }
 `
 
+export const TabCount = styled.span`
+  display: inline-block;
+  min-width: 18px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: ${T.terra};
+  color: ${T.onBrand};
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+`
+
 // ── Error / loading states ─────────────────────────────────────
 
 export const CenteredState = styled.div`

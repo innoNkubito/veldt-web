@@ -7,11 +7,12 @@ import { useProfileStore } from '@/stores/profileStore'
 import { useTemplateStore, type TemplateDetailsInput } from '@/stores/templateStore'
 import { confirmDialog } from '@/stores/confirmStore'
 import { useTripGuestFormsStore } from '@/stores/tripGuestFormsStore'
+import { selectUnreviewedCount, useGuestFormResponsesStore } from '@/stores/guestFormResponsesStore'
 import { routeParam } from '@/lib/guards'
 import { focusSection } from '@/lib/focusSection'
 import type { FixTarget } from '@/components/itineraries/PublishModal/PublishModal.types'
 import { ARCHIVE_DIALOG, COMPLETE_TRIP_DIALOG, UNDO_CONFIRM_DIALOG } from './page.constants'
-import { resolveTab, shareLinkUrl, visibleTabs } from './page.utils'
+import { resolveTab, shareLinkUrl, showsTripTab, tabFromQuery, visibleTabs } from './page.utils'
 import type { BuilderTab } from './page.types'
 
 /**
@@ -36,7 +37,12 @@ export function useItineraryBuilderPage() {
     restoreItinerary,
   } = useBuilderStore()
 
-  const [activeTab, setActiveTab] = useState<BuilderTab>('overview')
+  // Emailed and dashboard links open a tab directly: /itineraries/:id?tab=trip.
+  // Read once on mount; the tab bar only renders after the client-side load,
+  // so the server's 'overview' never meets a different client value.
+  const [activeTab, setActiveTab] = useState<BuilderTab>(() =>
+    typeof window === 'undefined' ? 'overview' : (tabFromQuery(window.location.search) ?? 'overview'),
+  )
   const [showPublish, setShowPublish] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [showConfirmTrip, setShowConfirmTrip] = useState(false)
@@ -49,6 +55,19 @@ export function useItineraryBuilderPage() {
     if (client && id) fetchItinerary(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, id])
+
+  // Guest form responses only exist once the trip is confirmed; loaded here so
+  // the Trip tab can show its count before it is opened.
+  const loadedId = itinerary?.id
+  const tripMode = showsTripTab(itinerary?.status)
+  const loadResponses = useGuestFormResponsesStore((s) => s.load)
+  const loadTripForms = useTripGuestFormsStore((s) => s.load)
+  const unreviewedForms = useGuestFormResponsesStore(selectUnreviewedCount)
+  useEffect(() => {
+    if (!client || !loadedId || !tripMode) return
+    loadResponses(loadedId)
+    loadTripForms(loadedId)
+  }, [client, loadedId, tripMode, loadResponses, loadTripForms])
 
   /** Runs a status change; on success closes `onSuccess`'s modal and clears the banner. */
   async function changeStatus(change: () => Promise<string | null>, onSuccess?: () => void) {
@@ -150,6 +169,8 @@ export function useItineraryBuilderPage() {
     isTemplate,
     canSaveTemplate,
     tabs: visibleTabs(status),
+    /** Unreviewed guest form responses, shown on the Trip tab. */
+    unreviewedForms: tripMode ? unreviewedForms : 0,
     currentTab: resolveTab(activeTab, status),
     setActiveTab,
     actionError,

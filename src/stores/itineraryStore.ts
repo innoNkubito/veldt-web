@@ -19,6 +19,8 @@ export interface ItineraryListItem {
     lastName: string | null
   } | null
   viewCount: number
+  /** Guest form responses nobody has reviewed yet. */
+  unreviewedGuestFormCount: number
 }
 
 interface ItineraryState {
@@ -49,6 +51,7 @@ const GET_ITINERARIES = gql`
       createdAt
       updatedAt
       viewCount
+      unreviewedGuestFormCount
       assignedTo {
         id
         firstName

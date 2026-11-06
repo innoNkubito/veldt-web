@@ -191,6 +191,11 @@ function ItinerariesPageInner() {
               <S.RowNameCell onClick={() => router.push(`/itineraries/${item.id}`)}>
                 <S.RowTitle $hovered={hoveredRow === item.id}>{item.proposalTitle}</S.RowTitle>
                 {item.preparedFor && <S.RowSubtext>{item.preparedFor}</S.RowSubtext>}
+                {item.unreviewedGuestFormCount > 0 && (
+                  <S.FormsPill>
+                    {item.unreviewedGuestFormCount} new guest {item.unreviewedGuestFormCount === 1 ? 'form' : 'forms'}
+                  </S.FormsPill>
+                )}
               </S.RowNameCell>
 
               <S.RowCell>{advisorName(item.assignedTo)}</S.RowCell>

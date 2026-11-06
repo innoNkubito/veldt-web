@@ -156,3 +156,34 @@ export interface TripGuestForm {
 /** A trip's forms can change until it is completed or archived (mirrors the API). */
 export const tripFormsEditable = (status: string | undefined) =>
   status === 'DRAFT' || status === 'PUBLISHED' || status === 'CONFIRMED' || status === 'TRAVELLING'
+
+/** One stored answer: the question as it was asked, and what the guest gave. */
+export interface GuestFormAnswer {
+  fieldId: string
+  label: string
+  type: GuestFormFieldType
+  /** Empty if left blank; several for MULTI_CHOICE. */
+  values: string[]
+}
+
+export interface GuestFormResponse {
+  id: string
+  guestForm: Pick<GuestForm, 'id' | 'name' | 'perGuest' | 'fields'>
+  itinerary: { id: string; proposalTitle: string }
+  guestName: string
+  guestEmail: string | null
+  answers: GuestFormAnswer[]
+  submittedAt: string
+  reviewedAt: string | null
+  reviewedByName: string | null
+  editedAt: string | null
+  editedByName: string | null
+}
+
+export interface GuestFormResponseInput {
+  guestName: string
+  guestEmail: string | null
+  answers: { fieldId: string; values: string[] }[]
+}
+
+export const canManageGuestForms = (role: string | undefined | null) => role === 'OWNER' || role === 'ADVISOR'

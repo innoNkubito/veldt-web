@@ -24,7 +24,7 @@ export default function ItineraryBuilderPage() {
   const {
     itinerary, loading, error, saving, status, isTemplate, canSaveTemplate,
     saveTemplateModal, useTemplateModal,
-    tabs, currentTab, setActiveTab, actionError, dismissError, copyShareLink,
+    tabs, unreviewedForms, currentTab, setActiveTab, actionError, dismissError, copyShareLink,
     publishModal, confirmTripModal, startTripModal,
     undoConfirm, archive, completeTrip, restore,
   } = useItineraryBuilderPage()
@@ -153,6 +153,11 @@ export default function ItineraryBuilderPage() {
         {tabs.map(({ key, label }) => (
           <S.Tab key={key} $active={currentTab === key} onClick={() => setActiveTab(key)}>
             {label}
+            {key === 'trip' && unreviewedForms > 0 && (
+              <S.TabCount aria-label={`${unreviewedForms} new guest form ${unreviewedForms === 1 ? 'response' : 'responses'}`}>
+                {unreviewedForms}
+              </S.TabCount>
+            )}
           </S.Tab>
         ))}
       </S.TabBar>

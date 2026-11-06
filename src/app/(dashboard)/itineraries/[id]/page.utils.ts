@@ -6,6 +6,12 @@ export function showsTripTab(status: string | undefined): boolean {
   return status === 'CONFIRMED' || status === 'TRAVELLING' || status === 'COMPLETED'
 }
 
+/** A valid ?tab= value, or null. */
+export function tabFromQuery(search: string): BuilderTab | null {
+  const tab = new URLSearchParams(search).get('tab')
+  return TABS.some((t) => t.key === tab) ? (tab as BuilderTab) : null
+}
+
 export function visibleTabs(status: string | undefined) {
   return TABS.filter((t) => t.key !== 'trip' || showsTripTab(status))
 }

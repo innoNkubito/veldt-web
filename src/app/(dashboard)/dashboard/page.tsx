@@ -8,6 +8,7 @@ import { useItineraryStore } from '@/stores/itineraryStore'
 import { useProfileStore } from '@/stores/profileStore'
 import { T } from '@/lib/theme'
 import { STATUS_META } from '@/lib/itinerary-constants'
+import NewGuestFormsPanel from '@/components/guestForms/NewGuestFormsPanel'
 import * as S from './page.styled'
 import { formatTimestamp } from '@/lib/dates'
 
@@ -75,6 +76,9 @@ export default function DashboardPage() {
           <S.StatValue>{loading ? '—' : drafts}</S.StatValue>
         </S.StatCardWrap>
       </S.StatsGrid>
+
+      {/* Guest forms waiting for review */}
+      <NewGuestFormsPanel />
 
       {/* Recent itineraries */}
       <S.Card>
