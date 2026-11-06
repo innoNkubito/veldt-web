@@ -5,12 +5,21 @@ import type { FormEvent } from 'react'
 import { ActionButton } from '@/components/itineraries/shared/ActionButton'
 import { CheckboxRow } from '@/components/itineraries/shared/FieldPrimitives'
 import type { ItineraryFull, TripDetailsInput } from '@/stores/builderStore'
+import GuestFormChecklist from './GuestFormChecklist'
 import * as S from './ConfirmTripModal.styled'
 
 interface Props {
   itinerary: ItineraryFull
-  /** Resolves to an error message, or null once the trip is confirmed. */
-  onSubmit: (trip: TripDetailsInput, notifyTraveller: boolean) => Promise<string | null>
+  /**
+   * Resolves to an error message, or null once the trip is confirmed.
+   * guestFormIds: the forms the trip should ask for, in order; null if the
+   * forms never finished loading, so the trip's forms are left as they are.
+   */
+  onSubmit: (
+    trip: TripDetailsInput,
+    notifyTraveller: boolean,
+    guestFormIds: string[] | null,
+  ) => Promise<string | null>
   onCancel: () => void
 }
 
@@ -27,6 +36,7 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [notifyTraveller, setNotifyTraveller] = useState(true)
+  const [guestFormIds, setGuestFormIds] = useState<string[] | null>(null)
 
   const prefilledFromRows = !itinerary.startDate && suggested.startDate !== ''
 
@@ -38,7 +48,7 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
 
     setError(null)
     setSubmitting(true)
-    const err = await onSubmit({ clientEmail, clientPhone, startDate, endDate }, notifyTraveller)
+    const err = await onSubmit({ clientEmail, clientPhone, startDate, endDate }, notifyTraveller, guestFormIds)
     setSubmitting(false)
     if (err) setError(err)
   }
@@ -97,6 +107,8 @@ export default function ConfirmTripModal({ itinerary, onSubmit, onCancel }: Prop
           </S.FieldRow>
           {prefilledFromRows && <S.Hint>Suggested from the day-by-day dates.</S.Hint>}
         </S.FieldGroup>
+
+        <GuestFormChecklist itineraryId={itinerary.id} selected={guestFormIds} onChange={setGuestFormIds} />
 
         <CheckboxRow>
           <input

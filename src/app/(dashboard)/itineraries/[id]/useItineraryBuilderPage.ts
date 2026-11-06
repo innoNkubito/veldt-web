@@ -6,6 +6,7 @@ import { useClientStore } from '@/stores/clientStore'
 import { useProfileStore } from '@/stores/profileStore'
 import { useTemplateStore, type TemplateDetailsInput } from '@/stores/templateStore'
 import { confirmDialog } from '@/stores/confirmStore'
+import { useTripGuestFormsStore } from '@/stores/tripGuestFormsStore'
 import { routeParam } from '@/lib/guards'
 import { focusSection } from '@/lib/focusSection'
 import type { FixTarget } from '@/components/itineraries/PublishModal/PublishModal.types'
@@ -73,8 +74,14 @@ export function useItineraryBuilderPage() {
     focusSection(target.section)
   }
 
-  async function confirmTrip(trip: TripDetailsInput, notifyTraveller: boolean) {
+  async function confirmTrip(trip: TripDetailsInput, notifyTraveller: boolean, guestFormIds: string[] | null) {
     if (!itinerary) return null
+    // Forms first: if they can't be saved, the trip stays unconfirmed and the
+    // modal shows why, rather than confirming without the forms asked for.
+    if (guestFormIds) {
+      const formsErr = await useTripGuestFormsStore.getState().syncSelection(guestFormIds)
+      if (formsErr) return formsErr
+    }
     const err = await setItineraryStatus(itinerary.id, 'CONFIRMED', trip, notifyTraveller)
     // Errors are shown inside the Confirm modal, which stays open
     if (!err) {

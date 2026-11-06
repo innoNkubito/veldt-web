@@ -145,3 +145,14 @@ export function guestIdentityFields(perGuest: boolean): GuestFormField[] {
     },
   ]
 }
+
+/** A form attached to a trip, as the trip's screens need it. */
+export interface TripGuestForm {
+  id: string
+  position: number
+  guestForm: Pick<GuestForm, 'id' | 'name' | 'perGuest' | 'questionCount' | 'archivedAt'>
+}
+
+/** A trip's forms can change until it is completed or archived (mirrors the API). */
+export const tripFormsEditable = (status: string | undefined) =>
+  status === 'DRAFT' || status === 'PUBLISHED' || status === 'CONFIRMED' || status === 'TRAVELLING'

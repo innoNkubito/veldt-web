@@ -10,6 +10,7 @@ import {
   CheckboxRow,
 } from '@/components/itineraries/shared/FieldPrimitives'
 import InfoPagesCard from '@/components/itineraries/InfoPagesCard'
+import GuestFormsCard from '@/components/itineraries/GuestFormsCard'
 import { formatTimestamp } from '@/lib/dates'
 import * as S from './OverviewTab.styled'
 import { useOverviewTab } from './useOverviewTab'
@@ -92,6 +93,9 @@ export default function OverviewTab() {
 
       {/* Information pages — full width */}
       <InfoPagesCard />
+
+      {/* Guest forms — full width */}
+      <GuestFormsCard />
 
       <S.WideCard>
         <S.CardTitle>{COPY.shareLink}</S.CardTitle>
