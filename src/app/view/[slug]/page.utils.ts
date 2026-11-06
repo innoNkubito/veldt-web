@@ -30,4 +30,6 @@ export function acceptsFlights(status: string): boolean {
 
 export const flightsPath = (slug: string) => `/view/${slug}/flights`
 
+export const formsPath = (slug: string) => `/view/${slug}/forms`
+
 export const sharePath = (slug: string) => `/view/${slug}`

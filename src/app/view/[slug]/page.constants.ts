@@ -10,6 +10,7 @@ export const GET_BY_SLUG = gql`
     itineraryBySlug(slug: $slug) {
       id proposalTitle preparedFor travelDates whiteLabel slug
       status startDate endDate
+      guestForms { id }
       brand { name logoUrl } reference
       tripContact { name email }
       operatorContact { name phone whatsapp email }
@@ -77,6 +78,14 @@ export const FOOTER_COPY = {
   before: 'Built with',
   brand: 'Veldt',
   after: '— the safari itinerary platform',
+} as const
+
+export const FORMS_PROMPT = {
+  text: (count: number) =>
+    count === 1
+      ? 'Your travel advisor needs a few details from you — one short form.'
+      : `Your travel advisor needs a few details from you — ${count} short forms.`,
+  action: 'Fill in',
 } as const
 
 export const FLIGHTS_PROMPT = {

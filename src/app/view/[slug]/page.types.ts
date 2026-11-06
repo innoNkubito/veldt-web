@@ -67,6 +67,8 @@ export interface PublicItinerary {
   /** Printed on every page, e.g. VLD-4F2A9C. */
   reference: string
   status: string
+  /** Attached guest forms; the API returns none unless the trip is CONFIRMED or TRAVELLING. */
+  guestForms: { id: string }[]
   startDate: string | null // YYYY-MM-DD
   endDate: string | null // YYYY-MM-DD
   /** Confirmed flights; empty until the trip is under way. */

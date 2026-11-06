@@ -21,6 +21,7 @@ import {
   BOOK_SECTION_ID,
   BOOKING_COPY,
   FLIGHTS_PROMPT,
+  FORMS_PROMPT,
   FOOTER_COPY,
   LOADING_MESSAGE,
   NOT_FOUND,
@@ -80,6 +81,12 @@ export default function SharePage() {
         </S.CoverPanel>
 
         <S.ViewContent ref={contentRef}>
+          {view.formsLink && (
+            <S.FlightsPrompt>
+              <span>{FORMS_PROMPT.text(view.formsCount)}</span>
+              <S.FlightsPromptLink href={view.formsLink}>{FORMS_PROMPT.action}</S.FlightsPromptLink>
+            </S.FlightsPrompt>
+          )}
           {view.flightsLink && (
             <S.FlightsPrompt>
               <span>{FLIGHTS_PROMPT.text}</span>

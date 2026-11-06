@@ -16,7 +16,7 @@ import { GET_BY_SLUG, RECORD_VIEW } from './page.constants'
 import {
   acceptsFlights,
   bookingPath,
-  flightsPath,
+  flightsPath, formsPath,
   isBookable,
   isTripMode,
   lowestPackagePrice,
@@ -74,6 +74,8 @@ export function useSharePage() {
       rows,
       tripMode: isTripMode(itinerary.status),
       flightsLink: acceptsFlights(itinerary.status) ? flightsPath(itinerary.slug) : null,
+      formsCount: itinerary.guestForms.length,
+      formsLink: itinerary.guestForms.length > 0 ? formsPath(itinerary.slug) : null,
       glance: tripGlance(rows),
       taggedPages: collectTaggedPages(rows),
       costs: hasCosts(itinerary.costs) ? itinerary.costs : null,
