@@ -1,0 +1,16 @@
+export const COPY = {
+  typeLabel: 'Type',
+  questionLabel: 'Question',
+  headingLabel: 'Heading',
+  questionPlaceholder: 'e.g. Passport number',
+  headingPlaceholder: 'e.g. Health',
+  helpLabel: 'Help text',
+  helpPlaceholder: 'Optional — shown under the question',
+  optionsLabel: 'Options',
+  optionsHint: 'One per line',
+  required: 'Required',
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  duplicate: 'Duplicate',
+  remove: 'Remove',
+} as const
