@@ -20,8 +20,11 @@ function headersToObject(headers: RequestInit["headers"]): Record<string, string
 // Accepts an async getToken so Clerk refreshes the token on every request
 // rather than relying on a cached string that goes stale after navigation.
 export function createGqlClient(getToken: () => Promise<string | null> | string | null) {
+  // Default errorPolicy ("none"): any GraphQL error rejects with a ClientError.
+  // Every store wraps its request in try/catch and reads the message through
+  // gqlErrorMessage, which expects exactly that. "all" resolved with
+  // data: null instead, so an API error surfaced as a TypeError on `data.x`.
   return new GraphQLClient(API_URL, {
-    errorPolicy: "all",
     requestMiddleware: async (request) => {
       const token = await getToken();
       return {
