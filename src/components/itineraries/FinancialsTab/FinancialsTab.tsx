@@ -1,16 +1,17 @@
 'use client'
 
 import BookingSection from './BookingSection'
+import InvoicesSection from './InvoicesSection'
 import QuoteSection from './QuoteSection'
 import { SECTIONS } from './FinancialsTab.constants'
 import { scrollToSection } from './FinancialsTab.utils'
 import * as S from './FinancialsTab.styled'
 
-const [QUOTE, BOOKING] = SECTIONS
+const [QUOTE, BOOKING, INVOICES] = SECTIONS
 
 /**
  * Everything about the money for a trip, on one tab: the quote the proposal
- * shows, then how the client books and pays. Invoices join as a third section.
+ * shows, how the client books and pays, and the invoices sent to them.
  */
 export default function FinancialsTab() {
   return (
@@ -38,6 +39,14 @@ export default function FinancialsTab() {
           <S.SectionHint>{BOOKING.hint}</S.SectionHint>
         </S.SectionHead>
         <BookingSection />
+      </S.Section>
+
+      <S.Section id={INVOICES.id} aria-labelledby={`${INVOICES.id}-title`}>
+        <S.SectionHead>
+          <S.SectionTitle id={`${INVOICES.id}-title`} tabIndex={-1}>{INVOICES.label}</S.SectionTitle>
+          <S.SectionHint>{INVOICES.hint}</S.SectionHint>
+        </S.SectionHead>
+        <InvoicesSection />
       </S.Section>
     </S.Root>
   )

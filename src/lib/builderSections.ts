@@ -7,6 +7,7 @@ export const BUILDER_SECTION = {
   days: 'builder-days',
   financialsQuote: 'builder-financials-quote',
   financialsBooking: 'builder-financials-booking',
+  financialsInvoices: 'builder-financials-invoices',
   bookingMode: 'builder-booking-mode',
   bookingProcessor: 'builder-booking-processor',
   bookingPackages: 'builder-booking-packages',
