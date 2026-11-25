@@ -1,3 +1,5 @@
+'use client'
+
 import styled from '@emotion/styled'
 import { T } from '@/lib/theme'
 
@@ -35,36 +37,21 @@ export const FullRow = styled.div`
   grid-column: 1 / -1;
 `
 
-export const ConfirmRow = styled.label<{ $checked: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
-  border-radius: 8px;
-  background: ${({ $checked }) => ($checked ? T.sageLt : T.dim)};
-  border: 1px solid ${({ $checked }) => ($checked ? T.sage : T.border)};
-  cursor: pointer;
-  font-size: 13px;
-  color: ${T.text};
-  transition: background 0.15s, border-color 0.15s;
-`
-
-export const ConfirmCheckbox = styled.input`
-  width: 16px;
-  height: 16px;
-  accent-color: ${T.sage};
-  cursor: pointer;
-`
-
-export const ConfirmNote = styled.div`
-  font-size: 11.5px;
-  color: ${T.muted};
-  margin-top: 8px;
+/** A visibility toggle sitting under a rich-text field. */
+export const VisibilityToggle = styled.div`
+  margin-top: 6px;
 `
 
 export const SaveRow = styled.div`
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 12px;
+`
+
+export const DirtyNote = styled.span`
+  font-size: 12px;
+  color: ${T.muted};
 `
 
 export const FieldHint = styled.div`

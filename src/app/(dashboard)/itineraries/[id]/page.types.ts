@@ -1,1 +1,1 @@
-export type BuilderTab = 'overview' | 'trip' | 'rows' | 'costs' | 'booking' | 'preview'
+export type BuilderTab = 'overview' | 'trip' | 'rows' | 'financials' | 'preview'

@@ -4,8 +4,7 @@ import { useRouter } from 'next/navigation'
 import ItineraryStatusBadge from '@/components/itineraries/ItineraryStatusBadge'
 import OverviewTab from '@/components/itineraries/OverviewTab'
 import RowsTab from '@/components/itineraries/RowsTab'
-import CostsTab from '@/components/itineraries/CostsTab'
-import BookingTab from '@/components/itineraries/BookingTab'
+import FinancialsTab from '@/components/itineraries/FinancialsTab'
 import PreviewTab from '@/components/itineraries/PreviewTab'
 import TripTab from '@/components/itineraries/TripTab'
 import PublishModal from '@/components/itineraries/PublishModal'
@@ -166,8 +165,7 @@ export default function ItineraryBuilderPage() {
       {currentTab === 'overview' && <OverviewTab key={itinerary.id} />}
       {currentTab === 'trip' && <TripTab />}
       {currentTab === 'rows' && <RowsTab />}
-      {currentTab === 'costs' && <CostsTab key={itinerary.id} />}
-      {currentTab === 'booking' && <BookingTab />}
+      {currentTab === 'financials' && <FinancialsTab key={itinerary.id} />}
       {currentTab === 'preview' && <PreviewTab />}
 
       {/* ── Modals ───────────────────────────────────────────── */}

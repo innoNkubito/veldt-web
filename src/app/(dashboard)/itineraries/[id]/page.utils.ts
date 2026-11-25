@@ -6,9 +6,13 @@ export function showsTripTab(status: string | undefined): boolean {
   return status === 'CONFIRMED' || status === 'TRAVELLING' || status === 'COMPLETED'
 }
 
+/** Tabs that were merged into another; old links still land somewhere sensible. */
+const RENAMED_TABS: Record<string, BuilderTab> = { costs: 'financials', booking: 'financials' }
+
 /** A valid ?tab= value, or null. */
 export function tabFromQuery(search: string): BuilderTab | null {
-  const tab = new URLSearchParams(search).get('tab')
+  const raw = new URLSearchParams(search).get('tab')
+  const tab = raw ? (RENAMED_TABS[raw] ?? raw) : null
   return TABS.some((t) => t.key === tab) ? (tab as BuilderTab) : null
 }
 

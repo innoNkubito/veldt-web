@@ -3,7 +3,7 @@ import type { BuilderSectionId } from '@/lib/builderSections'
 
 /** Where an issue is fixed: the builder tab and the section on it. */
 export interface FixTarget {
-  tab: 'rows' | 'costs' | 'booking'
+  tab: 'rows' | 'financials'
   section: BuilderSectionId
 }
 

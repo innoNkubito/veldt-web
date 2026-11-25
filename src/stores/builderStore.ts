@@ -218,7 +218,6 @@ export interface ItineraryCosts {
   accommodationType: string | null
   currency: string
   costsToBeDetetermined: boolean
-  accuracyConfirmed: boolean
   miscText: string | null
   miscVisible: boolean
   costNotes: string | null
@@ -292,7 +291,7 @@ const GET_ITINERARY = gql`
       }
       costs {
         id pricePerPerson numGuests accommodationType currency
-        costsToBeDetetermined accuracyConfirmed
+        costsToBeDetetermined
         miscText miscVisible costNotes notesVisible
         costIncludes costExcludes priceVisible
       }
@@ -377,13 +376,12 @@ const RESTORE_ITINERARY = gql`
 export interface PublishIssue {
   code:
     | 'NO_DAYS'
-    | 'COSTS_UNCONFIRMED'
     | 'BOOKING_NO_PROCESSOR'
     | 'BOOKING_NO_PACKAGE'
     | 'BOOKING_NO_SCHEDULE'
     | 'BOOKING_NO_EXTERNAL_LINK'
   message: string
-  tab: 'ROWS' | 'COSTS' | 'BOOKING'
+  tab: 'ROWS' | 'FINANCIALS'
 }
 
 const PUBLISH_ISSUES = gql`
@@ -470,7 +468,7 @@ const UPSERT_COSTS = gql`
   mutation UpsertCosts($itineraryId: ID!, $input: CostsInput!) {
     upsertCosts(itineraryId: $itineraryId, input: $input) {
       id pricePerPerson numGuests accommodationType currency
-      costsToBeDetetermined accuracyConfirmed
+      costsToBeDetetermined
       miscText miscVisible costNotes notesVisible
       costIncludes costExcludes priceVisible
     }

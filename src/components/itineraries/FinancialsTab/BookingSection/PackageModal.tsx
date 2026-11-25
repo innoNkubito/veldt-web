@@ -8,7 +8,7 @@ import {
   FieldTextarea,
 } from '@/components/itineraries/shared/FieldPrimitives'
 import type { BookingPackage, PackageInput } from '@/stores/bookingStore'
-import * as S from './BookingTab.styled'
+import * as S from './BookingSection.styled'
 
 interface Props {
   existing: BookingPackage | null // null = create

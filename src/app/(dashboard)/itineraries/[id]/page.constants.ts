@@ -4,8 +4,7 @@ export const TABS: { key: BuilderTab; label: string }[] = [
   { key: 'overview', label: 'Overview' },
   { key: 'trip', label: 'Trip' },
   { key: 'rows', label: 'Day-by-Day' },
-  { key: 'costs', label: 'Costs' },
-  { key: 'booking', label: 'Booking' },
+  { key: 'financials', label: 'Financials' },
   { key: 'preview', label: 'Preview' },
 ]
 

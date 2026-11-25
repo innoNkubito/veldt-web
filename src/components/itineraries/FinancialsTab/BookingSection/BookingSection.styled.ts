@@ -1,3 +1,5 @@
+'use client'
+
 import styled from '@emotion/styled'
 import { T } from '@/lib/theme'
 
@@ -180,6 +182,13 @@ export const ItemPrice = styled.div`
   font-weight: 600;
   color: ${T.text};
   white-space: nowrap;
+`
+
+/** "per person" under an add-on's price. */
+export const PriceUnit = styled.div`
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: 0.65;
 `
 
 export const ItemActions = styled.div`
