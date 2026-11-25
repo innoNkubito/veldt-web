@@ -1,7 +1,7 @@
-"use client";
+'use client'
 
-import styled from "@emotion/styled";
-import { T } from "@/lib/theme";
+import styled from '@emotion/styled'
+import { T } from '@/lib/theme'
 
 export const Card = styled.div`
   background: ${T.card};
@@ -9,7 +9,7 @@ export const Card = styled.div`
   border-radius: 10px;
   padding: 22px 26px;
   margin-bottom: 16px;
-`;
+`
 
 export const Row = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ export const Row = styled.div`
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-`;
+`
 
 export const Intro = styled.p`
   font-size: 12.5px;
@@ -30,24 +30,24 @@ export const Intro = styled.p`
     color: ${T.terra};
     font-weight: 600;
   }
-`;
+`
 
 export const Muted = styled.p`
   font-size: 12.5px;
   color: ${T.muted};
   margin: 12px 0 0;
-`;
+`
 
 export const List = styled.ul`
   list-style: none;
   margin: 18px 0 0;
   padding: 0;
   border-top: 1px solid ${T.border};
-`;
+`
 
 export const Item = styled.li`
   border-bottom: 1px solid ${T.border};
-`;
+`
 
 export const ItemButton = styled.button`
   width: 100%;
@@ -75,12 +75,12 @@ export const ItemButton = styled.button`
   @media (max-width: 760px) {
     grid-template-columns: 1fr auto;
   }
-`;
+`
 
 export const Mono = styled.span`
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
   font-size: 12.5px;
-`;
+`
 
 export const Sub = styled.span`
   color: ${T.sub};
@@ -89,13 +89,13 @@ export const Sub = styled.span`
   @media (max-width: 760px) {
     display: none;
   }
-`;
+`
 
 export const Badges = styled.span`
   display: inline-flex;
   gap: 6px;
   justify-content: flex-end;
-`;
+`
 
 export const Badge = styled.span<{ $color: string; $bg: string }>`
   display: inline-block;
@@ -106,7 +106,7 @@ export const Badge = styled.span<{ $color: string; $bg: string }>`
   color: ${(p) => p.$color};
   background: ${(p) => p.$bg};
   white-space: nowrap;
-`;
+`
 
 export const Notice = styled.div<{ $error?: boolean }>`
   font-size: 12.5px;
@@ -117,7 +117,7 @@ export const Notice = styled.div<{ $error?: boolean }>`
   background: ${(p) => (p.$error ? T.dangerLt : T.successLt)};
   border: 1px solid ${(p) => (p.$error ? T.dangerBd : T.successBd)};
   cursor: pointer;
-`;
+`
 
 // ── Open invoice ──────────────────────────────────────────────
 
@@ -127,7 +127,7 @@ export const Toolbar = styled.div`
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;
-`;
+`
 
 export const Back = styled.button`
   background: none;
@@ -142,13 +142,13 @@ export const Back = styled.button`
   &:hover {
     color: ${T.text};
   }
-`;
+`
 
 export const ToolbarTitle = styled.span`
   font-size: 14px;
   font-weight: 700;
   margin-right: auto;
-`;
+`
 
 /** Form (or actions) on the left, the invoice on the right. */
 export const Split = styled.div`
@@ -160,7 +160,7 @@ export const Split = styled.div`
   @media (max-width: 1100px) {
     grid-template-columns: 1fr;
   }
-`;
+`
 
 export const Sticky = styled.div`
   position: sticky;
@@ -169,7 +169,7 @@ export const Sticky = styled.div`
   @media (max-width: 1100px) {
     position: static;
   }
-`;
+`
 
 export const PanelTitle = styled.h4`
   font-size: 11px;
@@ -178,7 +178,7 @@ export const PanelTitle = styled.h4`
   letter-spacing: 0.08em;
   color: ${T.muted};
   margin: 0 0 12px;
-`;
+`
 
 export const Grid = styled.div`
   display: grid;
@@ -188,11 +188,11 @@ export const Grid = styled.div`
   @media (max-width: 600px) {
     grid-template-columns: 1fr;
   }
-`;
+`
 
 export const Full = styled.div`
   grid-column: 1 / -1;
-`;
+`
 
 export const Issues = styled.ul`
   margin: 0 0 14px;
@@ -203,7 +203,7 @@ export const Issues = styled.ul`
   color: ${T.warningDk};
   font-size: 12.5px;
   line-height: 1.6;
-`;
+`
 
 export const Facts = styled.dl`
   display: grid;
@@ -220,20 +220,20 @@ export const Facts = styled.dl`
     text-align: right;
     font-weight: 600;
   }
-`;
+`
 
 export const Actions = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
-`;
+`
 
 export const Payments = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
-`;
+`
 
 export const Payment = styled.li`
   display: flex;
@@ -246,12 +246,12 @@ export const Payment = styled.li`
   &:last-child {
     border-bottom: none;
   }
-`;
+`
 
 export const Grow = styled.span`
   flex: 1;
   color: ${T.sub};
-`;
+`
 
 export const LinkText = styled.code`
   display: block;
@@ -262,7 +262,7 @@ export const LinkText = styled.code`
   border-radius: 6px;
   word-break: break-all;
   margin-top: 10px;
-`;
+`
 
 export const DangerLink = styled.button`
   background: none;
@@ -278,7 +278,7 @@ export const DangerLink = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
-`;
+`
 
 // ── Modals ────────────────────────────────────────────────────
 
@@ -291,7 +291,7 @@ export const Overlay = styled.div`
   justify-content: center;
   z-index: 100;
   padding: 16px;
-`;
+`
 
 export const ModalCard = styled.div`
   width: 480px;
@@ -305,7 +305,7 @@ export const ModalCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 14px;
-`;
+`
 
 export const ModalTitle = styled.h3`
   font-family: var(--font-playfair);
@@ -313,27 +313,27 @@ export const ModalTitle = styled.h3`
   font-weight: 500;
   margin: 0;
   color: ${T.text};
-`;
+`
 
 export const ModalText = styled.p`
   font-size: 13px;
   color: ${T.sub};
   line-height: 1.55;
   margin: 0;
-`;
+`
 
 export const ModalActions = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   margin-top: 4px;
-`;
+`
 
 export const ModalError = styled.p`
   font-size: 12.5px;
   color: ${T.dangerDk};
   margin: 0;
-`;
+`
 
 export const Choice = styled.label<{ $active: boolean; $disabled?: boolean }>`
   display: block;
@@ -341,7 +341,7 @@ export const Choice = styled.label<{ $active: boolean; $disabled?: boolean }>`
   border-radius: 9px;
   border: 1.5px solid ${(p) => (p.$active ? T.terra : T.border)};
   background: ${(p) => (p.$active ? T.terraLt : T.card)};
-  cursor: ${(p) => (p.$disabled ? "not-allowed" : "pointer")};
+  cursor: ${(p) => (p.$disabled ? 'not-allowed' : 'pointer')};
   opacity: ${(p) => (p.$disabled ? 0.5 : 1)};
 
   input {
@@ -349,16 +349,16 @@ export const Choice = styled.label<{ $active: boolean; $disabled?: boolean }>`
     opacity: 0;
     pointer-events: none;
   }
-`;
+`
 
 export const ChoiceLabel = styled.div`
   font-size: 13px;
   font-weight: 700;
   color: ${T.text};
-`;
+`
 
 export const ChoiceHint = styled.div`
   font-size: 12px;
   color: ${T.sub};
   margin-top: 2px;
-`;
+`

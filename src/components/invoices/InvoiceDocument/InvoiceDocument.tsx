@@ -1,35 +1,23 @@
-"use client";
+'use client'
 
-import { formatDay, formatMoney } from "@/lib/invoices";
-import { COPY, STAGE_STATE } from "./InvoiceDocument.constants";
-import type { InvoiceDocumentData } from "./InvoiceDocument.types";
-import * as S from "./InvoiceDocument.styled";
+import { formatDay, formatMoney } from '@/lib/invoices'
+import { COPY, STAGE_STATE } from './InvoiceDocument.constants'
+import type { InvoiceDocumentData } from './InvoiceDocument.types'
+import * as S from './InvoiceDocument.styled'
 
 /**
  * The invoice as the client sees it. Used for the builder's live preview and
  * the client's /invoice page, so both always match.
  */
-export default function InvoiceDocument({
-  invoice,
-}: {
-  invoice: InvoiceDocumentData;
-}) {
-  const money = (n: number) => formatMoney(n, invoice.currency);
-  const { issuer } = invoice;
-  const contact = [issuer.email, issuer.phone].filter(Boolean).join(" · ");
+export default function InvoiceDocument({ invoice }: { invoice: InvoiceDocumentData }) {
+  const money = (n: number) => formatMoney(n, invoice.currency)
+  const { issuer } = invoice
+  const contact = [issuer.email, issuer.phone].filter(Boolean).join(' · ')
 
   return (
-    <S.Paper
-      aria-label={
-        invoice.number ? `Invoice ${invoice.number}` : "Invoice preview"
-      }
-    >
-      {invoice.status === "PAID" && (
-        <S.Stamp $tone="paid">{COPY.stampPaid}</S.Stamp>
-      )}
-      {invoice.status === "VOID" && (
-        <S.Stamp $tone="void">{COPY.stampVoid}</S.Stamp>
-      )}
+    <S.Paper aria-label={invoice.number ? `Invoice ${invoice.number}` : 'Invoice preview'}>
+      {invoice.status === 'PAID' && <S.Stamp $tone="paid">{COPY.stampPaid}</S.Stamp>}
+      {invoice.status === 'VOID' && <S.Stamp $tone="void">{COPY.stampVoid}</S.Stamp>}
 
       <S.Head>
         <div>
@@ -52,7 +40,7 @@ export default function InvoiceDocument({
       <S.Meta>
         <div>
           <S.MetaLabel>{COPY.billTo}</S.MetaLabel>
-          <div>{invoice.billToName || "—"}</div>
+          <div>{invoice.billToName || '—'}</div>
           {invoice.billToAddress && <S.Small>{invoice.billToAddress}</S.Small>}
           {invoice.billToEmail && <S.Small>{invoice.billToEmail}</S.Small>}
         </div>
@@ -91,9 +79,7 @@ export default function InvoiceDocument({
                 <td>{line.description}</td>
                 <td className="num">{line.quantity}</td>
                 <td className="num">{money(line.unitPrice)}</td>
-                <td className="num">
-                  {line.taxRate ? `${line.taxRate}%` : "—"}
-                </td>
+                <td className="num">{line.taxRate ? `${line.taxRate}%` : '—'}</td>
                 <td className="num">{money(line.lineTotal)}</td>
               </tr>
             ))}
@@ -136,25 +122,20 @@ export default function InvoiceDocument({
           <S.Table>
             <tbody>
               {invoice.stages.map((stage, i) => {
-                const state = STAGE_STATE[stage.state];
+                const state = STAGE_STATE[stage.state]
                 return (
                   <tr key={i}>
                     <td>{stage.label}</td>
                     <td>{formatDay(stage.dueDate)}</td>
                     <td className="num">{money(stage.amount)}</td>
                     <td className="num">
-                      {invoice.status !== "DRAFT" &&
-                        invoice.status !== "VOID" && (
-                          <S.StageState $color={state.color}>
-                            {state.label}
-                          </S.StageState>
-                        )}
-                      {stage.payHref && (
-                        <S.PayLink href={stage.payHref}>{COPY.pay}</S.PayLink>
+                      {invoice.status !== 'DRAFT' && invoice.status !== 'VOID' && (
+                        <S.StageState $color={state.color}>{state.label}</S.StageState>
                       )}
+                      {stage.payHref && <S.PayLink href={stage.payHref}>{COPY.pay}</S.PayLink>}
                     </td>
                   </tr>
-                );
+                )
               })}
             </tbody>
           </S.Table>
@@ -181,5 +162,5 @@ export default function InvoiceDocument({
         </S.Block>
       )}
     </S.Paper>
-  );
+  )
 }

@@ -1,32 +1,21 @@
-"use client";
+'use client'
 
-import { ActionButton } from "@/components/itineraries/shared/ActionButton";
-import {
-  Field,
-  FieldInput,
-  FieldLabel,
-  FieldTextarea,
-} from "@/components/itineraries/shared/FieldPrimitives";
-import HtmlRichTextEditor from "@/components/itineraries/HtmlRichTextEditor";
-import InvoiceDocument from "@/components/invoices/InvoiceDocument";
-import type { ClientInvoice } from "@/lib/invoices";
-import type { InvoicesSectionModel } from "../useInvoicesSection";
-import * as Section from "../InvoicesSection.styled";
-import LinesEditor from "./LinesEditor";
-import StagesEditor from "./StagesEditor";
-import { useInvoiceEditor } from "./useInvoiceEditor";
-import * as S from "./InvoiceEditor.styled";
+import { ActionButton } from '@/components/itineraries/shared/ActionButton'
+import { Field, FieldInput, FieldLabel, FieldTextarea } from '@/components/itineraries/shared/FieldPrimitives'
+import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
+import InvoiceDocument from '@/components/invoices/InvoiceDocument'
+import type { ClientInvoice } from '@/lib/invoices'
+import type { InvoicesSectionModel } from '../useInvoicesSection'
+import * as Section from '../InvoicesSection.styled'
+import LinesEditor from './LinesEditor'
+import StagesEditor from './StagesEditor'
+import { useInvoiceEditor } from './useInvoiceEditor'
+import * as S from './InvoiceEditor.styled'
 
 /** A draft: the form on the left, the invoice as the client will see it on the right. */
-export default function InvoiceEditor({
-  invoice,
-  model,
-}: {
-  invoice: ClientInvoice;
-  model: InvoicesSectionModel;
-}) {
-  const e = useInvoiceEditor(invoice, model);
-  const { form } = e;
+export default function InvoiceEditor({ invoice, model }: { invoice: ClientInvoice; model: InvoicesSectionModel }) {
+  const e = useInvoiceEditor(invoice, model)
+  const { form } = e
 
   return (
     <>
@@ -36,9 +25,7 @@ export default function InvoiceEditor({
         </Section.Back>
         <Section.ToolbarTitle>
           Draft invoice
-          {invoice.replacesNumber
-            ? ` · replaces ${invoice.replacesNumber}`
-            : ""}
+          {invoice.replacesNumber ? ` · replaces ${invoice.replacesNumber}` : ''}
         </Section.ToolbarTitle>
       </Section.Toolbar>
 
@@ -61,7 +48,7 @@ export default function InvoiceEditor({
                   id="inv-bill-name"
                   value={form.billToName}
                   maxLength={160}
-                  onChange={(ev) => e.setField("billToName", ev.target.value)}
+                  onChange={(ev) => e.setField('billToName', ev.target.value)}
                 />
               </Field>
               <Field>
@@ -70,7 +57,7 @@ export default function InvoiceEditor({
                   id="inv-bill-email"
                   type="email"
                   value={form.billToEmail}
-                  onChange={(ev) => e.setField("billToEmail", ev.target.value)}
+                  onChange={(ev) => e.setField('billToEmail', ev.target.value)}
                 />
               </Field>
               <Section.Full>
@@ -81,9 +68,7 @@ export default function InvoiceEditor({
                     rows={2}
                     value={form.billToAddress}
                     placeholder="Optional"
-                    onChange={(ev) =>
-                      e.setField("billToAddress", ev.target.value)
-                    }
+                    onChange={(ev) => e.setField('billToAddress', ev.target.value)}
                   />
                 </Field>
               </Section.Full>
@@ -102,25 +87,15 @@ export default function InvoiceEditor({
 
           <S.Section>
             <Section.PanelTitle>Notes</Section.PanelTitle>
-            <HtmlRichTextEditor
-              content={form.notes}
-              onChange={(html) => e.setField("notes", html)}
-            />
+            <HtmlRichTextEditor content={form.notes} onChange={(html) => e.setField('notes', html)} />
           </S.Section>
           <S.Section>
             <Section.PanelTitle>Terms</Section.PanelTitle>
-            <HtmlRichTextEditor
-              content={form.terms}
-              onChange={(html) => e.setField("terms", html)}
-            />
+            <HtmlRichTextEditor content={form.terms} onChange={(html) => e.setField('terms', html)} />
           </S.Section>
 
           <S.Footer>
-            <Section.DangerLink
-              type="button"
-              onClick={e.remove}
-              disabled={e.saving}
-            >
+            <Section.DangerLink type="button" onClick={e.remove} disabled={e.saving}>
               Delete draft
             </Section.DangerLink>
             <S.Spacer />
@@ -131,7 +106,7 @@ export default function InvoiceEditor({
               disabled={e.saving || !e.dirty}
               $disabled={e.saving || !e.dirty}
             >
-              {e.saving ? "Saving…" : "Save draft"}
+              {e.saving ? 'Saving…' : 'Save draft'}
             </ActionButton>
             <ActionButton
               type="button"
@@ -150,5 +125,5 @@ export default function InvoiceEditor({
         </Section.Sticky>
       </Section.Split>
     </>
-  );
+  )
 }
