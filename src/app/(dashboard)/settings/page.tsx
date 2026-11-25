@@ -3,6 +3,8 @@
 import { UserProfile } from '@clerk/nextjs'
 import { T } from '@/lib/theme'
 import { useProfileStore } from '@/stores/profileStore'
+import InvoicingSettings from '@/components/settings/InvoicingSettings'
+import { SECTION_ID as INVOICING_SECTION_ID } from '@/components/settings/InvoicingSettings/InvoicingSettings.constants'
 import * as S from './page.styled'
 
 const clerkAppearance = {
@@ -77,6 +79,14 @@ export default function SettingsPage() {
               </div>
             </S.CardRow>
           </S.Card>
+        </S.Section>
+      )}
+
+      {/* Invoicing — issuer details on every client invoice; owners edit */}
+      {profile && (
+        <S.Section id={INVOICING_SECTION_ID}>
+          <S.SectionLabel>Invoicing</S.SectionLabel>
+          <InvoicingSettings />
         </S.Section>
       )}
 

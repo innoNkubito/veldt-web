@@ -6,6 +6,8 @@ export const BOOKING_OPENS_HINT =
 
 export const CURRENCY_HINT = 'Set with the quote above.'
 
+export const INVOICING_SETTINGS_PATH = '/settings#invoicing'
+
 export const FLOW_TYPES: readonly BookingFlowType[] = ['INSTANT', 'REQUEST']
 export const SURCHARGE_PAYERS: readonly SurchargePayer[] = ['CLIENT', 'OPERATOR']
 
@@ -21,8 +23,6 @@ export const EMPTY_FORM: BookingForm = {
   externalContact: '',
   flowType: 'INSTANT',
   processorConnectionId: '',
-  companyInfo: '',
-  invoiceNotes: '',
   termsAndConditions: '',
   allowCardPayments: false,
   surchargePayer: 'CLIENT',

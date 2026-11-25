@@ -53,7 +53,6 @@ export interface PublicBookingOptions {
   addons: PublicBookingAddon[]
   schedulePreview: PublicSchedulePreviewItem[]
   termsAndConditions: string | null
-  companyInfo: string | null
   allowCardPayments: boolean
   surchargePercent: number | null
 }
@@ -123,7 +122,6 @@ const GET_BOOKING_OPTIONS = gql`
       addons { id name description perPersonPrice limitCount }
       schedulePreview { description dueAtBooking dueDate amountType amountValue }
       termsAndConditions
-      companyInfo
       allowCardPayments
       surchargePercent
     }

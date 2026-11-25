@@ -52,8 +52,6 @@ export interface BookingConfig {
   currency: string
   processorConnectionId: string | null
   processorConnection: ProcessorConnection | null
-  companyInfo: string | null
-  invoiceNotes: string | null
   termsAndConditions: string | null
   allowCardPayments: boolean
   surchargePayer: SurchargePayer | null
@@ -72,8 +70,6 @@ export interface BookingConfigInput {
   externalContact?: string | null
   flowType?: BookingFlowType
   processorConnectionId?: string | null
-  companyInfo?: string | null
-  invoiceNotes?: string | null
   termsAndConditions?: string | null
   allowCardPayments?: boolean
   surchargePayer?: SurchargePayer | null
@@ -131,7 +127,7 @@ const CONFIG_FIELDS = `
   id itineraryId bookingMode externalUrl externalContact
   flowType currency processorConnectionId
   processorConnection { id type label status supportsCards supportsAch createdAt updatedAt }
-  companyInfo invoiceNotes termsAndConditions
+  termsAndConditions
   allowCardPayments surchargePayer surchargePercent achEnabled
   reminderDaysBefore
   packages { id name description price totalAvailable peopleIncluded position }

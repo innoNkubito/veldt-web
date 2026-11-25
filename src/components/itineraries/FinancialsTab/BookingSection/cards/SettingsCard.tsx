@@ -1,10 +1,11 @@
 'use client'
 
-import { Field, FieldInput, FieldLabel, FieldSelect, FieldTextarea } from '@/components/itineraries/shared/FieldPrimitives'
+import Link from 'next/link'
+import { Field, FieldInput, FieldLabel, FieldSelect } from '@/components/itineraries/shared/FieldPrimitives'
 import HtmlRichTextEditor from '@/components/itineraries/HtmlRichTextEditor'
 import { BUILDER_SECTION } from '@/lib/builderSections'
 import { parseOption } from '@/lib/guards'
-import { CURRENCY_HINT, FLOW_TYPES } from '../BookingSection.constants'
+import { CURRENCY_HINT, FLOW_TYPES, INVOICING_SETTINGS_PATH } from '../BookingSection.constants'
 import type { ProcessorProps, SettingsCardProps } from '../BookingSection.types'
 import * as S from '../BookingSection.styled'
 
@@ -68,26 +69,12 @@ export default function SettingsCard({
             </FieldSelect>
           </Field>
         </S.FullRow>
-        <S.FullRow>
-          <Field>
-            <FieldLabel htmlFor="booking-company">Company Info</FieldLabel>
-            <FieldTextarea
-              id="booking-company"
-              value={form.companyInfo}
-              onChange={(e) => setF('companyInfo', e.target.value)}
-              placeholder="Legal name, address, tax/VAT number — shown on invoices"
-            />
-          </Field>
-        </S.FullRow>
       </S.Grid>
 
-      <S.Spacer />
-      <FieldLabel>Invoice Notes</FieldLabel>
-      <HtmlRichTextEditor
-        content={form.invoiceNotes}
-        onChange={(html) => setF('invoiceNotes', html)}
-        placeholder="Notes shown on the invoice…"
-      />
+      <S.CardHint>
+        Your company details, bank details and invoice notes are set once for every trip in{' '}
+        <Link href={INVOICING_SETTINGS_PATH}>Settings → Invoicing</Link>.
+      </S.CardHint>
 
       <S.Spacer />
       <FieldLabel>Terms &amp; Conditions</FieldLabel>

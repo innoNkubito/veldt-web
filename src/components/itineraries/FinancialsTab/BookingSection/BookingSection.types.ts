@@ -14,8 +14,6 @@ export interface BookingForm {
   externalContact: string
   flowType: BookingFlowType
   processorConnectionId: string
-  companyInfo: string
-  invoiceNotes: string
   termsAndConditions: string
   allowCardPayments: boolean
   surchargePayer: SurchargePayer
